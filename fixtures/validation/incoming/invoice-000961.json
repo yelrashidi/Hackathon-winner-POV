@@ -1,0 +1,107 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/Invoice 000961.pdf",
+  "emailId": "EM-028",
+  "input": {
+    "invoiceId": "IN-invoice-000961",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Polar Freight Lines Ltd.",
+      "gstHstNumber": "995133220RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@polarfreight.example",
+    "invoiceNumber": "000961",
+    "invoiceDate": "2026-10-01",
+    "dueDate": "2026-10-31",
+    "receivedDate": "2026-10-29",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+      "province": "QC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "LTL shipment Montreal-Saskatoon",
+        "quantity": 1,
+        "unitPriceCents": 148813,
+        "amountCents": 148813,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "LTL shipment Montreal-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 184353,
+        "amountCents": 184353,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 3,
+        "description": "LTL shipment Calgary-Edmonton",
+        "quantity": 1,
+        "unitPriceCents": 163673,
+        "amountCents": 163673,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 4,
+        "description": "LTL shipment Winnipeg-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 37294,
+        "amountCents": 37294,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 5,
+        "description": "LTL shipment Hamilton-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 44613,
+        "amountCents": 44613,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 6,
+        "description": "Fuel surcharge (7.24%)",
+        "quantity": 1,
+        "unitPriceCents": 41901,
+        "amountCents": 41901,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 31032
+      },
+      {
+        "code": "QST9975",
+        "label": "QST (9.975%)",
+        "ratePct": 9.975,
+        "amountCents": 61910
+      }
+    ],
+    "subtotalCents": 620647,
+    "totalCents": 713589,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "004",
+      "transit": "95688",
+      "account": "410652201"
+    }
+  },
+  "expectedCodes": [
+    "QST_NUMBER_MISSING"
+  ],
+  "why": "QST charged without a QST number; otherwise clean."
+}

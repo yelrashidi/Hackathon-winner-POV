@@ -26,6 +26,20 @@ export {
   type InvoiceRef,
 } from "./decide";
 export { effectiveAssignee, type Resolution } from "./resolve";
+export {
+  saveApprovalPlan,
+  getApprovalPlans,
+  getCurrentApprovalPlan,
+  saveDecision,
+  importApprovalPlan,
+  setDefaultApprovalStore,
+  InMemoryApprovalStore,
+  ApprovalStoreError,
+  type ApprovalStore,
+  type ApprovalPlanRow,
+  type ApprovalStepRow,
+  type StoreOption,
+} from "./store";
 export { policiesFromCsv, DEFAULT_NEW_VENDOR_DAYS, type PolicyCsvRow } from "./policies-from-csv";
 export type {
   ApprovalContext,

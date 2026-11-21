@@ -12,10 +12,12 @@ How the code works and why. One doc per feature, written by its owner from
 | `1-intake.md` | *to write* | |
 | `2-extraction.md` | *to write* | |
 | `3-coding.md` | *to write* | |
-| `4-validation.md` | *to write* | |
+| [`4-validation.md`](4-validation.md) | validation: checks, flags, bad input, 100× | Andrew |
+| [`4-validation-plan.md`](4-validation-plan.md) | validation plan: design, every check, tests, open questions | Andrew |
 | `5-duplicates.md` | *to write* | |
 | [`6-approvals.md`](6-approvals.md) | approval routing, separation of duties, the approve/reject gate | Youssef |
 | [`6-approvals-edge-cases.md`](6-approvals-edge-cases.md) | every approvals edge case with `file:line` + test, what was left out, defaults to confirm | Youssef |
+| [`6-approvals-study-guide.md`](6-approvals-study-guide.md) | Q&A prep: every function, the logic traced on a real invoice, design reasons, likely questions | Youssef |
 | `7-payments.md` | *to write* | |
 | `8-audit.md` | *to write* | |
 | `9-vendors.md` | *to write* | |

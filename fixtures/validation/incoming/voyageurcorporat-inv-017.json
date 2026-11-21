@@ -1,0 +1,57 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/voyageurcorporat-inv-017.pdf",
+  "emailId": "EM-017",
+  "input": {
+    "invoiceId": "IN-voyageurcorporat-inv-017",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Voyageur Corporate Travel",
+      "gstHstNumber": "338192319RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@voyageurcorporate.example",
+    "invoiceNumber": "000903-A",
+    "invoiceDate": "2026-07-06",
+    "dueDate": "2026-07-21",
+    "receivedDate": "2026-10-27",
+    "currency": "CAD",
+    "paymentTermsDays": 15,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "250 6 Ave SW, Suite 700, Calgary AB T2P 3H7",
+      "province": "AB"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Airfare - Montreal-Montreal",
+        "quantity": 6,
+        "unitPriceCents": 88482,
+        "amountCents": 530892,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 26545
+      }
+    ],
+    "subtotalCents": 530892,
+    "totalCents": 557437,
+    "statedFxRate": null,
+    "remitTo": null
+  },
+  "expectedCodes": [
+    "DATE_TOO_OLD"
+  ],
+  "why": "Dated 2026-07-06, received 2026-10-27 (113 days). '000903-A' vs paid '000903' is a duplicate for feature 5, so not counted as a split."
+}

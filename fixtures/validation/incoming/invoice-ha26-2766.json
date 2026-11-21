@@ -1,0 +1,69 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/Invoice HA26-2766.pdf",
+  "emailId": "EM-026",
+  "input": {
+    "invoiceId": "IN-invoice-ha26-2766",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Harlow and Stern LLP",
+      "gstHstNumber": "503486760RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@harlowandstern-llp.example",
+    "invoiceNumber": "HA26-2766",
+    "invoiceDate": "2026-10-27",
+    "dueDate": "2026-11-26",
+    "receivedDate": "2026-10-28",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Legal services - Commercial lease review",
+        "quantity": 12,
+        "unitPriceCents": 45000,
+        "amountCents": 540000,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "Disbursements and filing fees",
+        "quantity": 1,
+        "unitPriceCents": 31000,
+        "amountCents": 31000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": 74230
+      }
+    ],
+    "subtotalCents": 571000,
+    "totalCents": 645230,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "010",
+      "transit": "40238",
+      "account": "593014216"
+    }
+  },
+  "expectedCodes": [
+    "VENDOR_LOOKALIKE"
+  ],
+  "why": "Vendor record V052 'Harlow and Stern LLP' (no history) resembles the established V026 'Harlow & Stern LLP'."
+}

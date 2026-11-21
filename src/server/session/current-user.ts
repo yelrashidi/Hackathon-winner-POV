@@ -1,5 +1,3 @@
-// Server only: reads cookies / the filesystem. No `import "server-only"`: it throws outside Next, which breaks main's check:imports (CI).
-
 // TEMP: demo sign-in. The "Viewing as" switcher stores only a user id in a cookie; the role is
 // always looked up here, on the server, from the employee record. No password, because this is a
 // demo — replace with real auth when the team builds it. The payment session reads the signed-in

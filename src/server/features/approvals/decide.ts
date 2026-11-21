@@ -187,6 +187,8 @@ export function checkDecision(
 }
 
 export interface DecisionResult {
+  /** The stored plan this decision was made on (undefined if the plan was never saved). */
+  planId: string | undefined;
   steps: ApprovalStep[];
   step: ApprovalStep;
   /** Event for core/fire: stepApproved → PendingApproval or Approved, stepRejected → InReview. */
@@ -195,7 +197,7 @@ export interface DecisionResult {
 }
 
 /** Applies exactly the actor and request checkDecision allowed: no way to check one thing and apply another. */
-export function applyDecision(plan: Pick<ApprovalPlan, "steps">, check: Extract<DecisionCheck, { ok: true }>, now: Date): DecisionResult {
+export function applyDecision(plan: Pick<ApprovalPlan, "steps" | "planId">, check: Extract<DecisionCheck, { ok: true }>, now: Date): DecisionResult {
   const { actorId, request } = check;
   const target = plan.steps.find((s) => s.seq === check.step.seq);
   if (!target || target.decision !== "pending" || currentStep(plan)?.seq !== target.seq) {
@@ -213,7 +215,7 @@ export function applyDecision(plan: Pick<ApprovalPlan, "steps">, check: Extract<
   };
   const steps = plan.steps.map((s) => (s.seq === decided.seq ? decided : s));
   const isLastStep = request.action === "approve" && steps.every((s) => s.decision === "approved");
-  return { steps, step: decided, event: request.action === "approve" ? "stepApproved" : "stepRejected", isLastStep };
+  return { planId: plan.planId, steps, step: decided, event: request.action === "approve" ? "stepApproved" : "stepRejected", isLastStep };
 }
 
 /**

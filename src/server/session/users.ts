@@ -1,5 +1,3 @@
-// Server only: reads cookies / the filesystem. No `import "server-only"`: it throws outside Next, which breaks main's check:imports (CI).
-
 // TEMP: reads the employee directory straight from the dataset CSV until the foundation's
 // `users` table exists. Field names match DirectoryUser in features/approvals/directory.ts so
 // the payment session can pass these users straight into its rules.
@@ -35,26 +33,23 @@ let cached: DirectoryUser[] | null = null;
 
 export function listUsers(): DirectoryUser[] {
   if (cached) return cached;
-  const [header, ...rows] = parseCsv(readFileSync(USERS_CSV, "utf8"));
-  if (!header) throw new Error("users.csv is empty");
-  const at = (r: string[], name: string): string => {
-    const i = header.indexOf(name);
-    if (i < 0) throw new Error(`users.csv has no column "${name}"`);
-    return r[i] ?? "";
-  };
-  const users = rows.map((r) => ({
-    id: at(r, "user_id"),
-    fullName: at(r, "full_name"),
-    title: at(r, "title"),
-    role: at(r, "role") as UserRole,
-    departmentId: at(r, "department_id"),
-    managerId: at(r, "manager_id") || null,
-    // approval_limit_cad is whole dollars in the dataset.
-    approvalLimitCents: Number(at(r, "approval_limit_cad") || 0) * 100,
-    status: at(r, "status"),
-    statusSince: at(r, "status_since") || null,
-    delegateId: at(r, "delegate_user_id") || null,
-  }));
+  const [header = [], ...rows] = parseCsv(readFileSync(USERS_CSV, "utf8"));
+  const users = rows.map((r) => {
+    const get = (name: string) => r[header.indexOf(name)] ?? "";
+    return {
+      id: get("user_id"),
+      fullName: get("full_name"),
+      title: get("title"),
+      role: get("role") as UserRole,
+      departmentId: get("department_id"),
+      managerId: get("manager_id") || null,
+      // approval_limit_cad is whole dollars in the dataset.
+      approvalLimitCents: Number(get("approval_limit_cad") || 0) * 100,
+      status: get("status"),
+      statusSince: get("status_since") || null,
+      delegateId: get("delegate_user_id") || null,
+    };
+  });
   cached = users;
   return users;
 }

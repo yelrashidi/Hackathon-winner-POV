@@ -37,13 +37,14 @@ function parseRow(row: PolicyCsvRow, index: number): ApprovalPolicy {
 
   if (ruleType === "approval") {
     if ((m = cond.match(/^Invoice total (up to|over) \$([\d,]+(?:\.\d+)?)/i))) {
-      const cadCents = dollarsToCents(m[2]);
+      const [, word = "", dollars = ""] = m;
+      const cadCents = dollarsToCents(dollars);
       const roles = row.required.split(">").map((r) => ApproverRole.parse(r.trim()));
       return {
         ...base,
         ruleType,
         priority: index, // later tiers in the file sit above earlier ones
-        conditions: m[1].toLowerCase() === "up to" ? { kind: "amount_up_to", cadCents } : { kind: "amount_over", cadCents },
+        conditions: word.toLowerCase() === "up to" ? { kind: "amount_up_to", cadCents } : { kind: "amount_over", cadCents },
         steps: { type: "chain", roles },
       };
     }
@@ -57,11 +58,12 @@ function parseRow(row: PolicyCsvRow, index: number): ApprovalPolicy {
       };
     }
     if ((m = cond.match(/^Vendor category is (.+)$/i))) {
+      const [, category = ""] = m;
       return {
         ...base,
         ruleType,
         priority: 0,
-        conditions: { kind: "vendor_category", category: m[1].trim() },
+        conditions: { kind: "vendor_category", category: category.trim() },
         steps: { type: "add_step", role: ApproverRole.parse(row.required.trim()) },
       };
     }
@@ -75,12 +77,13 @@ function parseRow(row: PolicyCsvRow, index: number): ApprovalPolicy {
 
   if (ruleType === "payment_release") {
     if ((m = cond.match(/^Payment (up to|over) \$([\d,]+(?:\.\d+)?)/i))) {
-      const cadCents = dollarsToCents(m[2]);
+      const [, word = "", dollars = ""] = m;
+      const cadCents = dollarsToCents(dollars);
       return {
         ...base,
         ruleType,
         priority: index,
-        conditions: m[1].toLowerCase() === "up to" ? { kind: "amount_up_to", cadCents } : { kind: "amount_over", cadCents },
+        conditions: word.toLowerCase() === "up to" ? { kind: "amount_up_to", cadCents } : { kind: "amount_over", cadCents },
         steps: { type: "release_by", role: ReleaseRole.parse(row.required.trim()) },
       };
     }

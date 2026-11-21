@@ -98,7 +98,7 @@ describe("dataset assumptions", () => {
 
 describe("policies", () => {
   it("turns all 13 CSV policies into structured rows", () => {
-    expect(ctx.policies.map((p) => p.id)).toEqual(readCsv("approval_policies.csv").map((r) => r.rule_id));
+    expect(ctx.policies.map((p) => p.id)).toEqual(readCsv("approval_policies.csv", ["rule_id"]).map((r) => r.rule_id));
     expect(ctx.policies.find((p) => p.id === "P03")?.steps).toEqual({ type: "chain", roles: ["dept_manager", "finance_manager", "controller_admin"] });
     expect(ctx.policies.find((p) => p.id === "P12")?.conditions).toEqual({ kind: "flag_raised", code: "PO_OVER_BALANCE" });
   });
@@ -173,16 +173,16 @@ describe("routing — who may never sign (separation of duties)", () => {
   it("escalates self-approval to the approver's manager (P07)", () => {
     const plan = planApprovals(inv({ requesterId: "U007" }), ctx);
     expect(chain(plan)).toEqual(["dept_manager:U001"]);
-    expect(plan.steps[0].resolution[0].policyId).toBe("P07");
+    expect(plan.steps[0]!.resolution[0]!.policyId).toBe("P07");
   });
 
   it("excludes the submitter, the PO requester and whoever overrode a flag", () => {
-    expect(planApprovals(inv({ submittedBy: "U007" }), ctx).steps[0].assignedTo).toBe("U001");
-    expect(planApprovals(inv({ poId: "PO-1", poRequesterId: "U007" }), ctx).steps[0].assignedTo).toBe("U001");
+    expect(planApprovals(inv({ submittedBy: "U007" }), ctx).steps[0]!.assignedTo).toBe("U001");
+    expect(planApprovals(inv({ poId: "PO-1", poRequesterId: "U007" }), ctx).steps[0]!.assignedTo).toBe("U001");
     const overridden = flag("DUPLICATE_SUSPECTED", "block", { status: "overridden", resolvedBy: "U007", resolutionNote: "Different month" });
     const plan = planApprovals(inv({ flags: [overridden] }), ctx);
     expect(plan.outcome).toBe("route");
-    expect(plan.steps[0].assignedTo).toBe("U001");
+    expect(plan.steps[0]!.assignedTo).toBe("U001");
     expect(text(plan.notes)).toMatch(/overridden by Dev Malhotra/);
   });
 
@@ -200,15 +200,15 @@ describe("routing — who may never sign (separation of duties)", () => {
   it("never lets one person hold two steps: the delegate's finance step escalates", () => {
     const plan = planApprovals(inv({ departmentId: "D07", requesterId: "U037", cents: 1_800_000 }), ctx);
     expect(chain(plan)).toEqual(["dept_manager:U003", "finance_manager:U002"]);
-    expect(plan.steps[0].onBehalfOf).toBe("U012");
-    expect(plan.steps[1].onBehalfOf).toBeNull();
+    expect(plan.steps[0]!.onBehalfOf).toBe("U012");
+    expect(plan.steps[1]!.onBehalfOf).toBeNull();
   });
 
   it("tries a second holder of the role before escalating", () => {
     const twoFms = addUser(ctx, { ...ctx.users.get("U003")!, id: "U099", fullName: "Second FM", delegateId: null });
     const plan = planApprovals(inv({ requesterId: "U003", cents: 2_000_000 }), twoFms);
     expect(chain(plan)).toEqual(["dept_manager:U007", "finance_manager:U099"]);
-    expect(text(plan.steps[1].resolution)).toMatch(/Elise Tremblay \(U003\) requested this invoice/);
+    expect(text(plan.steps[1]!.resolution)).toMatch(/Elise Tremblay \(U003\) requested this invoice/);
   });
 
   it("collapses roles only when nobody else is left: Finance dept > $250k", () => {
@@ -216,7 +216,7 @@ describe("routing — who may never sign (separation of duties)", () => {
     const plan = planApprovals(inv({ departmentId: "D04", requesterId: "U030", cents: 30_000_000 }), ctx);
     expect(plan.outcome).toBe("route");
     expect(chain(plan)).toEqual(["dept_manager:U002", "finance_manager:U003", "controller_admin:U001"]);
-    expect(plan.steps[2].alsoCovers).toEqual(["cfo"]);
+    expect(plan.steps[2]!.alsoCovers).toEqual(["cfo"]);
   });
 
   it("holds when the only approver above is the requester (the CFO's own purchase)", () => {
@@ -230,7 +230,7 @@ describe("routing — leave, termination, odd org data", () => {
   it("routes to the delegate of an on-leave manager and records on behalf of (P08)", () => {
     const plan = planApprovals(inv({ departmentId: "D07", requesterId: "U037" }), ctx);
     expect(plan.steps[0]).toMatchObject({ assignedTo: "U003", routedTo: "U012", onBehalfOf: "U012" });
-    expect(plan.steps[0].resolution[0].policyId).toBe("P08");
+    expect(plan.steps[0]!.resolution[0]!.policyId).toBe("P08");
   });
 
   it.each([
@@ -245,12 +245,12 @@ describe("routing — leave, termination, odd org data", () => {
   it("does not chain delegations: delegate also on leave → absent approver's manager", () => {
     const c = withUser(ctx, "U003", { status: "on_leave", delegateId: "U002" });
     const plan = planApprovals(inv({ departmentId: "D07", requesterId: "U037" }), c);
-    expect(plan.steps[0].assignedTo).toBe("U001");
+    expect(plan.steps[0]!.assignedTo).toBe("U001");
   });
 
   it("escalates past terminated, suspended and on-leave-without-delegate approvers", () => {
-    expect(planApprovals(inv(), withUser(ctx, "U007", { status: "terminated" })).steps[0].assignedTo).toBe("U001");
-    expect(planApprovals(inv(), withUser(ctx, "U007", { status: "suspended" })).steps[0].assignedTo).toBe("U001");
+    expect(planApprovals(inv(), withUser(ctx, "U007", { status: "terminated" })).steps[0]!.assignedTo).toBe("U001");
+    expect(planApprovals(inv(), withUser(ctx, "U007", { status: "suspended" })).steps[0]!.assignedTo).toBe("U001");
     expect(planApprovals(inv(), withUser(ctx, "U007", { status: "on_leave", delegateId: null })).steps[0]).toMatchObject({ assignedTo: "U001", onBehalfOf: null });
   });
 
@@ -261,8 +261,8 @@ describe("routing — leave, termination, odd org data", () => {
 
   it("escalates past an approver whose limit is too low to carry the invoice alone", () => {
     const plan = planApprovals(inv({ cents: 800_000 }), withUser(ctx, "U007", { approvalLimitCents: 500_000 }));
-    expect(plan.steps[0].assignedTo).toBe("U001");
-    expect(text(plan.steps[0].resolution)).toMatch(/limit/);
+    expect(plan.steps[0]!.assignedTo).toBe("U001");
+    expect(text(plan.steps[0]!.resolution)).toMatch(/limit/);
   });
 
   it("survives a management chain that loops", () => {
@@ -295,7 +295,7 @@ describe("routing — vendor, PO and flag rules", () => {
     const pending = [...ctx.vendors.values()].find((v) => v.status === "pending_review" && !v.requiresPo)!;
     const plan = planApprovals(inv({ vendorId: pending.id }), ctx);
     expect(chain(plan)).toEqual(["dept_manager:U007", "finance_manager:U003"]);
-    expect(plan.steps[1].reasons[0].policyId).toBe("P05");
+    expect(plan.steps[1]!.reasons[0]!.policyId).toBe("P05");
   });
 
   it.each([
@@ -312,7 +312,7 @@ describe("routing — vendor, PO and flag rules", () => {
     const legal = [...ctx.vendors.values()].find((v) => v.category === "Legal" && v.status === "active" && !v.requiresPo)!;
     const plan = planApprovals(inv({ vendorId: legal.id, cents: 2_000_000 }), ctx);
     expect(chain(plan)).toEqual(["dept_manager:U007", "finance_manager:U003"]);
-    expect(plan.steps[1].reasons.map((r) => r.policyId)).toEqual(["P02", "P06"]);
+    expect(plan.steps[1]!.reasons.map((r) => r.policyId)).toEqual(["P02", "P06"]);
     expect(chain(planApprovals(inv(), withVendor(ctx, "V001", { category: "  lEGAL " })))).toContain("finance_manager:U003");
   });
 
@@ -342,9 +342,9 @@ describe("routing — vendor, PO and flag rules", () => {
     const name = `Speedy Tlres\n${"x".repeat(500)}`;
     const plan = planApprovals(inv({ vendorId: null, vendorNameRaw: name }), ctx);
     expect(plan.outcome).toBe("hold");
-    expect(plan.holdReasons[0].message).toMatch(/Speedy Tlres/);
-    expect(plan.holdReasons[0].message.length).toBeLessThan(200);
-    expect(plan.holdReasons[0].message).not.toContain("\n");
+    expect(plan.holdReasons[0]!.message).toMatch(/Speedy Tlres/);
+    expect(plan.holdReasons[0]!.message.length).toBeLessThan(200);
+    expect(plan.holdReasons[0]!.message).not.toContain("\n");
   });
 
   it("blocks while a block flag is open; an override needs a name", () => {
@@ -421,7 +421,7 @@ describe("checkDecision — server-side enforcement", () => {
   });
 
   it("refuses a corrupt stored plan", () => {
-    const dupSeq = { ...plan0, steps: [plan0.steps[0], { ...plan0.steps[1], seq: 1 }] };
+    const dupSeq = { ...plan0, steps: [plan0.steps[0]!, { ...plan0.steps[1]!, seq: 1 }] };
     expect(code(checkDecision(dupSeq, ref, "U003", { action: "approve" }, ctx))).toBe("CORRUPT_PLAN");
     expect(code(checkDecision({ ...plan0, outcome: "yes" } as unknown as ApprovalPlan, ref, "U003", { action: "approve" }, ctx))).toBe("CORRUPT_PLAN");
   });
@@ -530,7 +530,7 @@ describe("real-world controls", () => {
     it("whoever maintains the vendor (onboarded it / changed its bank details) cannot approve its invoices", () => {
       const i = inv({ conflicts: [{ userId: "U007", reason: "changed this vendor's bank details on 2026-10-27" }] });
       const plan = planApprovals(i, ctx);
-      expect(plan.steps[0].assignedTo).toBe("U001");
+      expect(plan.steps[0]!.assignedTo).toBe("U001");
       const c = checkDecision(plan, refFor(i), "U007", { action: "approve" }, ctx);
       expect(code(c)).toBe("CONFLICT_OF_INTEREST");
       expect(c.ok ? "" : c.reason).toMatch(/bank details/);
@@ -538,7 +538,7 @@ describe("real-world controls", () => {
 
     it("an assistant requesting for their boss does not route the approval to that boss", () => {
       const plan = planApprovals(inv({ requesterId: "U013", conflicts: [{ userId: "U007", reason: "is the person this purchase is for" }] }), ctx);
-      expect(plan.steps[0].assignedTo).toBe("U001");
+      expect(plan.steps[0]!.assignedTo).toBe("U001");
     });
 
     it("whoever overrode a flag gets CONFLICT_OF_INTEREST, the requester gets SELF_APPROVAL", () => {
@@ -722,7 +722,7 @@ describe("invariants", () => {
       const plan = planApprovals(i, ctx);
       if (plan.outcome !== "route") continue;
       routed++;
-      expect(waitingOn(plan, refFor(i), ctx)?.assignee).toBe(plan.steps[0].assignedTo);
+      expect(waitingOn(plan, refFor(i), ctx)?.assignee).toBe(plan.steps[0]!.assignedTo);
       const done = walk(plan, i);
       const signers = done.steps.map((s) => s.actedBy);
       expect(new Set(signers).size).toBe(signers.length);
@@ -735,7 +735,7 @@ describe("invariants", () => {
     // Deterministic PRNG so a failure reproduces.
     let seed = 20261121;
     const rand = () => ((seed = (seed * 1_103_515_245 + 12_345) % 2_147_483_648) / 2_147_483_648);
-    const pick = <T,>(xs: readonly T[]) => xs[Math.floor(rand() * xs.length)];
+    const pick = <T,>(xs: readonly T[]): T => xs[Math.floor(rand() * xs.length)]!; // non-empty lists only
     const userIds = [...ctx.users.keys()];
     const deptIds = [...ctx.departments.keys()];
     const vendorIds = [...ctx.vendors.keys()];

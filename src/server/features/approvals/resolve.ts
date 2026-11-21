@@ -139,7 +139,8 @@ export function candidatesFor(role: ApproverRole, departmentId: string, ctx: Res
 
 export function resolveRole(role: ApproverRole, departmentId: string, opts: ResolveOptions, ctx: ResolveContext): Resolution {
   const candidates = candidatesFor(role, departmentId, ctx);
-  if (candidates.length === 0) {
+  const [first] = candidates;
+  if (first === undefined) {
     const what = role === "dept_manager" ? `department ${departmentId} has no manager on record` : `nobody holds the ${role} role`;
     return { assignee: null, onBehalfOf: null, routedTo: null, trail: [{ policyId: null, message: `No ${role} approver: ${what}.` }], takenFallback: null };
   }
@@ -148,12 +149,12 @@ export function resolveRole(role: ApproverRole, departmentId: string, opts: Reso
   const skipped: PolicyReason[] = [];
   for (const c of candidates) {
     const r = resolveFrom(c, opts, ctx, false);
-    if (r.assignee) return { ...r, routedTo: candidates[0], trail: [...skipped, ...r.trail] };
+    if (r.assignee) return { ...r, routedTo: first, trail: [...skipped, ...r.trail] };
     takenFallback ??= r.takenFallback;
     skipped.push(...r.trail);
   }
   // Pass 2: nobody holding the role can sign; escalate from the first choice.
-  const r = resolveFrom(candidates[0], opts, ctx, true);
+  const r = resolveFrom(first, opts, ctx, true);
   return { ...r, takenFallback: r.takenFallback ?? takenFallback };
 }
 
