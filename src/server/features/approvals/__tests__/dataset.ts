@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import type { ApprovalInput } from "@/contracts/approvals";
+import type { ApprovalInput, ApprovalPlan } from "@/contracts/approvals";
+import { applyDecision, checkDecision, PENDING_APPROVAL_STATUS, waitingOn, type InvoiceRef } from "../decide";
 import { policiesFromCsv, type PolicyCsvRow } from "../policies-from-csv";
 import type {
   ApprovalContext,
@@ -100,6 +101,32 @@ export function loadContext(asOf: Date = DATASET_AS_OF): ApprovalContext {
   );
   const policies = policiesFromCsv(readCsv("approval_policies.csv") as unknown as PolicyCsvRow[]);
   return { users, departments, vendors, policies, asOf };
+}
+
+/**
+ * Approve every step with whoever the plan is waiting on, acknowledging every exception, all at
+ * time `at`. Throws if anyone is refused: used to prove a plan can actually finish.
+ */
+export function approveAll(plan: ApprovalPlan, input: ApprovalInput, ctx: ApprovalContext, at: Date): ApprovalPlan {
+  const ref: InvoiceRef = {
+    invoiceId: input.invoiceId,
+    invoiceVersion: input.invoiceVersion,
+    status: PENDING_APPROVAL_STATUS,
+    requesterId: input.requesterId,
+    submittedBy: input.submittedBy ?? null,
+    vendorId: input.vendorId,
+  };
+  let p = plan;
+  for (let guard = 0; guard < 10; guard++) {
+    const who = waitingOn(p, ref, ctx)?.assignee;
+    if (!who) throw new Error(`${plan.invoiceId}: nobody to act`);
+    const check = checkDecision(p, ref, who, { action: "approve", acknowledgedFlags: p.attention.map((a) => a.code) }, ctx);
+    if (!check.ok) throw new Error(`${plan.invoiceId}: ${who} refused: ${check.code} ${check.reason}`);
+    const r = applyDecision(p, check, at);
+    p = { ...p, steps: r.steps };
+    if (r.isLastStep) return p;
+  }
+  throw new Error(`${plan.invoiceId}: approval did not finish`);
 }
 
 /** Copy of ctx with one user changed — for leave / termination scenarios. */
