@@ -61,24 +61,14 @@ Not started.
 
 ### 6 Approvals — Youssef
 **Works** (tested): routing from `approval_policies` P01–P13 with delegation, escalation and separation of duties; the approve/reject gate `checkDecision`; re-approval on edits; aging; saving and loading plans and decisions (`saveApprovalPlan`, `getApprovalPlans`, `getCurrentApprovalPlan`, `saveDecision`). 137 tests; fixtures in `fixtures/approvals/`.
-**Stubbed:** the store is in-memory (`// TEMP: db`) until the schema lands; not wired to `fire()`, `authorize()`, an API route or a screen yet. Tests need `zod` + `vitest` in `package.json`.
-**Next:** approvals API route + approver queue screen once the foundation lands; then 7 Payments.
+**Stubbed:** the store is in-memory (`// TEMP: db`) until the schema lands; not wired to `fire()`, `authorize()`, an API route or a screen yet. Payments (Katie) already reads it through `getApprovalPlans` / `approversOf` / `basis`.
+**Next:** approvals API route + approver queue screen once the foundation lands; make the in-memory store one shared copy together with Katie's seed (see TODO).
 **Waiting on:** foundation (schema — `approval_plans` proposal in `6-approvals.md`, `fire`, `authorize`, session); validation (`PO_OVER_BALANCE`, `SPLIT_INVOICE_SUSPECTED.combinedCadCents`); vendors (`conflicts`). Contract change in `src/contracts/` — see [`6-approvals-edge-cases.md`](architecture/6-approvals-edge-cases.md) §13.
 
-### 7 Payments — Katie (building), Youssef (listed on main), to confirm
+### 7 Payments — Katie
 **Works (in memory, on the dataset; merged to main 2026-11-21, `b69ce5d`):** schedule / release / cancel / retry / schedule again; release rules (P09–P11, approver / scheduler / requester can't release, active staff, verified bank, pending bank change, payee + amount = approved, FX re-check, blocking flags); simulated EFT with 9 failure reasons; urgency flags; bank change + second-person verify; audit events. Dashboard `/payments` reads and acts through it; `/payments-console` = simulated bank + reset. Contract `src/contracts/payment.ts`, guide `docs/payment-data.md`, doc `docs/architecture/7-payments.md`.
 **Stubbed:** other features behind `deps.ts` (`// TEMP:`), owners in `docs/payment-assumptions.md`; data in memory. **Next:** swap adapters as teammates land; UI polish. **Waiting on:** schema, `fire()`, `authorize()`, audit (no owner); Andrew (stored flags, `validateBankForRelease`); duplicates + vendors (no owner); Youssef (approval flow filling his store).
 **Schema change:** `vendor_bank_accounts.currency` + a `closed` status.
-### 7 Payments — Katie
-**Works (in memory, on the dataset):** schedule / release / cancel / retry, release rules (P09–P11, scheduler and requester
-can't release, active staff, verified bank, pending bank change, payee and amount = approved, FX re-check, blocking flags),
-simulated EFT with settle or 9 failure reasons, urgency flags (critical / high / low) with clearing rules, bank change +
-second-person verify, audit events. Contract `src/contracts/payment.ts`, guide `docs/payment-data.md`, page `/payments-console`,
-dashboard pages under `/payments`. Builds on approvals: P11 via `approversOf(...allPlans)`, pay no more than `plan.basis`.
-**Stubbed:** everything from other features sits behind `src/server/features/payments/deps.ts` (`// TEMP:`), listed with owners in
-`docs/payment-assumptions.md`; data is in memory. **Waiting on:** schema, `fire()`, `authorize()`, audit (no owner); Andrew
-(stored flags, release-time bank check); vendors (no owner).
-**Schema change:** `vendor_bank_accounts.currency` and a `closed` status (schema owner, feature 9 owner).
 
 ### 8 Audit + foundation — Andrew
 **Works (uncommitted on `andrew-audit-db`, tested on PGlite and Docker Postgres 16):**

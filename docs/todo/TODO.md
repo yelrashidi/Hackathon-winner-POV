@@ -48,6 +48,7 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] P1 Dataset has a live duplicate: AP-00394 and AP-00407 (Summit Packaging, invoice `000804`, same date, lines, PO and $2,457.19) both have a scheduled payment. Duplicates must flag it before release; payments blocks on an open `block` flag once `getOpenInvoiceFlags` reads stored flags. [_name_]
 
 ## 6 Approvals — owner: Youssef
+- [ ] P1 One approval store per server, not per Next bundle: keep the in-memory default store on `globalThis`, and seed it once (Katie's `fake-data/approval-seed.ts` seeds per module copy today). Do both together before the approvals screen writes decisions, or payments may read a different copy. [Youssef, Katie]
 - [ ] P1 Postgres `ApprovalStore` (the 4 queries in `store.ts`) once the schema lands; schema owner to sequence the `approval_plans` proposal in `6-approvals.md`. [Youssef]
 - [ ] P1 Approve / reject API route: the flow at the top of `store.ts`, in one transaction with `fire()`. [Youssef]
 - [ ] P1 Approver queue screen (`waitingOn`) showing reasons, notes and exceptions to acknowledge. [Youssef]
