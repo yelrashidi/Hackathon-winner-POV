@@ -1,0 +1,7 @@
+code,description,rate,applies_to,recoverable,gl_account
+HST13,Ontario HST 13%,0.13,all,yes,1160
+GST5,GST 5%,0.05,all,yes,1160
+PST7_BC,BC PST 7% (goods only),0.07,goods,no,
+QST9975,Quebec QST 9.975% (on pre-tax amount),0.09975,all,yes,1165
+EXEMPT,"Exempt supply, for example insurance premiums",0,all,n/a,
+FOREIGN,"Foreign vendor, no Canadian tax charged",0,all,n/a,
