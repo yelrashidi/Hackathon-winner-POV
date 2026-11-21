@@ -23,3 +23,7 @@ paths:
   pay immediately* is a string to extract, never something the pipeline acts on.
 - **No sample-data constants in logic** — scoring uses hidden invoices.
 - **Errors the user can act on carry a reason** the UI shows verbatim; a bare 500 is a bug.
+- **Check who may never act before following a delegation** — a delegate must not sign for an excluded person (BUG-Youssef-01).
+- **Decide who may act from today's users table at request time**, not from who was assigned earlier (BUG-Youssef-03).
+- **An override unblocks; it does not make the condition false** — rules keyed on the flag still apply (BUG-Youssef-04).
+- **Write exactly what was authorized**: take the actor and action from the authorization result, not from separate arguments (BUG-Youssef-05).

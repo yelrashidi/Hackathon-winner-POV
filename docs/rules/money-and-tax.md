@@ -30,3 +30,4 @@ paths:
   BC PST is **not** recoverable, so it is part of the line's expense.
 - **Credit notes are negative totals.** They are not paid out by EFT; every `> 0` assumption in
   validation and payments must say what it does with a negative.
+- **Anything that routes or limits on CAD re-checks `total × fx_rate = total_cad` (±1¢)**: an unconverted USD total under-approves (BUG-Youssef-02).

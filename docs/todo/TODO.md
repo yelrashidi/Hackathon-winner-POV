@@ -20,7 +20,8 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] `core/authorize.ts` + table-driven permission test ([`roles-and-permissions.md`](../architecture/roles-and-permissions.md)). [_name_]
 - [ ] `core/audit.ts`, `core/money.ts`, `core/fx.ts`. [_name_]
 - [ ] Session + role switcher over seeded users. [_name_]
-- [ ] `src/contracts/` for every stage + one fixture each. [_name_]
+- [ ] `src/contracts/` for every stage + one fixture each. Approvals + shared `Flag` done 2026-11-21 (`fixtures/approvals/`). [_name_]
+- [ ] Add `zod` and `vitest` to `package.json`; approvals tests already use them (`npx vitest run src/server/features/approvals`). [_name_]
 - [ ] State machine gaps: credit-note path, hold at release time (bank change / duplicate found), payment as its own lifecycle. [_name_]
 
 ## 1 Intake — owner: _Arpan / Youssef / Andrew / Katie_
@@ -39,23 +40,29 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 ## 4 Validation — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Vendor master, contract caps / end dates / spend limits, PO match, tax vs province, arithmetic. [_name_]
 - [ ] P1 Split-invoice check (same vendor, short window, sum crosses a threshold). [_name_]
+- [ ] P1 Emit `PO_OVER_BALANCE` (P12) and `SPLIT_INVOICE_SUSPECTED` with `evidence.combinedCadCents`; approvals routes on both. [_name_]
 
 ## 5 Duplicates — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Exact (sha256, vendor + normalized number), near (amount + date window), reformatted numbers. [_name_]
 - [ ] P1 Already paid by card (card_transactions by vendor, amount, date). [_name_]
 
-## 6 Approvals — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Policy engine from `approval_policies`; plan stored per invoice version. [_name_]
-- [ ] P1 Self-approval escalation, delegation, absent approver; admin policy editor. [_name_]
+## 6 Approvals — owner: Youssef
+- [ ] P1 Persist plans to `approval_steps` per invoice version; API route that calls `checkDecision` and writes `WHERE decision = 'pending'`. [Youssef]
+- [ ] P1 Approver queue screen (`waitingOn`) showing reasons, notes and exceptions to acknowledge. [Youssef]
+- [ ] P1 Admin policy editor over `ApprovalPolicy` rows (the schema already rejects bad rows). [Youssef]
+- [ ] P1 On invoice edit call `reapprovalReasons`; non-empty → bump `invoices.version`. [Youssef]
+- [ ] P2 Daily `approvalAging` job: reminders and escalation notices. [Youssef]
 
-## 7 Payments — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [_name_]
+## 7 Payments — owner: Youssef
+- [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [Youssef]
+- [ ] P1 Release checks against approvals: P11 via `approversOf(...allPlans)`; amount ≤ `plan.basis.totalCents`, payee = `plan.basis.vendorId`. [Youssef]
 
 ## 8 Audit — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Audit view per payment: PDF → extraction → coding → approvals → release; auditor export (CSV). [_name_]
 
 ## 9 Vendors — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Vendor list, onboard, hold; bank change request + verify by a second person. [_name_]
+- [ ] P1 Supply approvals `conflicts`: who onboarded the vendor and who requested / verified its last bank change. [_name_]
 
 ## P3 — Bonus (only after 1–9 work)
 - [ ] Pick one at kickoff — candidates in [`../product.md`](../product.md#out-of-scope-until-19-work). [_name_]

@@ -1,6 +1,6 @@
 # 6 — Approvals
 
-**Owner:** Youssef · **Code as of:** `fb86afa` · Every edge case, with `file:line` and test:
+**Owner:** Youssef · **Code as of:** `90dc21c` · Every edge case, with `file:line` and test:
 [`6-approvals-edge-cases.md`](6-approvals-edge-cases.md)
 
 ## What it does
@@ -24,7 +24,11 @@ the approvals (`reapprovalReasons`), and is this approval sitting too long (`app
 - Code: `src/server/features/approvals/` — `route.ts` (planApprovals), `resolve.ts` (who signs,
   shared by routing and decisions), `decide.ts` (checkDecision, applyDecision, approversOf,
   waitingOn), `lifecycle.ts` (reapprovalReasons, approvalAging), `policies-from-csv.ts` (seed)
-- Tests: `__tests__/approvals.test.ts`, 116 cases incl. a 3,000-invoice randomized org-chaos test
+- Tests: `__tests__/approvals.test.ts` (116 cases incl. a 3,000-invoice randomized org-chaos test) and
+  `__tests__/fixtures.test.ts` (6)
+- Fixtures: `fixtures/approvals/` — 5 cases (delegate + escalation, USD over a tier with a warning to
+  acknowledge, self-approval escalated, held, blocked), each with `input`, `plan` and `approved`;
+  the test fails if one is stale. Regenerate: `UPDATE_FIXTURES=1 npx vitest run fixtures`
 
 ## Separation of duties — every rule, and where it is enforced
 | Rule | Routing (`route.ts` / `resolve.ts`) | Decision (`checkDecision`) |

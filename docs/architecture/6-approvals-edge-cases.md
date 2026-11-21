@@ -1,6 +1,6 @@
 # 6 — Approvals: edge cases, controls and decisions
 
-**Owner:** Youssef · **Written:** 2026-11-21 · **Code as of:** `fb86afa`
+**Owner:** Youssef · **Written:** 2026-11-21 · **Code as of:** `90dc21c`
 
 Everything the approvals feature handles beyond the happy path, what we deliberately left out,
 and the defaults the team should confirm. The design itself is in [`6-approvals.md`](6-approvals.md).
@@ -211,8 +211,9 @@ longer act.
 
 ## 14. How this was verified
 
-- **116 tests**, run on Zod 3.25 and 4.6. Refusals are table-driven, so the Q&A answer to "how are roles enforced?" is one table.
+- **122 tests** (116 behaviour + 6 fixture checks), run on Zod 3.25 and 4.6. Refusals are table-driven, so the Q&A answer to "how are roles enforced?" is one table.
 - **History replay**: every routed historical invoice is approved end to end by the people it waits on; nobody signs twice; the requester never signs.
 - **Org-chaos test**: 3,000 random invoices with random leave, terminations, delegates, manager loops, conflicts and warnings. Invariants: no crash, plan always valid, no excluded person assigned, nobody twice, everyone assigned active, the chain always carries the amount, and the walk always finishes.
 - **Mutation testing**: 13 bugs re-introduced on purpose; 12 made tests fail. The survivor (marking the on-behalf-of person as taken *during routing*) is unreachable there and is covered at decision time.
+- **Fixtures** in `fixtures/approvals/` are re-checked against a fresh run on every test run, so they cannot go stale silently.
 - Run: `npx vitest run src/server/features/approvals` (needs `zod` and `vitest` in `package.json`).
