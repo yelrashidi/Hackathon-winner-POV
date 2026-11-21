@@ -1,0 +1,61 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/Invoice FA-000318.pdf",
+  "emailId": "EM-032",
+  "input": {
+    "invoiceId": "IN-invoice-fa-000318",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Quillpad Documents Ltd.",
+      "gstHstNumber": "959267705RT0001",
+      "qstNumber": "9036969075TQ0001",
+      "province": "QC",
+      "country": "CA"
+    },
+    "senderEmail": "ar@quillpaddocuments.example",
+    "invoiceNumber": "FA-000318",
+    "invoiceDate": "2026-10-29",
+    "dueDate": "2026-11-28",
+    "receivedDate": "2026-10-29",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1055 W Hastings St, Suite 900, Vancouver BC V6E 2E9",
+      "province": "BC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Quillpad e-signature plan",
+        "quantity": 1,
+        "unitPriceCents": 46000,
+        "amountCents": 46000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 2300
+      }
+    ],
+    "subtotalCents": 46000,
+    "totalCents": 48300,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "016",
+      "transit": "66098",
+      "account": "506760345"
+    }
+  },
+  "expectedCodes": [
+    "CONTRACT_FIXED_FEE_BILLED_TWICE"
+  ],
+  "why": "Fixed monthly fee already billed in October (FA-000315)."
+}

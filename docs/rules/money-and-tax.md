@@ -31,3 +31,4 @@ paths:
 - **Credit notes are negative totals.** They are not paid out by EFT; every `> 0` assumption in
   validation and payments must say what it does with a negative.
 - **Anything that routes or limits on CAD re-checks `total × fx_rate = total_cad` (±1¢)**: an unconverted USD total under-approves (BUG-Youssef-02).
+- **An unmapped tax line is not "no tax".** Never report a tax missing while a tax line has no code — it may be that tax (BUG-Andrew-03).

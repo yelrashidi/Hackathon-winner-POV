@@ -1,0 +1,99 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/Invoice FA-001619.pdf",
+  "emailId": "EM-033",
+  "input": {
+    "invoiceId": "IN-invoice-fa-001619",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Prairie Express Haulage",
+      "gstHstNumber": "293017221RT0001",
+      "qstNumber": null,
+      "province": "MB",
+      "country": "CA"
+    },
+    "senderEmail": "ar@prairieexpress.example",
+    "invoiceNumber": "FA-001619",
+    "invoiceDate": "2026-10-27",
+    "dueDate": "2026-11-26",
+    "receivedDate": "2026-10-29",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+      "province": "QC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "LTL shipment Winnipeg-Hamilton",
+        "quantity": 1,
+        "unitPriceCents": 161737,
+        "amountCents": 161737,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "LTL shipment Regina-Montreal",
+        "quantity": 1,
+        "unitPriceCents": 42446,
+        "amountCents": 42446,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 3,
+        "description": "LTL shipment Winnipeg-Calgary",
+        "quantity": 1,
+        "unitPriceCents": 184286,
+        "amountCents": 184286,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 4,
+        "description": "LTL shipment Calgary-Vancouver",
+        "quantity": 1,
+        "unitPriceCents": 149767,
+        "amountCents": 149767,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 5,
+        "description": "Fuel surcharge (11.90%)",
+        "quantity": 1,
+        "unitPriceCents": 64050,
+        "amountCents": 64050,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 30114
+      },
+      {
+        "code": "QST9975",
+        "label": "QST (9.975%)",
+        "ratePct": 9.975,
+        "amountCents": 60078
+      }
+    ],
+    "subtotalCents": 602286,
+    "totalCents": 692478,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "006",
+      "transit": "61654",
+      "account": "448967293"
+    }
+  },
+  "expectedCodes": [
+    "QST_NUMBER_MISSING"
+  ],
+  "why": "QST without QST number; no contract for this carrier."
+}

@@ -1,0 +1,93 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/Invoice 000964.pdf",
+  "emailId": "EM-004",
+  "input": {
+    "invoiceId": "IN-invoice-000964",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Polar Freight Lines Ltd.",
+      "gstHstNumber": "995133220RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@polarfreight.example",
+    "invoiceNumber": "000964",
+    "invoiceDate": "2026-10-21",
+    "dueDate": "2026-11-20",
+    "receivedDate": "2026-10-21",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "LTL shipment Edmonton-Vancouver",
+        "quantity": 1,
+        "unitPriceCents": 20302,
+        "amountCents": 20302,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "LTL shipment Montreal-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 115653,
+        "amountCents": 115653,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 3,
+        "description": "LTL shipment Saskatoon-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 86542,
+        "amountCents": 86542,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 4,
+        "description": "Fuel surcharge (22%)",
+        "quantity": 1,
+        "unitPriceCents": 48949,
+        "amountCents": 48949,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 5,
+        "description": "Detention / waiting time",
+        "quantity": 1,
+        "unitPriceCents": 9332,
+        "amountCents": 9332,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": 36501
+      }
+    ],
+    "subtotalCents": 280778,
+    "totalCents": 317279,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "004",
+      "transit": "95688",
+      "account": "410652201"
+    }
+  },
+  "expectedCodes": [
+    "CONTRACT_FUEL_SURCHARGE_CAP"
+  ],
+  "why": "Fuel surcharge 22% vs the contract cap of 12%."
+}

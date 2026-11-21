@@ -31,5 +31,7 @@ export const Flag = z.object({
   /** Who resolved or overrode it, and why (invoice_flags.resolved_by / resolution_note). */
   resolvedBy: z.string().nullable().optional(),
   resolutionNote: z.string().nullable().optional(),
+  /** Only `open` flags affect routing; resolved/overridden ones are history. */
+  status: FlagStatus.default("open"),
 });
 export type Flag = z.infer<typeof Flag>;

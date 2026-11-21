@@ -1,0 +1,57 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/pineconecollabor_PI262809.pdf",
+  "emailId": "EM-055",
+  "input": {
+    "invoiceId": "IN-pineconecollabor-pi262809",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Pinecone Collaboration Ltd.",
+      "gstHstNumber": "705518273RT0001",
+      "qstNumber": null,
+      "province": "BC",
+      "country": "CA"
+    },
+    "senderEmail": "ar@pineconecollaboration.example",
+    "invoiceNumber": "PI26-2809",
+    "invoiceDate": "2026-11-02",
+    "dueDate": "2026-12-02",
+    "receivedDate": "2026-11-02",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "250 6 Ave SW, Suite 700, Calgary AB T2P 3H7",
+      "province": "AB"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Pinecone Team plan (40 users)",
+        "quantity": 1,
+        "unitPriceCents": 82680,
+        "amountCents": 82680,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 4134
+      }
+    ],
+    "subtotalCents": 82680,
+    "totalCents": 86814,
+    "statedFxRate": null,
+    "remitTo": null
+  },
+  "expectedCodes": [
+    "CONTRACT_FIXED_FEE_MISMATCH"
+  ],
+  "why": "Billed $826.80 vs the fixed $780.00 monthly fee."
+}

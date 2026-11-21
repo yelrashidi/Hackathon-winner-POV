@@ -41,6 +41,13 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] P1 Vendor master, contract caps / end dates / spend limits, PO match, tax vs province, arithmetic. [_name_]
 - [ ] P1 Split-invoice check (same vendor, short window, sum crosses a threshold). [_name_]
 - [ ] P1 Emit `PO_OVER_BALANCE` (P12) and `SPLIT_INVOICE_SUSPECTED` with `evidence.combinedCadCents`; approvals routes on both. [_name_]
+## 4 Validation — owner: Andrew
+- [ ] P1 DB loader for `ValidationContext` (replaces `dataset/load-context.ts`; per-vendor rows only). [Andrew]
+- [ ] P1 Persist flags to `invoice_flags` (diff by `flagKey`, keep resolutions) + `hasBlocking` as the `submit` guard in `fire()`. Needs `source`/`fingerprint` columns — propose to schema owner. [Andrew]
+- [ ] P1 Override / resolve endpoint: `authorize('flag.override')` + note + audit in one transaction. [Andrew]
+- [ ] P1 Mapper from extraction's contract → `ValidationInput` once it exists (needs `lineType` goods/services per line). [Andrew]
+- [ ] P2 `validateBankForRelease(vendorId, bankAccountId)` for payments (7) at release time. [Andrew]
+- [ ] P2 Add the incoming fixtures' expected flags to the shared `fixtures/golden/` + `npm run eval`. [Andrew]
 
 ## 5 Duplicates — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Exact (sha256, vendor + normalized number), near (amount + date window), reformatted numbers. [_name_]

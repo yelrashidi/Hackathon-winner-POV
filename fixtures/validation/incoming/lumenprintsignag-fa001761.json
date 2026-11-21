@@ -1,0 +1,61 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/lumenprintsignag_FA001761.pdf",
+  "emailId": "EM-053",
+  "input": {
+    "invoiceId": "IN-lumenprintsignag-fa001761",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Lumen Print & Signage",
+      "gstHstNumber": "579505145RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@lumenprint.example",
+    "invoiceNumber": "FA-001761",
+    "invoiceDate": "2026-04-06",
+    "dueDate": "2026-05-06",
+    "receivedDate": "2026-11-02",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Branded signage",
+        "quantity": 6,
+        "unitPriceCents": 31000,
+        "amountCents": 186000,
+        "lineType": "goods"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": 24180
+      }
+    ],
+    "subtotalCents": 186000,
+    "totalCents": 210180,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "004",
+      "transit": "20628",
+      "account": "642160921"
+    }
+  },
+  "expectedCodes": [
+    "DATE_TOO_OLD"
+  ],
+  "why": "Dated 2026-04-06, received 2026-11-02 (210 days)."
+}

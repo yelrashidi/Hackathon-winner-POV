@@ -1,0 +1,99 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/greatlakescarrie-inv-016.pdf",
+  "emailId": "EM-016",
+  "input": {
+    "invoiceId": "IN-greatlakescarrie-inv-016",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Great Lakes Carriers Inc.",
+      "gstHstNumber": "367912731RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@greatlakes.example",
+    "invoiceNumber": "GR26-2271",
+    "invoiceDate": "2026-10-26",
+    "dueDate": "2026-11-25",
+    "receivedDate": "2026-10-26",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "LTL shipment Edmonton-Calgary",
+        "quantity": 1,
+        "unitPriceCents": 49970,
+        "amountCents": 49970,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "LTL shipment Ottawa-Saskatoon",
+        "quantity": 1,
+        "unitPriceCents": 19279,
+        "amountCents": 19279,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 3,
+        "description": "LTL shipment Montreal-Edmonton",
+        "quantity": 1,
+        "unitPriceCents": 99342,
+        "amountCents": 99342,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 4,
+        "description": "LTL shipment Edmonton-Hamilton",
+        "quantity": 1,
+        "unitPriceCents": 171118,
+        "amountCents": 171118,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 5,
+        "description": "LTL shipment Vancouver-Edmonton",
+        "quantity": 1,
+        "unitPriceCents": 43710,
+        "amountCents": 43710,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 6,
+        "description": "Fuel surcharge (9.49%)",
+        "quantity": 1,
+        "unitPriceCents": 36386,
+        "amountCents": 36386,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": 54575
+      }
+    ],
+    "subtotalCents": 419805,
+    "totalCents": 474380,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "010",
+      "transit": "66160",
+      "account": "234408577"
+    }
+  },
+  "expectedCodes": [],
+  "why": "Clean: fuel surcharge 9.49% under the 12% cap; real vendor V002 (the lookalike record is V053)."
+}

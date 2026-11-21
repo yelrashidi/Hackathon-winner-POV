@@ -1,0 +1,55 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/ironwoodpalletco-inv-048.pdf",
+  "emailId": "EM-047",
+  "input": {
+    "invoiceId": "IN-ironwoodpalletco-inv-048",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Ironwood Pallet Co.",
+      "gstHstNumber": "906611224RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@ironwoodpallet.example",
+    "invoiceNumber": "INV-02210",
+    "invoiceDate": "2026-10-30",
+    "dueDate": "2026-11-29",
+    "receivedDate": "2026-11-01",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Stretch wrap cases",
+        "quantity": 22,
+        "unitPriceCents": 4162,
+        "amountCents": 91564,
+        "lineType": "goods"
+      }
+    ],
+    "taxes": [],
+    "subtotalCents": 91564,
+    "totalCents": 91564,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "003",
+      "transit": "86211",
+      "account": "974188145"
+    }
+  },
+  "expectedCodes": [
+    "PO_REQUIRED_MISSING",
+    "TAX_MISSING"
+  ],
+  "why": "No tax on a goods supply delivered to ON; vendor requires a PO (open PO-2026-0051)."
+}

@@ -13,6 +13,8 @@ the top block is updated by whoever finishes a shared piece.
 | Arpan | _features to fill_ | |
 | Youssef | 6 Approvals, 7 Payments | |
 | Andrew | _features to fill_ | |
+| Youssef | _features to fill_ | |
+| Andrew | 4 Validation | |
 | Katie | _features to fill_ | |
 | shared | foundation (`core/`) | schema merges: _name_ |
 
@@ -47,8 +49,11 @@ Not started.
 ### 3 Coding — _Arpan / Youssef / Andrew / Katie_
 Not started.
 
-### 4 Validation — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 4 Validation — Andrew
+**Works (standalone, uncommitted on `andrew`):** pure engine + every check in `src/server/features/validation/` (vendor, bank, PO, contract, tax vs delivery province, arithmetic, dates, FX, splits); 264 tests; all 56 incoming invoices raise exactly their hand-written expected flags; history replay blocks only the 3 real tax errors. `npm test` · `npm run validate:batch` · `npm run validate:history`.
+**Stubbed:** input is our assumed extraction shape (`src/contracts/validation.ts`, **contract:**); reference data loads from the CSVs, not the DB; flags are returned, not persisted.
+**Next:** DB context loader, persist to `invoice_flags` + override endpoint, mapper from extraction's real contract, `validateBankForRelease` for payments.
+**Waiting on:** foundation (schema, `fire()`, `authorize()`); extraction owner's contract; Youssef — `src/contracts/flag.ts` copied verbatim from `origin/Youssef`, `PO_OVER_BALANCE` / `SPLIT_INVOICE_SUSPECTED` + `evidence.combinedCadCents` emitted as his approvals expects.
 
 ### 5 Duplicates — _Arpan / Youssef / Andrew / Katie_
 Not started.
