@@ -18,4 +18,4 @@ export { ingestInvoice, revalidateInvoice, editInvoice, IngestError, type Ingest
 export { codeWithin, codeInvoiceLine, acceptConfidentLines, loadCodingContext, CodingError } from "./coding";
 export { submitForApproval, decideApproval, loadApprovalContext, PostgresApprovalStore, ApprovalFlowError } from "./approvals";
 export { invoiceInputFromDb } from "./input";
-export { ingestFromIntake, readingToValidationInput, intakeInvoiceId, inboxMessageId, type IntakeOutcome, type IntakeIngestResult } from "./intake";
+export { ingestFromIntake, readingToValidationInput, intakeInvoiceId, inboxMessageId, type IntakeOutcome, type IntakeIngestResult, type IntakeIngestOptions, type IntakeAttachmentFile } from "./intake";

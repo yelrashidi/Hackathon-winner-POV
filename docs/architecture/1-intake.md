@@ -72,6 +72,12 @@ One-time, ~10 minutes, per developer:
    again. Or `npm run gmail:poll -- --watch 30`, or `-- --backfill 1d` to see today's mail.
 
 6. For classification with Claude, add `ANTHROPIC_API_KEY=…` to `.env.local` (`--no-llm` runs rules only).
+7. **Saving:** with Postgres up (`.env` from `.env.example`, `npm run db:up && npm run db:reset`), both
+   `gmail:poll` and `intake:dataset` save every email through `ingestFromIntake`
+   (`src/server/pipeline/intake.ts`, shared glue in `scripts/intake-save.ts`): readable bill → validated,
+   coded, audited (`InReview`); unreadable bill → `ManualEntry`; each bill gets a `documents` row (sha256).
+   Re-running is safe (no duplicates). `--no-save` only prints. Gmail's cursor advances only after every
+   new email is saved.
 
 Traps:
 - "Access blocked: … has not completed the Google verification process" → the signing-in account is
