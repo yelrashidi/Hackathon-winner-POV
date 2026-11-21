@@ -64,9 +64,9 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] P1 On invoice edit call `reapprovalReasons`; non-empty → bump `invoices.version`. [Youssef]
 - [ ] P2 Daily `approvalAging` job: reminders and escalation notices. [Youssef]
 
-## 7 Payments — owner: Youssef
-- [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [Youssef]
-- [ ] P1 Release checks against approvals: P11 via `approversOf(...allPlans)`; amount ≤ `plan.basis.totalCents`, payee = `plan.basis.vendorId`. [Youssef]
+## 7 Payments — owner: Katie
+- [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [Katie]
+- [ ] P1 Release checks against approvals: P11 via `approversOf(...allPlans)`; amount ≤ `plan.basis.totalCents`, payee = `plan.basis.vendorId`. [Katie]
 
 ## 8 Audit — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Audit view per payment: PDF → extraction → coding → approvals → release; auditor export (CSV). [_name_]
