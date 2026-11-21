@@ -33,7 +33,19 @@ Two rules apply to every role. Nobody approves an invoice they requested; it esc
 
 ### Standard features
 
-<!-- TODO: the feature table was missing from the pasted copy of the brief — paste it here -->
+The 9 required features (worth 40% of the score, tested on a hidden batch of invoices):
+
+1. **Intake**: pick up invoices from the AP inbox and uploads; recognise emails that aren't bills.
+2. **Extraction**: read PDFs and scans (including French and low-quality ones) into structured fields.
+3. **Categorization (coding)**: suggest GL account and department, with a reason based on history.
+4. **Validation checks**: vendor master, PO, contract prices, tax for the place of supply, arithmetic, FX.
+5. **Duplicate checks**: exact and near-duplicate invoices, including ones already paid by card.
+6. **Approval routing**: send each invoice to the right approvers per the policies, with escalation and delegation.
+7. **Payment**: simulated release of approved invoices (EFT / cheque / card), respecting separation of duties.
+8. **Audit trail**: who did what and when, from the original document to payment.
+9. **Dashboard**: a role-specific view of the queue and flags for each user.
+
+<!-- Feature names are from the official brief; the one-line descriptions are our summary. Replace with the brief's own wording if you have it. -->
 
 ### Bonus features
 
