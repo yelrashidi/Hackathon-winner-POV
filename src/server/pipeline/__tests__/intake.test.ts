@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import type { PGlite } from "@electric-sql/pglite";
@@ -7,7 +8,9 @@ import { DocumentReading } from "@/contracts/extraction";
 import { InboxMessage, IntakeClassification } from "@/contracts/intake";
 import type { Db } from "@/server/db/client";
 import { createSeededDb } from "@/server/db/__tests__/helpers";
-import { auditEvents, invoiceLines, invoices } from "@/server/db/schema";
+import { auditEvents, documents, invoiceLines, invoices } from "@/server/db/schema";
+import { getInvoiceAuditDetail } from "@/server/features/audit";
+import { DATASET_DIR } from "@/server/features/intake/dataset/vendors";
 import { loadIncomingFixtures } from "@/server/features/validation/dataset/batch";
 import { ingestFromIntake, intakeInvoiceId, readingToValidationInput } from "..";
 
@@ -105,6 +108,32 @@ describe("intake → pipeline adapter", () => {
     const again = await ingestFromIntake(c.message, { classification: c.classification, readings: c.readings }, { db, today: TODAY });
     expect(again[0]!.outcome).toBe("already_ingested");
     const n = await client.query<{ n: number }>(`SELECT count(*)::int n FROM invoices WHERE id = '${intakeInvoiceId(c.message, c.readings[0]!.sourceRef)}'`);
+    expect(n.rows[0]!.n).toBe(1);
+  });
+
+  it("with the attachment bytes, the bill links to its source file (sha256), up to the auditor's view", async () => {
+    const c = byName("vendor-invoice");
+    const message = { ...c.message, externalId: "EM-T-DOC" }; // a fresh email carrying the same PDF
+    const bytes = readFileSync(path.join(DATASET_DIR, "incoming_invoices", c.readings[0]!.sourceRef));
+    const attachments = { [c.readings[0]!.sourceRef]: { bytes, storageKey: `incoming_invoices/${c.readings[0]!.sourceRef}` } };
+    const [o] = await ingestFromIntake(message, { classification: c.classification, readings: c.readings }, { db, today: TODAY, attachments });
+    const id = (o as { invoiceId: string }).invoiceId;
+    const [inv] = await db.select().from(invoices).where(eq(invoices.id, id));
+    const [doc] = await db.select().from(documents).where(eq(documents.id, inv!.documentId!));
+    expect(doc).toMatchObject({ inboxMessageId: "EM-T-DOC", sha256: createHash("sha256").update(bytes).digest("hex"), storageKey: `incoming_invoices/${c.readings[0]!.sourceRef}`, mime: "application/pdf" });
+    const [created] = await db.select().from(auditEvents).where(eq(auditEvents.entityId, id));
+    expect(created!.metadata).toMatchObject({ documentId: doc!.id });
+    const detail = await getInvoiceAuditDetail({ userId: "U040", role: "auditor" }, id, { db });
+    expect(detail.document).toMatchObject({ documentId: doc!.id, sha256: doc!.sha256 });
+  });
+
+  it("a retry after a failed save reuses the document row instead of adding another", async () => {
+    const c = byName("manual-invoice");
+    const message = { ...c.message, externalId: "EM-T-RETRY" };
+    const attachments = { [c.readings[0]!.sourceRef]: { bytes: Buffer.from("same bytes") } };
+    await ingestFromIntake(message, { classification: c.classification, readings: c.readings }, { db, today: TODAY, attachments });
+    await ingestFromIntake(message, { classification: c.classification, readings: c.readings }, { db, today: TODAY, attachments });
+    const n = await client.query<{ n: number }>(`SELECT count(*)::int n FROM documents WHERE inbox_message_id = 'EM-T-RETRY'`);
     expect(n.rows[0]!.n).toBe(1);
   });
 

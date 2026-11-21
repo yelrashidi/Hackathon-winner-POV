@@ -24,8 +24,8 @@
     "validate:batch": "tsx scripts/validate-batch.ts",
     "validate:history": "tsx scripts/validate-history.ts",
     "gmail:auth": "tsx scripts/gmail-auth.ts",
-    "gmail:poll": "tsx scripts/gmail-poll.ts",
-    "intake:dataset": "tsx scripts/intake-dataset.ts",
+    "gmail:poll": "tsx --env-file-if-exists=.env scripts/gmail-poll.ts",
+    "intake:dataset": "tsx --env-file-if-exists=.env scripts/intake-dataset.ts",
     "fixtures:intake": "tsx scripts/generate-intake-fixtures.ts"
   },
   "dependencies": {

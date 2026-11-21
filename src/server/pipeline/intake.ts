@@ -1,4 +1,5 @@
-import { eq } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { and, eq } from "drizzle-orm";
 import { SYSTEM_ACTOR, type Actor } from "@/contracts/actor";
 import type { DocumentReading, ExtractedDocument } from "@/contracts/extraction";
 import type { InboxMessage, IntakeClassification } from "@/contracts/intake";
@@ -6,7 +7,7 @@ import type { ValidationInputDraft } from "@/contracts/validation";
 import { withAction } from "@/server/core/audit";
 import { fire } from "@/server/core/fire";
 import { getDb, type Db } from "@/server/db/client";
-import { inboxMessages, invoices } from "@/server/db/schema";
+import { documents, inboxMessages, invoices } from "@/server/db/schema";
 import { ingestInvoice, type AnalysisResult } from "./ingest";
 
 /**
@@ -21,7 +22,28 @@ import { ingestInvoice, type AnalysisResult } from "./ingest";
  *     - anything else           → no invoice; the email keeps its reason
  * Idempotent: the invoice id is derived from (source, email id, attachment), so polling the same
  * email twice reports "already_ingested" instead of creating a duplicate.
+ *
+ * Source file: pass the attachment bytes (`attachments[sourceRef]`) and the bill gets a `documents`
+ * row — its sha256 and where the file lives (`storageKey`) — linked from the invoice, so an auditor
+ * can prove which file the numbers came from. The bytes themselves are not copied into Postgres.
  */
+
+/** One attachment's bytes, as intake loaded them, and where the original lives. */
+export interface IntakeAttachmentFile {
+  bytes: Uint8Array;
+  /** e.g. "incoming_invoices/x.pdf" or "gmail:<message id>/<filename>". Default: "<inbox message id>/<filename>". */
+  storageKey?: string;
+}
+
+export interface IntakeIngestOptions {
+  db?: Db;
+  actor?: Actor;
+  today?: string;
+  /** Bytes per attachment `sourceRef`; bills get a `documents` row (sha256) from these. */
+  attachments?: Readonly<Record<string, IntakeAttachmentFile>>;
+  /** Already-stored documents per `sourceRef` (overrides `attachments`). */
+  documentIds?: Readonly<Record<string, string>>;
+}
 
 export interface IntakeIngestResult {
   classification: IntakeClassification;
@@ -82,7 +104,7 @@ export function readingToValidationInput(message: InboxMessage, reading: Documen
 export async function ingestFromIntake(
   message: InboxMessage,
   result: IntakeIngestResult,
-  opts: { db?: Db; actor?: Actor; today?: string; documentIds?: Readonly<Record<string, string>> } = {},
+  opts: IntakeIngestOptions = {},
 ): Promise<IntakeOutcome[]> {
   const db = opts.db ?? getDb();
   const actor = opts.actor ?? SYSTEM_ACTOR;
@@ -117,6 +139,7 @@ export async function ingestFromIntake(
       outcomes.push({ sourceRef, outcome: "already_ingested", invoiceId });
       continue;
     }
+    const documentId = opts.documentIds?.[sourceRef] ?? (await storeDocument(db, message, msgId, sourceRef, opts.attachments?.[sourceRef]));
     const provenance = { inboxMessageId: msgId, sourceRef, filename: reading.filename, intakeReason: classification.reason, readBy: reading.decidedBy, warnings: reading.extracted?.warnings ?? [] };
     const source = message.source === "upload" ? "upload" : "email";
 
@@ -124,7 +147,7 @@ export async function ingestFromIntake(
       const analysis = await ingestInvoice(readingToValidationInput(message, reading as DocumentReading & { extracted: ExtractedDocument }), {
         source,
         actor,
-        documentId: opts.documentIds?.[sourceRef] ?? null,
+        documentId,
         today: opts.today,
         provenance,
         // extraction's whole reading (reason, signals, raw model reply) is the original evidence
@@ -144,7 +167,7 @@ export async function ingestFromIntake(
           id: invoiceId,
           status: "Received",
           source,
-          documentId: opts.documentIds?.[sourceRef] ?? null,
+          documentId,
           receivedDate: receivedDate(message.receivedAt),
           extractionRaw: { reading },
         });
@@ -169,4 +192,22 @@ export async function ingestFromIntake(
     if (!readings.some((r) => r.sourceRef === ref)) outcomes.push({ sourceRef: ref, outcome: "not_ingested", reason: "No document reading for this attachment." });
   }
   return outcomes;
+}
+
+/**
+ * The bill's source file: one `documents` row per (email, file content). Re-running after a failed
+ * ingest reuses the row instead of adding another.
+ */
+async function storeDocument(db: Db, message: InboxMessage, msgId: string, sourceRef: string, file: IntakeAttachmentFile | undefined): Promise<string | null> {
+  if (!file) return null;
+  const sha256 = createHash("sha256").update(file.bytes).digest("hex");
+  const [existing] = await db.select({ id: documents.id }).from(documents).where(and(eq(documents.inboxMessageId, msgId), eq(documents.sha256, sha256)));
+  if (existing) return existing.id;
+  const meta = message.attachments.find((a) => a.sourceRef === sourceRef);
+  const fileName = meta?.filename ?? sourceRef;
+  const [row] = await db
+    .insert(documents)
+    .values({ inboxMessageId: msgId, storageKey: file.storageKey ?? `${msgId}/${fileName}`, fileName, mime: meta?.mimeType ?? null, sha256 })
+    .returning({ id: documents.id });
+  return row!.id;
 }
