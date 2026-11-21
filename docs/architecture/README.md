@@ -14,7 +14,8 @@ How the code works and why. One doc per feature, written by its owner from
 | `3-coding.md` | *to write* | |
 | `4-validation.md` | *to write* | |
 | `5-duplicates.md` | *to write* | |
-| `6-approvals.md` | *to write* | |
+| [`6-approvals.md`](6-approvals.md) | approval routing, separation of duties, the approve/reject gate | Youssef |
+| [`6-approvals-edge-cases.md`](6-approvals-edge-cases.md) | every approvals edge case with `file:line` + test, what was left out, defaults to confirm | Youssef |
 | `7-payments.md` | *to write* | |
 | `8-audit.md` | *to write* | |
 | `9-vendors.md` | *to write* | |
