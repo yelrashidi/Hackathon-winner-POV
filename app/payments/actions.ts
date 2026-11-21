@@ -35,12 +35,13 @@ async function toState(pending: Promise<ActionResult<unknown>>, done: string): P
 
 const text = (form: FormData, key: string) => String(form.get(key) ?? "");
 
-/** Schedule an approved invoice, or retry after a failed or cancelled attempt (a new attempt). */
+/** Schedule an approved invoice, retry after a failed attempt, or schedule again after a cancelled one (a new attempt). */
 export async function scheduleAction(_: FormState, form: FormData): Promise<FormState> {
-  const retry = text(form, "retry") === "1";
+  // Only picks the confirmation text; the rules decide whether a new attempt is allowed.
+  const retry = text(form, "retry");
   return toState(
     schedulePayment(await actorId(), { invoiceId: text(form, "invoiceId"), payDate: text(form, "payDate") || undefined }),
-    retry ? "Retry scheduled as a new attempt." : "Payment scheduled.",
+    retry === "again" ? "Payment scheduled again (new attempt)" : retry === "1" ? "Retry scheduled as a new attempt." : "Payment scheduled.",
   );
 }
 

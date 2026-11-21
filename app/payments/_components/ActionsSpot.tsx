@@ -23,7 +23,8 @@ export function PaymentAction({
     return <ActionForm action={releaseAction} label="Release" hidden={{ paymentId }} align={align} />;
   }
   if (label === "Retry" || label === "Schedule again") {
-    return <ActionForm action={scheduleAction} label={label} hidden={{ invoiceId, retry: "1" }} align={align} />;
+    const retry = label === "Retry" ? "1" : "again";
+    return <ActionForm action={scheduleAction} label={label} hidden={{ invoiceId, retry }} align={align} />;
   }
   return <ActionForm action={scheduleAction} label="Schedule" hidden={{ invoiceId }} align={align} />;
 }
