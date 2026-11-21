@@ -46,6 +46,10 @@ export interface IngestOptions {
   documentId?: string | null;
   /** "Today" for the date rules; defaults to the server's date. */
   today?: string;
+  /** Where it came from (inbox message, attachment, intake's reason) — kept on `invoice.created`. */
+  provenance?: Record<string, unknown>;
+  /** Extra original evidence kept next to the input in extraction_raw (e.g. extraction's full reading). */
+  evidence?: Record<string, unknown>;
   db?: Db;
 }
 
@@ -107,7 +111,7 @@ export async function ingestInvoice(draft: ValidationInputDraft, opts: IngestOpt
         poId: poOk ? input.poNumber : null,
         departmentId: deptOk ? input.departmentId : null,
         requesterId: userOk ? input.requesterId : null,
-        extractionRaw: draft as unknown as Record<string, unknown>,
+        extractionRaw: { ...(draft as unknown as Record<string, unknown>), ...opts.evidence },
         extractionConfidence: input.confidence,
       };
       await tx.insert(invoices).values(row);
@@ -137,7 +141,7 @@ export async function ingestInvoice(draft: ValidationInputDraft, opts: IngestOpt
           lines: input.lines.length,
           taxes: input.taxes.length,
         },
-        metadata: { documentId: opts.documentId ?? null },
+        metadata: { documentId: opts.documentId ?? null, ...opts.provenance },
       });
 
       await fire(action, input.invoiceId, "extractionSucceeded");

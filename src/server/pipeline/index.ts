@@ -2,7 +2,8 @@
  * The invoice pipeline on the database: each feature's pure engine, wired to Postgres with
  * authorize() → one transaction → audit rows → fire(). Route handlers and server actions call these.
  *
- *   2 → in    ingestInvoice(extracted, { source })            save + validation (4) + coding (3)
+ *   1–2 → in  ingestFromIntake(message, { classification, readings })   intake + extraction hand-off
+ *             ingestInvoice(validationInput, { source })      save + validation (4) + coding (3)
  *   review    editInvoice(actor, id, patch)                   correct fields → analysis re-runs
  *             codeInvoiceLine / acceptConfidentLines          a person confirms coding (3)
  *             overrideFlag / resolveFlag                      (from features/validation)
@@ -17,3 +18,4 @@ export { ingestInvoice, revalidateInvoice, editInvoice, IngestError, type Ingest
 export { codeWithin, codeInvoiceLine, acceptConfidentLines, loadCodingContext, CodingError } from "./coding";
 export { submitForApproval, decideApproval, loadApprovalContext, PostgresApprovalStore, ApprovalFlowError } from "./approvals";
 export { invoiceInputFromDb } from "./input";
+export { ingestFromIntake, readingToValidationInput, intakeInvoiceId, inboxMessageId, type IntakeOutcome, type IntakeIngestResult } from "./intake";
