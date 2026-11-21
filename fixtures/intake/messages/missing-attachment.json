@@ -1,0 +1,12 @@
+{
+  "source": "dataset",
+  "externalId": "EM-058",
+  "threadId": null,
+  "fromName": "Brightmore Consulting Group",
+  "fromAddress": "ar@brightmoreconsulting.example",
+  "toAddress": "ap@harborline-logistics.example",
+  "subject": "Invoice attached",
+  "receivedAt": "2026-10-29T16:29:00",
+  "bodyText": "Hello,\n\nPlease find our October invoice attached.\n\nBrightmore Consulting",
+  "attachments": []
+}

@@ -1,0 +1,19 @@
+{
+  "source": "dataset",
+  "externalId": "EM-042",
+  "threadId": null,
+  "fromName": "Fixwell Facility Services Accounts Receivable",
+  "fromAddress": "ar@fixwellfacility.example",
+  "toAddress": "ap@harborline-logistics.example",
+  "subject": "Facture CN-FA-000413",
+  "receivedAt": "2026-10-31T17:43:00",
+  "bodyText": "Hello,\n\nPlease find attached our invoice CN-FA-000413 for services provided. Payment terms are on the invoice.\n\nThank you,\nFixwell Facility Services Accounts Receivable",
+  "attachments": [
+    {
+      "filename": "fixwellfacilitys_CNFA000413.pdf",
+      "mimeType": "application/pdf",
+      "sizeBytes": null,
+      "sourceRef": "fixwellfacilitys_CNFA000413.pdf"
+    }
+  ]
+}

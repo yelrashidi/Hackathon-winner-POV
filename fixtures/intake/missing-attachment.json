@@ -1,0 +1,13 @@
+{
+  "decision": "needs_review",
+  "kind": "missing_attachment",
+  "reason": "Mentions an invoice (\"invoice\") but has no attachment — ask the sender to resend it.",
+  "invoiceAttachments": [],
+  "decidedBy": "rules",
+  "signals": [
+    "NO_ATTACHMENT",
+    "INVOICE_TERMS",
+    "KNOWN_VENDOR_SENDER"
+  ],
+  "documents": []
+}

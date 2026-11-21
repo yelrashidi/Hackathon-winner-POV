@@ -1,6 +1,6 @@
 # 1 — Intake
 
-**Owner:** Arpan · **Code as of:** `1209322` + uncommitted on `arpan/feature/gmail-connector` (steps 1–2 of 4 done; step 3 in `docs/todo/TODO.md`)
+**Owner:** Arpan · **Code as of:** `b655a97` + PR #11 review fixes (2026-11-21; steps 1–2 of 4 done; step 3 in `docs/todo/TODO.md`)
 
 ## What it does
 Watches a mailbox, turns every new email into one `InboxMessage`, classifies it (invoice / not an
@@ -17,6 +17,8 @@ Build order: **1 Gmail connector** (done) → **2 classifier** (done) → 3 inta
   dataset's `inbox/emails.json` (`src/server/features/intake/dataset/emails.ts`). Hidden scoring
   data arrives as the latter, so both go through the same classifier.
 - Later: persisted to `inbox_messages` / `documents` / `invoices` (step 3).
+- Frozen outputs: `fixtures/intake/*.json` (`IntakeClassification`) and `fixtures/intake/messages/*.json` (`InboxMessage`). `npm run fixtures:intake` replays saved extraction replies without API calls; `-- --live` captures three new document reads. `src/contracts/__tests__/intake-fixtures.test.ts` parses and replays every fixture.
+- Both CLI runners share terminal formatting in `scripts/intake-print.ts:9` (`printResult`); it is an imported helper, not a standalone command.
 
 ## How it decides (connector)
 - **Auth:** OAuth "Desktop app" client, scope `gmail.readonly` only — intake cannot send, delete
@@ -25,6 +27,7 @@ Build order: **1 Gmail connector** (done) → **2 classifier** (done) → 3 inta
   `historyId` as a cursor; `history.list` returns only messages added to INBOX since then.
   First run records "now" — a personal inbox is never backfilled unless `--backfill 1d` is asked for.
   Expired cursor (Gmail keeps ~7 days) → reset to now, reported.
+- Drain every history and backfill page and fetch every unique message before returning a cursor (`gmail/poll.ts:65`, `:102`). `maxMessages` sets the backfill page size, never a total delivery cap (BUG-Arpan-02). A failed fetch rejects the poll so no new cursor is returned to save.
 - Sent mail and drafts are skipped. A message failing the contract is returned in `rejected` with
   the Zod reason, never silently dropped.
 - Re-delivery is safe: storage will be unique on `(source, externalId)`.
@@ -95,11 +98,13 @@ Step 3 adds `DOCUMENT_TYPE_UNCERTAIN` (warn) on an invoice created from an uncer
 Polling one mailbox is cheap (O(new mail)). Many mailboxes or near-real-time → Gmail `watch` +
 Pub/Sub push into a queue table, same `pollGmail` code drains it. Attachment bytes fetched lazily,
 stored once by sha256.
+The current CLI drains a backlog serially. For large backlogs, persist a queue plus its cursor in one transaction, then classify bounded batches; never advance a cursor while discarding unfetched messages.
 
 ## Known gaps
 - Whole personal inbox is read (team decision 2026-11-21); the classifier must pre-filter
   before anything is sent to the LLM.
 - Cursor lives in `.intake/gmail-state.json` until the intake tables exist (step 3).
+- Vendor domains are injected into classification. `intake/dataset/vendors.ts` is a development/fixture adapter only; deployed intake must supply the database-backed vendor context (tracked in TODO step 3).
 - Nothing persisted yet; an uncertain document next to a bill is only listed under its email
   until step 3 makes it its own dashboard item.
 - Lookalike sender domains: flagged by validation, not intake (needs `fromAddress` passed through).

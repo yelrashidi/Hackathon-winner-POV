@@ -1,0 +1,12 @@
+{
+  "source": "dataset",
+  "externalId": "EM-056",
+  "threadId": null,
+  "fromName": "Polar Freight Lines Ltd. Accounts Receivable",
+  "fromAddress": "ar@polarfreight.example",
+  "toAddress": "ap@harborline-logistics.example",
+  "subject": "Statement of account - October 2026",
+  "receivedAt": "2026-11-02T09:14:00",
+  "bodyText": "Hello,\n\nAttached is your statement of account for October. No action needed unless you see differences.\n\nPolar Freight Lines Ltd.",
+  "attachments": []
+}

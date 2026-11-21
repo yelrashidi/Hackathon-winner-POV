@@ -1,0 +1,19 @@
+{
+  "sourceRef": "Invoice 4443.pdf",
+  "filename": "Invoice 4443.pdf",
+  "verdict": "bill",
+  "documentType": "invoice",
+  "reason": "Document is titled \"invoice\" and has an invoice number and a total. Fields could not be read automatically (no extraction model configured) — manual entry.",
+  "decidedBy": "fallback",
+  "textLayerChars": 556,
+  "signals": [
+    "DOC_TEXT_LAYER",
+    "DOC_INVOICE_NUMBER",
+    "DOC_TOTAL",
+    "DOC_TITLE_INVOICE",
+    "EXTRACTION_FAILED"
+  ],
+  "extracted": null,
+  "llmRaw": null,
+  "error": "no extraction model configured"
+}

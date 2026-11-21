@@ -14,10 +14,31 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Andrew-02 | High | Andrew | 2026-11-21 | Impossible dates (2026-02-30) rolled over and raised false date flags |
 | BUG-Andrew-03 | High | Andrew | 2026-11-21 | Unmapped tax line produced a false blocking TAX_MISSING |
 | BUG-Arpan-01 | High | Arpan | 2026-11-21 | Any PDF in an email that said "invoice" became a draft bill |
+| BUG-Arpan-02 | High | Arpan | 2026-11-21 | Gmail advanced its cursor past messages excluded by the delivery cap |
+| BUG-Arpan-03 | High | Arpan | 2026-11-21 | Credit notes kept positive amounts when their total was missing or already negative |
+| BUG-Arpan-04 | Medium | Arpan | 2026-11-21 | Missing line values silently became zero amounts or quantity one |
 | BUG-Katie-01 | High | Katie | 2026-11-21 | Release said "No approval record was found" in the app while tests passed |
 | BUG-Katie-02 | Medium | Katie | 2026-11-21 | `import "server-only"` made `npm run check` fail |
 
 ---
+
+### BUG-Arpan-02
+**Gmail cursor skipped overflow mail** · High · FIXED · found 2026-11-21 in Claude's PR #11 review
+
+**Cause.** History polling stopped at `maxMessages`, sliced away surplus ids, then returned the mailbox's latest history id. Backfill also read only its first page.
+**Fix.** Drain every page, deduplicate ids and fetch all messages before returning the cursor (`src/server/features/intake/gmail/poll.ts:65`, `:102`). Tests in `intake/__tests__/gmail-poll.test.ts` cover 60 messages with a cap of 2, later/empty pages, duplicate ids, paginated backfill and API failures. Rule: backend cursor advancement follows complete delivery.
+
+### BUG-Arpan-03
+**Credit signs depended on the total** · High · FIXED · found 2026-11-21 in Claude's PR #11 review
+
+**Cause.** The normalizer flipped credit amounts only when the total was readable and positive.
+**Fix.** Normalize every monetary field independently when the type is `credit_note`, preserve null totals and warn only if a positive amount changed (`src/server/features/extraction/normalize.ts:70`). Regression cases cover blank/unreadable/negative totals, mixed signs and zero tax. Rule: money-and-tax credit normalization is per field.
+
+### BUG-Arpan-04
+**Missing line values looked certain** · Medium · FIXED · found 2026-11-21 in Claude's PR #11 review
+
+**Cause.** Required numeric line schemas forced defaults, but blank amounts had no warning; quantity defaulted to 1 and unit price could copy the line amount.
+**Fix.** Parse each line field once, keep explicit numeric placeholders, warn for every missing/unreadable required field and set line confidence to zero (`src/server/features/extraction/normalize.ts:37`). Tests distinguish missing/unreadable amounts and quantity from a genuine printed zero. Shared contracts stay compatible. Rule: placeholders require manual review.
 
 ### BUG-Youssef-01
 **A delegate could approve their absent boss's own request** · High · FIXED · found 2026-11-21 by Youssef

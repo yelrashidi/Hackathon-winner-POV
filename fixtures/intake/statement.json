@@ -1,0 +1,13 @@
+{
+  "decision": "needs_review",
+  "kind": "statement",
+  "reason": "Statement of account (\"statement of account\") from known vendor — not a bill; clerk reconciles it against open invoices.",
+  "invoiceAttachments": [],
+  "decidedBy": "rules",
+  "signals": [
+    "NO_ATTACHMENT",
+    "STATEMENT_TERMS",
+    "KNOWN_VENDOR_SENDER"
+  ],
+  "documents": []
+}

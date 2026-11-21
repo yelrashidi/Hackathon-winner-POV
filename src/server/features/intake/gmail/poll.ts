@@ -30,6 +30,7 @@ export interface PollOptions {
   cursor: string | null;
   /** Gmail search query for an explicit one-off backfill, e.g. "newer_than:1d". */
   backfillQuery?: string;
+  /** Messages per backfill page, not a delivery cap. Every page is drained before advancing. */
   maxMessages?: number;
 }
 
@@ -63,11 +64,16 @@ export async function pollGmail(client: GmailClient, opts: PollOptions): Promise
 
   if (opts.backfillQuery) {
     const cursor = await currentHistoryId(client);
-    const { data } = await client.users.messages.list({
-      userId: "me", q: `in:inbox ${opts.backfillQuery}`, maxResults: max,
-    });
-    const ids = (data.messages ?? []).map((m) => m.id!).filter(Boolean).reverse(); // oldest first
-    return { ...(await fetchMessages(client, ids)), cursor, note: "backfill" };
+    const ids = new Set<string>();
+    let pageToken: string | undefined;
+    do {
+      const { data } = await client.users.messages.list({
+        userId: "me", q: `in:inbox ${opts.backfillQuery}`, maxResults: max, pageToken,
+      });
+      for (const message of data.messages ?? []) if (message.id) ids.add(message.id);
+      pageToken = data.nextPageToken ?? undefined;
+    } while (pageToken);
+    return { ...(await fetchMessages(client, [...ids].reverse())), cursor, note: "backfill" };
   }
 
   if (!opts.cursor) {
@@ -87,13 +93,15 @@ export async function pollGmail(client: GmailClient, opts: PollOptions): Promise
       }
       if (data.historyId) cursor = data.historyId;
       pageToken = data.nextPageToken ?? undefined;
-    } while (pageToken && ids.size < max);
+    } while (pageToken);
   } catch (err) {
     if (!isNotFound(err)) throw err;
     return { messages: [], rejected: [], cursor: await currentHistoryId(client), note: "cursor_expired_reset" };
   }
 
-  return { ...(await fetchMessages(client, [...ids].slice(0, max))), cursor, note: "incremental" };
+  // Gmail's historyId covers the whole change log, not just the first page or N messages.
+  // Fetch every discovered id before returning a cursor the caller may save (BUG-Arpan-02).
+  return { ...(await fetchMessages(client, [...ids])), cursor, note: "incremental" };
 }
 
 /** Raw bytes of one attachment, addressed by the `sourceRef` the parser produced. */

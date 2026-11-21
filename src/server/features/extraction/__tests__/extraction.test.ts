@@ -80,6 +80,16 @@ const llmReply = (over: Partial<LlmExtraction> = {}): LlmExtraction => ({
 });
 
 describe("normalizeExtraction", () => {
+  it("normalizes French printed amounts and decimal quantities", () => {
+    const x = normalizeExtraction(llmReply({ language: "fr", paymentTerms: "30 jours net", total: "1 149,75 $", subtotal: "1 000,00 $",
+      lines: [{ description: "Entretien", quantity: "2,5", unitPrice: "400,00 $", amount: "1 000,00 $", lineType: "services" }],
+      taxes: [{ label: "TPS", ratePercent: "5", amount: "50,00 $", code: "GST5" },
+        { label: "TVQ", ratePercent: "9,975", amount: "99,75 $", code: "QST9975" }] }));
+    expect(x).toMatchObject({ language: "fr", totalCents: 114975, subtotalCents: 100000, paymentTermsDays: 30,
+      lines: [{ quantity: 2.5, unitPriceCents: 40000, amountCents: 100000, lineType: "services" }],
+      taxes: [{ amountCents: 5000 }, { amountCents: 9975 }] });
+  });
+
   it("turns printed amounts into cents and terms into days, deterministically", () => {
     const x = normalizeExtraction(llmReply());
     expect(x).toMatchObject({
@@ -110,6 +120,48 @@ describe("normalizeExtraction", () => {
   it("maps UNMAPPED tax lines to a null code (never 'no tax')", () => {
     expect(normalizeExtraction(llmReply({ taxes: [{ label: "Eco fee", ratePercent: "", amount: "$2.00", code: "UNMAPPED" }] })).taxes[0])
       .toMatchObject({ code: null, amountCents: 200 });
+  });
+
+  it.each(["", "unreadable", "-$113.00"])("normalizes credit amounts independently when total is %j", (total) => {
+    const x = normalizeExtraction(llmReply({ documentType: "credit_note", total, subtotal: "$100.00",
+      lines: [{ description: "Credit", quantity: "1", unitPrice: "$100.00", amount: "-$100.00", lineType: "services" }],
+      taxes: [{ label: "HST", ratePercent: "13", amount: "$13.00", code: "HST13" }] }));
+    expect(x.totalCents).toBe(total.startsWith("-") ? -11300 : null);
+    expect(x.subtotalCents).toBe(-10000);
+    expect(x.lines[0]).toMatchObject({ quantity: 1, unitPriceCents: -10000, amountCents: -10000 });
+    expect(x.taxes[0]!.amountCents).toBe(-1300);
+    expect(x.warnings).toContain("credit note printed positive amounts; stored as negative");
+  });
+
+  it("keeps already-negative credit amounts and zeroes without a sign warning", () => {
+    const x = normalizeExtraction(llmReply({ documentType: "credit_note", total: "-$100.00", subtotal: "-$100.00",
+      lines: [{ description: "Credit", quantity: "1", unitPrice: "-$100.00", amount: "-$100.00", lineType: "services" }],
+      taxes: [{ label: "Exempt", ratePercent: "0", amount: "$0.00", code: "UNMAPPED" }] }));
+    expect(x.totalCents).toBe(-10000);
+    expect(Object.is(x.taxes[0]!.amountCents, -0)).toBe(false);
+    expect(x.warnings).toEqual([]);
+  });
+
+  it.each(["", " ", "unreadable"])("marks missing or unreadable line amounts for manual review: %j", (amount) => {
+    const x = normalizeExtraction(llmReply({ lines: [{ description: "Unknown charge", quantity: "2", unitPrice: "", amount, lineType: "goods" }] }));
+    expect(x.lines[0]).toMatchObject({ quantity: 2, unitPriceCents: 0, amountCents: 0 });
+    expect(x.confidence.lines).toBe(0);
+    expect(x.warnings).toContain("line 1 amount is missing or unreadable; 0 is a placeholder for manual review");
+    expect(x.warnings).toContain("line 1 unit price is missing or unreadable; 0 is a placeholder for manual review");
+  });
+
+  it.each(["", "many"])("marks a defaulted quantity for manual review: %j", (quantity) => {
+    const x = normalizeExtraction(llmReply({ lines: [{ description: "Unknown quantity", quantity, unitPrice: "$10", amount: "$10", lineType: "goods" }] }));
+    expect(x.lines[0]!.quantity).toBe(1);
+    expect(x.confidence.lines).toBe(0);
+    expect(x.warnings).toContain("line 1 quantity is missing or unreadable; 1 is a placeholder for manual review");
+  });
+
+  it("retains a genuine zero-price line without a missing-value warning", () => {
+    const x = normalizeExtraction(llmReply({ lines: [{ description: "Free sample", quantity: "1", unitPrice: "$0.00", amount: "$0.00", lineType: "goods" }] }));
+    expect(x.lines[0]).toMatchObject({ unitPriceCents: 0, amountCents: 0 });
+    expect(x.confidence.lines).toBe(0.9);
+    expect(x.warnings).toEqual([]);
   });
 });
 

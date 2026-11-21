@@ -32,3 +32,5 @@ paths:
   validation and payments must say what it does with a negative.
 - **Anything that routes or limits on CAD re-checks `total × fx_rate = total_cad` (±1¢)**: an unconverted USD total under-approves (BUG-Youssef-02).
 - **An unmapped tax line is not "no tax".** Never report a tax missing while a tax line has no code — it may be that tax (BUG-Andrew-03).
+- **Normalize every credit-note amount independently**, even if the total is missing or already negative; keep missing totals null (BUG-Arpan-03).
+- **Numeric placeholders are not extracted values**: a missing quantity, unit price or line amount needs an explicit manual-review warning and zero line confidence (BUG-Arpan-04).

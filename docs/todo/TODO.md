@@ -50,9 +50,8 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P1 Mapper `ExtractedDocument` → invoice / lines / taxes rows; `invoice_number_norm` = upper-case, no spaces or dashes (duplicates search uses it). [Arpan]
 - [ ] P1 Clerk decision on uncertain documents: "It's a bill" → `ManualEntry`/`InReview`; "Not a bill" → `Voided` (`markNotInvoice`). `authorize()` first, audit in the same transaction. [Arpan]
 - [ ] P1 Wire both sources to `saveIntakeResult`: `gmail:poll` and `intake:dataset`; Gmail cursor moves from `.intake/gmail-state.json` to a DB row. [Arpan]
-- [ ] P1 Vendor domains and tax codes from the DB instead of `vendors.csv` / `tax_codes.csv` (`intake/dataset/vendors.ts`, `extraction/tax-codes.ts`). [Arpan]
+- [ ] P1 Deployed intake/extraction must inject vendor domains and tax codes from the DB; keep `intake/dataset/vendors.ts` and `extraction/tax-codes.ts` as CLI/development/fixture adapters only. [Arpan]
 - [ ] P1 Tests: idempotent re-run, rollback leaves nothing half-written, two-invoice email → two invoices, uncertain document → its own item, receipt PDF → `documents` row and no invoice. [Arpan]
-- [ ] P2 Fixtures from real runs: `fixtures/extraction/*.json` (`DocumentReading`) and `fixtures/intake/*.json` (`IntakeClassification`), parsed by `src/contracts/__tests__`. Tell Andrew (mapper) and the coding/duplicates owners. [Arpan]
 
 ### After step 3 [Arpan]
 - [ ] P1 Step 4: clerk inbox dashboard. Emails with decision + reason, each document's verdict, PDF viewer through `/api/documents/[id]` (`authorize()` before streaming), and a "Needs a decision" queue for uncertain documents. [Arpan]

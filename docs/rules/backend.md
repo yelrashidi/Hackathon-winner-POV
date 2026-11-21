@@ -30,3 +30,4 @@ paths:
 - **Write exactly what was authorized**: take the actor and action from the authorization result, not from separate arguments (BUG-Youssef-05).
 - **Next.js can load a server module more than once**, so module-level state (an in-memory store, a "seeded" flag) is not one per process; share it on `globalThis` or set it up per module copy (BUG-Katie-01).
 - **No `import "server-only"` under `src/`**: `npm run check:imports` loads every module with tsx and it throws there (BUG-Katie-02).
+- **A mailbox cursor may advance only after every covered page and message is fetched**; a page size must never become a silent delivery cap (BUG-Arpan-02).
