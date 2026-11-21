@@ -1,0 +1,55 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/voyageurcorporat_000921.pdf",
+  "emailId": "EM-038",
+  "input": {
+    "invoiceId": "IN-voyageurcorporat-000921",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Voyageur Corporate Travel",
+      "gstHstNumber": "338192319RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@voyageurcorporate.example",
+    "invoiceNumber": "000921",
+    "invoiceDate": "2026-10-29",
+    "dueDate": "2026-11-13",
+    "receivedDate": "2026-10-31",
+    "currency": "CAD",
+    "paymentTermsDays": 15,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Airfare - Winnipeg-Hamilton",
+        "quantity": 3,
+        "unitPriceCents": 62577,
+        "amountCents": 187731,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": 24405
+      }
+    ],
+    "subtotalCents": 187731,
+    "totalCents": 212136,
+    "statedFxRate": null,
+    "remitTo": null
+  },
+  "expectedCodes": [],
+  "why": "Clean."
+}

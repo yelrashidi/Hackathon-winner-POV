@@ -1,0 +1,59 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/benefitwisegroup_262.pdf",
+  "emailId": "EM-040",
+  "input": {
+    "invoiceId": "IN-benefitwisegroup-262",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Benefitwise Group Benefits Admin",
+      "gstHstNumber": "927363514RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@benefitwisegroup.example",
+    "invoiceNumber": "262",
+    "invoiceDate": "2026-10-30",
+    "dueDate": "2026-11-14",
+    "receivedDate": "2026-10-31",
+    "currency": "CAD",
+    "paymentTermsDays": 15,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Group benefits administration fee",
+        "quantity": 1,
+        "unitPriceCents": 219000,
+        "amountCents": 219000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": 28470
+      }
+    ],
+    "subtotalCents": 219000,
+    "totalCents": 247470,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "004",
+      "transit": "54042",
+      "account": "142487811"
+    }
+  },
+  "expectedCodes": [],
+  "why": "Clean: fixed fee matches contract, ON HST correct."
+}

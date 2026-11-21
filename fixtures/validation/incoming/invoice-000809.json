@@ -1,0 +1,69 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/Invoice 000809.pdf",
+  "emailId": "EM-048",
+  "input": {
+    "invoiceId": "IN-invoice-000809",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Summit Packaging Supply",
+      "gstHstNumber": "386986545RT0001",
+      "qstNumber": null,
+      "province": "BC",
+      "country": "CA"
+    },
+    "senderEmail": "ar@summitpackaging.example",
+    "invoiceNumber": "000809",
+    "invoiceDate": "2026-11-27",
+    "dueDate": "2026-12-27",
+    "receivedDate": "2026-11-02",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+      "province": "QC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Pallets (48x40), qty 400",
+        "quantity": 400,
+        "unitPriceCents": 1250,
+        "amountCents": 500000,
+        "lineType": "goods"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 25000
+      },
+      {
+        "code": "QST9975",
+        "label": "QST (9.975%)",
+        "ratePct": 9.975,
+        "amountCents": 49875
+      }
+    ],
+    "subtotalCents": 500000,
+    "totalCents": 574875,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "001",
+      "transit": "11931",
+      "account": "941078394"
+    }
+  },
+  "expectedCodes": [
+    "DATE_IN_FUTURE",
+    "PO_REQUIRED_MISSING",
+    "QST_NUMBER_MISSING"
+  ],
+  "why": "Dated 2026-11-27, after it was received 2026-11-02; vendor requires a PO; QST without QST number."
+}

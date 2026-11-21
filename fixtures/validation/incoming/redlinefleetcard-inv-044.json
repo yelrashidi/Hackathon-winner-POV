@@ -1,0 +1,61 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/redlinefleetcard-inv-044.pdf",
+  "emailId": "EM-043",
+  "input": {
+    "invoiceId": "IN-redlinefleetcard-inv-044",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Redline Fleet Cards Inc.",
+      "gstHstNumber": "902831173RT0001",
+      "qstNumber": null,
+      "province": "AB",
+      "country": "CA"
+    },
+    "senderEmail": "ar@redlinefleet.example",
+    "invoiceNumber": "FA-001687",
+    "invoiceDate": "2026-10-31",
+    "dueDate": "2026-11-15",
+    "receivedDate": "2026-10-31",
+    "currency": "CAD",
+    "paymentTermsDays": 15,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Fleet fuel card charges - October",
+        "quantity": 1,
+        "unitPriceCents": 544049,
+        "amountCents": 544049,
+        "lineType": "goods"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": 70726
+      }
+    ],
+    "subtotalCents": 544049,
+    "totalCents": 614775,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "002",
+      "transit": "76299",
+      "account": "859382597"
+    }
+  },
+  "expectedCodes": [
+    "CONTRACT_NTE_EXCEEDED"
+  ],
+  "why": "October spend reaches $9,946.54 vs the $9,000 monthly not-to-exceed."
+}

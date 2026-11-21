@@ -1,0 +1,50 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/tesseraanalytics-inv-050.pdf",
+  "emailId": "EM-049",
+  "input": {
+    "invoiceId": "IN-tesseraanalytics-inv-050",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Tessera Analytics Inc.",
+      "gstHstNumber": null,
+      "qstNumber": null,
+      "province": "WA",
+      "country": "US"
+    },
+    "senderEmail": "ar@tesseraanalytics.example",
+    "invoiceNumber": "002715",
+    "invoiceDate": "2026-10-31",
+    "dueDate": "2026-11-30",
+    "receivedDate": "2026-11-02",
+    "currency": "USD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1055 W Hastings St, Suite 900, Vancouver BC V6E 2E9",
+      "province": "BC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Tessera Analytics Pro - 12 seats",
+        "quantity": 1,
+        "unitPriceCents": 310000,
+        "amountCents": 310000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [],
+    "subtotalCents": 310000,
+    "totalCents": 310000,
+    "statedFxRate": null,
+    "remitTo": null
+  },
+  "expectedCodes": [
+    "CONTRACT_FIXED_FEE_BILLED_TWICE"
+  ],
+  "why": "Fixed monthly fee already billed in October (002712)."
+}

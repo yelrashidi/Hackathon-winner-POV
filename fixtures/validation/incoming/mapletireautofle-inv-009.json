@@ -1,0 +1,59 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/mapletireautofle-inv-009.pdf",
+  "emailId": "EM-009",
+  "input": {
+    "invoiceId": "IN-mapletireautofle-inv-009",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Maple Tire & Auto Fleet",
+      "gstHstNumber": "741252350RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@mapletire.example",
+    "invoiceNumber": "1531",
+    "invoiceDate": "2026-10-23",
+    "dueDate": "2026-11-07",
+    "receivedDate": "2026-10-23",
+    "currency": "CAD",
+    "paymentTermsDays": 15,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1055 W Hastings St, Suite 900, Vancouver BC V6E 2E9",
+      "province": "BC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Tire service (units)",
+        "quantity": 6,
+        "unitPriceCents": 31000,
+        "amountCents": 186000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 9300
+      }
+    ],
+    "subtotalCents": 186000,
+    "totalCents": 195300,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "016",
+      "transit": "88270",
+      "account": "186877225"
+    }
+  },
+  "expectedCodes": [],
+  "why": "Tire service is a service: BC GST only is correct."
+}

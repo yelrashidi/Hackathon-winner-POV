@@ -1,0 +1,61 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/beaumontrivieres_FA000557.pdf",
+  "emailId": "EM-014",
+  "input": {
+    "invoiceId": "IN-beaumontrivieres-fa000557",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Beaumont Riviere S.E.N.C.R.L.",
+      "gstHstNumber": "941999763RT0001",
+      "qstNumber": "2770904484TQ0001",
+      "province": "QC",
+      "country": "CA"
+    },
+    "senderEmail": "ar@beaumontriviere.example",
+    "invoiceNumber": "FA-000557",
+    "invoiceDate": "2026-10-23",
+    "dueDate": "2026-11-22",
+    "receivedDate": "2026-10-25",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+      "province": "QC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Legal services - Commercial contract dispute",
+        "quantity": 18,
+        "unitPriceCents": 42866,
+        "amountCents": 771588,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 38579
+      }
+    ],
+    "subtotalCents": 771588,
+    "totalCents": 810167,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "003",
+      "transit": "37295",
+      "account": "486747687"
+    }
+  },
+  "expectedCodes": [
+    "TAX_PROVINCE_MISMATCH"
+  ],
+  "why": "Delivered to Montreal (QC) but only GST charged; QST missing."
+}

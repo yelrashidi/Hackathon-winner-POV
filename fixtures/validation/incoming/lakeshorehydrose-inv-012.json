@@ -1,0 +1,59 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/lakeshorehydrose-inv-012.pdf",
+  "emailId": "EM-012",
+  "input": {
+    "invoiceId": "IN-lakeshorehydrose-inv-012",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Lakeshore Hydro Services",
+      "gstHstNumber": "511235570RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@lakeshorehydro.example",
+    "invoiceNumber": "INV-03018",
+    "invoiceDate": "2026-10-24",
+    "dueDate": "2026-11-14",
+    "receivedDate": "2026-10-24",
+    "currency": "CAD",
+    "paymentTermsDays": 21,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Energy - October",
+        "quantity": 1,
+        "unitPriceCents": 438001,
+        "amountCents": 438001,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": 56940
+      }
+    ],
+    "subtotalCents": 438001,
+    "totalCents": 494941,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "002",
+      "transit": "86503",
+      "account": "57551807"
+    }
+  },
+  "expectedCodes": [],
+  "why": "Clean; bank change in May was verified and is not recent."
+}

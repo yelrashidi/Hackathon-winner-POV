@@ -30,3 +30,4 @@ paths:
   BC PST is **not** recoverable, so it is part of the line's expense.
 - **Credit notes are negative totals.** They are not paid out by EFT; every `> 0` assumption in
   validation and payments must say what it does with a negative.
+- **An unmapped tax line is not "no tax".** Never report a tax missing while a tax line has no code — it may be that tax (BUG-Andrew-03).

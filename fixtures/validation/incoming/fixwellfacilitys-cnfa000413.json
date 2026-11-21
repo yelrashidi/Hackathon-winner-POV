@@ -1,0 +1,69 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/fixwellfacilitys_CNFA000413.pdf",
+  "emailId": "EM-042",
+  "input": {
+    "invoiceId": "IN-fixwellfacilitys-cnfa000413",
+    "documentType": "credit_note",
+    "vendor": {
+      "nameRaw": "Fixwell Facility Services",
+      "gstHstNumber": "880851885RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@fixwellfacility.example",
+    "invoiceNumber": "CN-FA-000413",
+    "invoiceDate": "2026-10-29",
+    "dueDate": "2026-11-28",
+    "receivedDate": "2026-10-31",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": "CN-FA-000413",
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Credit - Dock door repair",
+        "quantity": 1,
+        "unitPriceCents": -104276,
+        "amountCents": -104276,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "Credit - HVAC service call",
+        "quantity": 1,
+        "unitPriceCents": -38574,
+        "amountCents": -38574,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": -18571
+      }
+    ],
+    "subtotalCents": -142850,
+    "totalCents": -161421,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "016",
+      "transit": "96555",
+      "account": "937345964"
+    }
+  },
+  "expectedCodes": [
+    "CREDIT_NOTE_NO_REFERENCE"
+  ],
+  "why": "Credit note references itself instead of the invoice it reverses. Credit notes are not held for a missing PO."
+}
