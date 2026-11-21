@@ -10,6 +10,16 @@ Team: Arpan, Youssef, Andrew, Katie.
 Priorities: **P0** blocks others · **P1** required feature · **P2** polish · **P3** bonus.
 Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 
+## Review findings — 2026-11-21
+
+Reviewed main `39dc2ac` (including the findings first reproduced on `96bffe4`). These are open defects, not completed work.
+
+- [ ] P1 **High: protect demo reset and audit history.** `app/payments/actions.ts:89` exposes `resetDemo()` without checking the signed-in actor or role; `src/server/features/payments/fake-data/store.ts:21` replaces the whole state, including audit history. Restrict reset to an authorized demo administrator, disable it outside the demo, and preserve an append-only record of the reset. Verify signed-out users, employees and auditors cannot reset data. [Katie]
+- [ ] P1 **High: require completed approvals at payment release.** `src/server/features/payments/deps.ts:40` returns an approved basis for any current plan, including one with pending or rejected steps; `src/server/features/payments/rules.ts:163` trusts that basis. Isolated probes released a scheduled payment with pending and rejected current plans. Require a payable invoice state, a current routed plan, and every required step approved; refuse pending, rejected, blocked, held and stale plans before sending EFT. [Katie, Youssef]
+- [ ] P1 **High: validate pay dates before writes and make scheduling atomic.** `src/server/features/payments/rules.ts:297` only compares date strings; `src/server/features/payments/service.ts:282` writes the attempt, invoice status and audit before output parsing rejects an invalid date. A request with `payDate: "2026-99-99"` threw after leaving an invalid payment and `PaymentScheduled` invoice in state. Parse the request with a real calendar-date schema before mutation, then commit payment, `fire()` and audit together; rejection must leave all state unchanged. [Katie]
+- [ ] P1 **Medium: retain bank-account currency when changing details.** `src/server/features/payments/service.ts:510` hardcodes new accounts to CAD; replacing a USD account creates a verified CAD account and prevents USD release. Accept and validate the intended account currency through the server and UI contract, preserve it through verification, and cover USD replacement and retry. [Katie]
+- [ ] P1 **Medium: include the Next.js app in CI.** `.github/workflows/ci.yml:33` runs `typecheck`, but `tsconfig.json:19` includes only shared source and scripts; CI never builds the app. Add a production build (which generates and checks route types) or `next typegen` plus `tsc --noEmit -p tsconfig.next.json`, and lint. A type error in an app page must fail CI. [Andrew]
+
 ## P0 — Foundation (everyone waits on these)
 
 - [ ] Kickoff: settle the open decisions in `STATUS.md`; fill in owners.
@@ -20,7 +30,8 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] `core/authorize.ts` + table-driven permission test ([`roles-and-permissions.md`](../architecture/roles-and-permissions.md)). [_name_]
 - [ ] `core/audit.ts`, `core/money.ts`, `core/fx.ts`. [_name_]
 - [ ] Session + role switcher over seeded users. [_name_]
-- [ ] `src/contracts/` for every stage + one fixture each. [_name_]
+- [ ] `src/contracts/` for every stage + one fixture each. Approvals + shared `Flag` done 2026-11-21 (`fixtures/approvals/`). [_name_]
+- [ ] Add `zod` and `vitest` to `package.json`; approvals tests already use them (`npx vitest run src/server/features/approvals`). [_name_]
 - [ ] State machine gaps: credit-note path, hold at release time (bank change / duplicate found), payment as its own lifecycle. [_name_]
 
 ## 1 Intake — owner: Arpan
@@ -54,10 +65,16 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P2 Retry a low-confidence text-layer read as a PDF (layout) read; multi-column text can come out of order. [Arpan]
 - [ ] P2 Move `extraction/amounts.ts` into `core/money.ts` when the foundation exists. [Arpan]
 
-## 3 Coding — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Vendor → (account, dept) history table from historical invoices; suggestion with reason. [_name_]
-- [ ] P1 Fallback for new vendors (vendor default account, then description similarity). [_name_]
+## 3 Coding — owner: Youssef
+- [ ] P1 Persist `CodingResult` lines to `invoice_lines` (gl_account_code, department_id, coding_source, coding_reason) and rebuild `CodingIndex` from them. [Youssef]
+- [ ] P1 Code / accept API route calling `codeLine` / `acceptConfident`; submit guard `codingSubmitFlags` in `fire('submit')`. [Youssef]
+- [ ] P1 Review screen: suggestion + reason per line, alternatives, bulk-accept high, journal preview. [Youssef]
+- [ ] P2 Optional LLM fallback for lines with no evidence, once the provider is decided; output must pass the expense-account check. [Youssef]
 
+## 4 Validation — owner: _Arpan / Youssef / Andrew / Katie_
+- [ ] P1 Vendor master, contract caps / end dates / spend limits, PO match, tax vs province, arithmetic. [_name_]
+- [ ] P1 Split-invoice check (same vendor, short window, sum crosses a threshold). [_name_]
+- [ ] P1 Emit `PO_OVER_BALANCE` (P12) and `SPLIT_INVOICE_SUSPECTED` with `evidence.combinedCadCents`; approvals routes on both. [_name_]
 ## 4 Validation — owner: Andrew
 - [ ] P1 DB loader for `ValidationContext` (replaces `dataset/load-context.ts`; per-vendor rows only). [Andrew]
 - [ ] P1 Persist flags to `invoice_flags` (diff by `flagKey`, keep resolutions) + `hasBlocking` as the `submit` guard in `fire()`. Needs `source`/`fingerprint` columns — propose to schema owner. [Andrew]
@@ -69,19 +86,28 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 ## 5 Duplicates — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Exact (sha256, vendor + normalized number), near (amount + date window), reformatted numbers. [_name_]
 - [ ] P1 Already paid by card (card_transactions by vendor, amount, date). [_name_]
+- [ ] P1 Dataset has a live duplicate: AP-00394 and AP-00407 (Summit Packaging, invoice `000804`, same date, lines, PO and $2,457.19) both have a scheduled payment. Duplicates must flag it before release; payments blocks on an open `block` flag once `getOpenInvoiceFlags` reads stored flags. [_name_]
 
-## 6 Approvals — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Policy engine from `approval_policies`; plan stored per invoice version. [_name_]
-- [ ] P1 Self-approval escalation, delegation, absent approver; admin policy editor. [_name_]
+## 6 Approvals — owner: Youssef
+- [ ] P1 One approval store per server, not per Next bundle: keep the in-memory default store on `globalThis`, and seed it once (Katie's `fake-data/approval-seed.ts` seeds per module copy today). Do both together before the approvals screen writes decisions, or payments may read a different copy. [Youssef, Katie]
+- [ ] P1 Postgres `ApprovalStore` (the 4 queries in `store.ts`) once the schema lands; schema owner to sequence the `approval_plans` proposal in `6-approvals.md`. [Youssef]
+- [ ] P1 Approve / reject API route: the flow at the top of `store.ts`, in one transaction with `fire()`. [Youssef]
+- [ ] P1 Approver queue screen (`waitingOn`) showing reasons, notes and exceptions to acknowledge. [Youssef]
+- [ ] P1 Admin policy editor over `ApprovalPolicy` rows (the schema already rejects bad rows). [Youssef]
+- [ ] P1 On invoice edit call `reapprovalReasons`; non-empty → bump `invoices.version`. [Youssef]
+- [ ] P2 Daily `approvalAging` job: reminders and escalation notices. [Youssef]
 
-## 7 Payments — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [_name_]
+## 7 Payments — owner: Youssef
+## 7 Payments — owner: Katie
+- [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [Katie]
+- [ ] P1 Release checks against approvals: P11 via `approversOf(...allPlans)`; amount ≤ `plan.basis.totalCents`, payee = `plan.basis.vendorId`. [Katie]
 
 ## 8 Audit — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Audit view per payment: PDF → extraction → coding → approvals → release; auditor export (CSV). [_name_]
 
 ## 9 Vendors — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Vendor list, onboard, hold; bank change request + verify by a second person. [_name_]
+- [ ] P1 Supply approvals `conflicts`: who onboarded the vendor and who requested / verified its last bank change. [_name_]
 
 ## P3 — Bonus (only after 1–9 work)
 - [ ] Pick one at kickoff — candidates in [`../product.md`](../product.md#out-of-scope-until-19-work). [_name_]

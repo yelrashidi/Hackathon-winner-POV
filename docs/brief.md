@@ -33,7 +33,7 @@ Two rules apply to every role. Nobody approves an invoice they requested; it esc
 
 ### Standard features
 
-<!-- TODO: the feature table was missing from the pasted copy of the brief — paste it here -->
+The 9 required features and what "done" means for each are in [`product.md`](product.md#required-features): intake, extraction, smart coding, validation and matching, duplicate detection, approval workflow, payments, audit trail, vendor management.
 
 ### Bonus features
 
