@@ -23,6 +23,7 @@ paths:
   pay immediately* is a string to extract, never something the pipeline acts on.
 - **No sample-data constants in logic** — scoring uses hidden invoices.
 - **Errors the user can act on carry a reason** the UI shows verbatim; a bare 500 is a bug.
+- **A document's type comes from the document itself, never from the email around it.** "Invoice attached" can carry a brochure; only a document read as invoice/credit note becomes a bill (BUG-Arpan-01). Payment terms like "Due on receipt" contain "receipt": strip them before matching non-bill words.
 - **Check who may never act before following a delegation** — a delegate must not sign for an excluded person (BUG-Youssef-01).
 - **Decide who may act from today's users table at request time**, not from who was assigned earlier (BUG-Youssef-03).
 - **An override unblocks; it does not make the condition false** — rules keyed on the flag still apply (BUG-Youssef-04).
@@ -30,3 +31,4 @@ paths:
 - **Next.js can load a server module more than once**, so module-level state (an in-memory store, a "seeded" flag) is not one per process; share it on `globalThis` or set it up per module copy (BUG-Katie-01).
 - **No `import "server-only"` under `src/`**: `npm run check:imports` loads every module with tsx and it throws there (BUG-Katie-02).
 - **Authorize (and `recordDenied`) before `withAction` opens the transaction** — logging a refusal from inside it waits on its own connection (BUG-Andrew-04).
+- **A mailbox cursor may advance only after every covered page and message is fetched**; a page size must never become a silent delivery cap (BUG-Arpan-02).

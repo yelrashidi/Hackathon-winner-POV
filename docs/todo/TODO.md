@@ -10,6 +10,16 @@ Team: Arpan, Youssef, Andrew, Katie.
 Priorities: **P0** blocks others · **P1** required feature · **P2** polish · **P3** bonus.
 Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 
+## Review findings — 2026-11-21
+
+Reviewed main `39dc2ac` (including the findings first reproduced on `96bffe4`). These are open defects, not completed work.
+
+- [ ] P1 **High: protect demo reset and audit history.** `app/payments/actions.ts:89` exposes `resetDemo()` without checking the signed-in actor or role; `src/server/features/payments/fake-data/store.ts:21` replaces the whole state, including audit history. Restrict reset to an authorized demo administrator, disable it outside the demo, and preserve an append-only record of the reset. Verify signed-out users, employees and auditors cannot reset data. [Katie]
+- [ ] P1 **High: require completed approvals at payment release.** `src/server/features/payments/deps.ts:40` returns an approved basis for any current plan, including one with pending or rejected steps; `src/server/features/payments/rules.ts:163` trusts that basis. Isolated probes released a scheduled payment with pending and rejected current plans. Require a payable invoice state, a current routed plan, and every required step approved; refuse pending, rejected, blocked, held and stale plans before sending EFT. [Katie, Youssef]
+- [ ] P1 **High: validate pay dates before writes and make scheduling atomic.** `src/server/features/payments/rules.ts:297` only compares date strings; `src/server/features/payments/service.ts:282` writes the attempt, invoice status and audit before output parsing rejects an invalid date. A request with `payDate: "2026-99-99"` threw after leaving an invalid payment and `PaymentScheduled` invoice in state. Parse the request with a real calendar-date schema before mutation, then commit payment, `fire()` and audit together; rejection must leave all state unchanged. [Katie]
+- [ ] P1 **Medium: retain bank-account currency when changing details.** `src/server/features/payments/service.ts:510` hardcodes new accounts to CAD; replacing a USD account creates a verified CAD account and prevents USD release. Accept and validate the intended account currency through the server and UI contract, preserve it through verification, and cover USD replacement and retry. [Katie]
+- [ ] P1 **Medium: include the Next.js app in CI.** `.github/workflows/ci.yml:33` runs `typecheck`, but `tsconfig.json:19` includes only shared source and scripts; CI never builds the app. Add a production build (which generates and checks route types) or `next typegen` plus `tsc --noEmit -p tsconfig.next.json`, and lint. A type error in an app page must fail CI. [Andrew]
+
 ## P0 — Foundation (everyone waits on these)
 
 - [ ] Kickoff: settle the open decisions in `STATUS.md`; fill in owners.
@@ -20,15 +30,35 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] Add `zod` and `vitest` to `package.json`; approvals tests already use them (`npx vitest run src/server/features/approvals`). [_name_]
 - [ ] State machine gaps: credit-note path, hold at release time (bank change / duplicate found), payment as its own lifecycle. [_name_]
 
-## 1 Intake — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Upload → `documents` + draft invoice. [_name_]
-- [ ] P1 Capture the requester (uploader, or who the clerk assigns) on every invoice: coding's department is 100% right with it, 82.8% without. [_name_]
-- [ ] P1 Ingest AP inbox emails; classify invoice / not-invoice / no-attachment, with reason. [_name_]
-- [ ] P2 Lookalike sender check against vendor domains (feeds the bonus alert). [_name_]
+## 1 Intake — owner: Arpan
 
-## 2 Extraction — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 PDF text + scanned image path; English and French. [_name_]
-- [ ] P1 Taxes mapped to tax codes; currency; confidence per field; failure → ManualEntry. [_name_]
+### Step 3 — persist intake results and show them as draft bills [Arpan]
+Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmail()` returns
+`{ classification, readings }` and nothing is stored. In order:
+
+- [ ] P0 Agree with the schema owner (`STATUS.md`) that the intake tables go in first, and settle the ORM decision (recommended: Drizzle). Shared schema → `schema:` in the PR title. [Arpan]
+- [ ] P1 Migration: `inbox_messages` (source, external_id **UNIQUE (source, external_id)**, from/to, subject, received_at, body_text, decision, kind, reason, decided_by, signals jsonb). Update `data-model.md` in the same PR. [Arpan]
+- [ ] P1 Migration: `documents`: one row per attachment (inbox_message_id, filename, mime, size, **sha256**, storage_key, verdict `bill`/`not_bill`/`uncertain`, document_type, reason, decided_by, text_layer_chars, signals). Every attachment is kept, bills or not, so the dashboard can show why. [Arpan]
+- [ ] P1 Migration: intake columns on `invoices` (status, document_id, source, vendor_name_raw, invoice_number, invoice_number_norm, dates, currency, subtotal/total cents, payment_terms_days, po_number, ship_to_province, is_credit_note, **extraction_raw jsonb**, extraction_confidence jsonb, extraction_warnings) + `invoice_lines` + `invoice_taxes`. [Arpan]
+- [ ] P1 Document store `storeDocument(bytes) → { sha256, storageKey }`: local folder in dev (gitignored), Supabase Storage when deployed; identical bytes stored once. [Arpan]
+- [ ] P1 `saveIntakeResult(msg, result)` in `src/server/features/intake/`: ONE transaction for the email, its documents, invoices, lines, taxes and audit events (actor = system intake user). Re-running the same email changes nothing. [Arpan]
+- [ ] P1 Starting status per document: bill with fields → `Received` → `InReview` (`extractionSucceeded`); bill with no fields → `ManualEntry` (`extractionFailed`); **uncertain → an invoice in `Received` with flag `DOCUMENT_TYPE_UNCERTAIN`** (its own dashboard item, even when the same email had a bill); not a bill → `documents` row only. Transitions only through `fire()`. If `fire()` is not ready, create in `Received` and add the transitions when it lands. [Arpan]
+- [ ] P1 Mapper `ExtractedDocument` → invoice / lines / taxes rows; `invoice_number_norm` = upper-case, no spaces or dashes (duplicates search uses it). [Arpan]
+- [ ] P1 Clerk decision on uncertain documents: "It's a bill" → `ManualEntry`/`InReview`; "Not a bill" → `Voided` (`markNotInvoice`). `authorize()` first, audit in the same transaction. [Arpan]
+- [ ] P1 Wire both sources to `saveIntakeResult`: `gmail:poll` and `intake:dataset`; Gmail cursor moves from `.intake/gmail-state.json` to a DB row. [Arpan]
+- [ ] P1 Deployed intake/extraction must inject vendor domains and tax codes from the DB; keep `intake/dataset/vendors.ts` and `extraction/tax-codes.ts` as CLI/development/fixture adapters only. [Arpan]
+- [ ] P1 Tests: idempotent re-run, rollback leaves nothing half-written, two-invoice email → two invoices, uncertain document → its own item, receipt PDF → `documents` row and no invoice. [Arpan]
+
+### After step 3 [Arpan]
+- [ ] P1 Step 4: clerk inbox dashboard. Emails with decision + reason, each document's verdict, PDF viewer through `/api/documents/[id]` (`authorize()` before streaming), and a "Needs a decision" queue for uncertain documents. [Arpan]
+- [ ] P1 Upload → `documents` + draft invoice: same `readDocument` + `saveIntakeResult` path, source `upload`. [Arpan]
+- [ ] P1 Deployed polling: a cron route calls `pollGmail` (Vercel cron), cursor in the DB. [Arpan]
+- [ ] P2 Lookalike sender: validation already flags it (`src/server/features/validation/rules/vendor.ts:131`). Intake only has to pass `fromAddress` through as `senderEmail`. Check it end to end. [Arpan]
+
+## 2 Extraction — owner: Arpan
+- [ ] P1 Cache readings by document sha256, so a resubmitted PDF costs no model call. [Arpan]
+- [ ] P2 Retry a low-confidence text-layer read as a PDF (layout) read; multi-column text can come out of order. [Arpan]
+- [ ] P2 Move `extraction/amounts.ts` into `core/money.ts` when the foundation exists. [Arpan]
 
 ## 3 Coding — owner: Youssef
 - [ ] P1 Persist `CodingResult` lines to `invoice_lines` (gl_account_code, department_id, coding_source, coding_reason) and rebuild `CodingIndex` from them. [Youssef]

@@ -1,0 +1,28 @@
+{
+  "decision": "invoice",
+  "kind": "invoice",
+  "reason": "1 of 1 attachment(s) is a bill: Invoice 4443.pdf (invoice).",
+  "invoiceAttachments": [
+    "Invoice 4443.pdf"
+  ],
+  "decidedBy": "fallback",
+  "signals": [
+    "ATTACHMENT_DOCUMENT",
+    "INVOICE_TERMS",
+    "UNKNOWN_SENDER",
+    "DOC_TEXT_LAYER",
+    "DOC_INVOICE_NUMBER",
+    "DOC_TOTAL",
+    "DOC_TITLE_INVOICE",
+    "EXTRACTION_FAILED"
+  ],
+  "documents": [
+    {
+      "sourceRef": "Invoice 4443.pdf",
+      "filename": "Invoice 4443.pdf",
+      "verdict": "bill",
+      "documentType": "invoice",
+      "reason": "Document is titled \"invoice\" and has an invoice number and a total. Fields could not be read automatically (no extraction model configured) — manual entry."
+    }
+  ]
+}

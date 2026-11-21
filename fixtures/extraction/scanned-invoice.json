@@ -1,0 +1,134 @@
+{
+  "sourceRef": "scan_8749.png",
+  "filename": "scan_8749.png",
+  "verdict": "bill",
+  "documentType": "invoice",
+  "reason": "Invoice: Document titled TAX INVOICE billing Harborline Logistics for October energy; no suspicious content noted.",
+  "decidedBy": "llm",
+  "textLayerChars": 0,
+  "signals": [
+    "DOC_NO_TEXT_LAYER",
+    "LLM_BILL"
+  ],
+  "extracted": {
+    "documentType": "invoice",
+    "documentTypeReason": "Document titled TAX INVOICE billing Harborline Logistics for October energy; no suspicious content noted.",
+    "language": "en",
+    "vendor": {
+      "nameRaw": "Prairie Natural Gas Utility",
+      "gstHstNumber": "862863208RT0001",
+      "qstNumber": null,
+      "address": "4251 Granville St, Calgary AB T9K 7B4",
+      "province": "AB",
+      "country": "CANADA"
+    },
+    "invoiceNumber": "PR26-1012",
+    "invoiceDate": "2026-10-22",
+    "dueDate": "2026-11-12",
+    "currency": "CAD",
+    "paymentTermsDays": 21,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "250 6 Ave SW, Suite 700, Calgary AB T2P 3H7",
+      "province": "AB"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Energy - October",
+        "quantity": 1,
+        "unitPriceCents": 449455,
+        "amountCents": 449455,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5,
+        "amountCents": 22473
+      }
+    ],
+    "subtotalCents": 449455,
+    "totalCents": 471928,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "006",
+      "transit": "55541",
+      "account": "704593075"
+    },
+    "confidence": {
+      "documentType": 0.98,
+      "vendor": 0.95,
+      "invoiceNumber": 0.95,
+      "invoiceDate": 0.95,
+      "dueDate": 0.95,
+      "lines": 0.9,
+      "taxes": 0.95,
+      "totalCents": 0.95
+    },
+    "warnings": []
+  },
+  "llmRaw": {
+    "documentType": "invoice",
+    "documentTypeReason": "Document titled TAX INVOICE billing Harborline Logistics for October energy; no suspicious content noted.",
+    "language": "en",
+    "vendorName": "Prairie Natural Gas Utility",
+    "vendorGstHstNumber": "862863208RT0001",
+    "vendorQstNumber": "",
+    "vendorAddress": "4251 Granville St, Calgary AB T9K 7B4",
+    "vendorProvinceOrState": "AB",
+    "vendorCountry": "Canada",
+    "invoiceNumber": "PR26-1012",
+    "invoiceDate": "2026-10-22",
+    "dueDate": "2026-11-12",
+    "currency": "CAD",
+    "paymentTerms": "Net 21",
+    "poNumber": "",
+    "contractRef": "",
+    "creditNoteRef": "",
+    "billToName": "Harborline Logistics Inc.",
+    "billToAddress": "250 6 Ave SW, Suite 700, Calgary AB T2P 3H7",
+    "billToProvince": "AB",
+    "shipToProvince": "",
+    "lines": [
+      {
+        "description": "Energy - October",
+        "quantity": "1",
+        "unitPrice": "$4,494.55",
+        "amount": "$4,494.55",
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "label": "GST (5%)",
+        "ratePercent": "5",
+        "amount": "$224.73",
+        "code": "GST5"
+      }
+    ],
+    "subtotal": "$4,494.55",
+    "total": "$4,719.28",
+    "statedFxRate": "",
+    "remitInstitution": "006",
+    "remitTransit": "55541",
+    "remitAccount": "704593075",
+    "confidence": {
+      "documentType": 0.98,
+      "vendor": 0.95,
+      "invoiceNumber": 0.95,
+      "invoiceDate": 0.95,
+      "dueDate": 0.95,
+      "lines": 0.9,
+      "taxes": 0.95,
+      "total": 0.95
+    }
+  },
+  "error": null
+}

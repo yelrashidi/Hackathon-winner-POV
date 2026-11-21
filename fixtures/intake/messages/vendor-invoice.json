@@ -1,0 +1,19 @@
+{
+  "source": "dataset",
+  "externalId": "EM-014",
+  "threadId": null,
+  "fromName": "Beaumont Riviere S.E.N.C.R.L. Accounts Receivable",
+  "fromAddress": "ar@beaumontriviere.example",
+  "toAddress": "ap@harborline-logistics.example",
+  "subject": "Beaumont Riviere S.E.N.C.R.L. - Invoice FA-000557 attached",
+  "receivedAt": "2026-10-25T14:17:00",
+  "bodyText": "Good afternoon,\n\nAttached is invoice FA-000557. Kindly remit by the due date.\n\nBeaumont Riviere S.E.N.C.R.L. Billing",
+  "attachments": [
+    {
+      "filename": "beaumontrivieres_FA000557.pdf",
+      "mimeType": "application/pdf",
+      "sizeBytes": null,
+      "sourceRef": "beaumontrivieres_FA000557.pdf"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "decision": "ignored",
+  "kind": "marketing",
+  "reason": "Promotional email (\"% off\", \"sale\") with no bill attached.",
+  "invoiceAttachments": [],
+  "decidedBy": "rules",
+  "signals": [
+    "NO_ATTACHMENT",
+    "MARKETING_TERMS",
+    "KNOWN_VENDOR_SENDER"
+  ],
+  "documents": []
+}

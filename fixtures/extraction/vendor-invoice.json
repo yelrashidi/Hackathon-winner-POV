@@ -1,0 +1,137 @@
+{
+  "sourceRef": "beaumontrivieres_FA000557.pdf",
+  "filename": "beaumontrivieres_FA000557.pdf",
+  "verdict": "bill",
+  "documentType": "invoice",
+  "reason": "Invoice: Document titled INVOICE requesting payment for legal services, with invoice number, due date and remittance details. Note: the Quebec vendor shows a QST number but charges only GST 5%; no QST line is printed.",
+  "decidedBy": "llm",
+  "textLayerChars": 593,
+  "signals": [
+    "DOC_TEXT_LAYER",
+    "DOC_INVOICE_NUMBER",
+    "DOC_TOTAL",
+    "DOC_TITLE_INVOICE",
+    "LLM_BILL"
+  ],
+  "extracted": {
+    "documentType": "invoice",
+    "documentTypeReason": "Document titled INVOICE requesting payment for legal services, with invoice number, due date and remittance details. Note: the Quebec vendor shows a QST number but charges only GST 5%; no QST line is printed.",
+    "language": "en",
+    "vendor": {
+      "nameRaw": "Beaumont Riviere S.E.N.C.R.L.",
+      "gstHstNumber": "941999763RT0001",
+      "qstNumber": "2770904484TQ0001",
+      "address": "5930 Harbour Rd, Montreal QC G9H 4E5",
+      "province": "QC",
+      "country": "CANADA"
+    },
+    "invoiceNumber": "FA-000557",
+    "invoiceDate": "2026-10-23",
+    "dueDate": "2026-11-22",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+      "province": "QC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Legal services - Commercial contract dispute",
+        "quantity": 18,
+        "unitPriceCents": 42866,
+        "amountCents": 771588,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5,
+        "amountCents": 38579
+      }
+    ],
+    "subtotalCents": 771588,
+    "totalCents": 810167,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "003",
+      "transit": "37295",
+      "account": "486747687"
+    },
+    "confidence": {
+      "documentType": 0.98,
+      "vendor": 0.95,
+      "invoiceNumber": 0.98,
+      "invoiceDate": 0.98,
+      "dueDate": 0.98,
+      "lines": 0.95,
+      "taxes": 0.9,
+      "totalCents": 0.97
+    },
+    "warnings": []
+  },
+  "llmRaw": {
+    "documentType": "invoice",
+    "documentTypeReason": "Document titled INVOICE requesting payment for legal services, with invoice number, due date and remittance details. Note: the Quebec vendor shows a QST number but charges only GST 5%; no QST line is printed.",
+    "language": "en",
+    "vendorName": "Beaumont Riviere S.E.N.C.R.L.",
+    "vendorGstHstNumber": "941999763RT0001",
+    "vendorQstNumber": "2770904484TQ0001",
+    "vendorAddress": "5930 Harbour Rd, Montreal QC G9H 4E5",
+    "vendorProvinceOrState": "QC",
+    "vendorCountry": "Canada",
+    "invoiceNumber": "FA-000557",
+    "invoiceDate": "2026-10-23",
+    "dueDate": "2026-11-22",
+    "currency": "CAD",
+    "paymentTerms": "Net 30",
+    "poNumber": "",
+    "contractRef": "",
+    "creditNoteRef": "",
+    "billToName": "Harborline Logistics Inc.",
+    "billToAddress": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+    "billToProvince": "QC",
+    "shipToProvince": "",
+    "lines": [
+      {
+        "description": "Legal services - Commercial contract dispute",
+        "quantity": "18",
+        "unitPrice": "$428.66",
+        "amount": "$7,715.88",
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "label": "GST (5%)",
+        "ratePercent": "5",
+        "amount": "$385.79",
+        "code": "GST5"
+      }
+    ],
+    "subtotal": "$7,715.88",
+    "total": "$8,101.67",
+    "statedFxRate": "",
+    "remitInstitution": "003",
+    "remitTransit": "37295",
+    "remitAccount": "486747687",
+    "confidence": {
+      "documentType": 0.98,
+      "vendor": 0.95,
+      "invoiceNumber": 0.98,
+      "invoiceDate": 0.98,
+      "dueDate": 0.98,
+      "lines": 0.95,
+      "taxes": 0.9,
+      "total": 0.97
+    }
+  },
+  "error": null
+}
