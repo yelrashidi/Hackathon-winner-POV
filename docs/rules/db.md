@@ -22,5 +22,6 @@ paths:
   want may already exist under another name (`total_cad_cents`, `invoice_number_norm`).
 - **Money columns are `bigint` cents** (`*_cents`); rates are `numeric` ([`money-and-tax.md`](money-and-tax.md)).
 - **`audit_events` is append-only.** No update or delete path, in code or migration.
+- **Write audit rows only through `core/audit.ts` (`withAction` / `emit`).** A plain Drizzle insert lists `id` and `occurred_at`, which the app role may not set, so it fails with "permission denied".
 - **Deployed on Supabase: use the pooled connection string** from serverless functions. The direct
   connection runs out of connections under a handful of concurrent requests. Migrations use the direct one.

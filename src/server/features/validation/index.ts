@@ -6,8 +6,7 @@
  *   matchVendor(input, vendors)                       (shared vendor resolution)
  *   FLAG_CODES                                        (every code, severity and why)
  *
- * Still to come once the foundation lands: a DB loader for ValidationContext, persisting flags
- * to invoice_flags (keeping resolutions by flagKey), and the override endpoint.
+ * Database (db/): validateWithin / validateAndPersist (validated against Postgres), persistFlags (keeps human resolutions by flagKey), overrideFlag / resolveFlag, loadDbContext.
  */
 export { validateInvoice, hasBlocking, RULES, type ValidationResult } from "./engine";
 export { matchVendor, type VendorMatch, type VendorCandidate, type VendorMatchMethod } from "./vendor-match";
@@ -15,3 +14,7 @@ export { FLAG_CODES, ALL_FLAG_CODES, type FlagCode, type CodeInfo, type RuleGrou
 export { flagKey } from "./flag";
 export { VALIDATION_CONFIG } from "./config";
 export type * from "./context";
+export { validateAndPersist, validateWithin } from "./db/run";
+export { persistFlags, syncFlags, type PersistSummary, type FlagSource } from "./db/persist";
+export { overrideFlag, resolveFlag, FlagActionError } from "./db/override";
+export { loadDbContext } from "./db/load-context";

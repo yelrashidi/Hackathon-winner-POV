@@ -1,0 +1,507 @@
+{
+  "invoice": {
+    "invoiceId": "AP-00098",
+    "invoiceNumber": "FA-002819",
+    "status": "Paid",
+    "legacyStatus": "paid",
+    "version": 1,
+    "source": "historical",
+    "invoiceDate": "2026-03-08",
+    "receivedDate": "2026-03-09",
+    "dueDate": "2026-03-29",
+    "currency": "CAD",
+    "subtotalCents": 89000,
+    "totalCents": 93450,
+    "totalCadCents": 93450,
+    "fxRate": "1",
+    "shipToProvince": "QC",
+    "isCreditNote": false,
+    "poId": null,
+    "contractId": "C009",
+    "departmentId": "D05",
+    "requester": {
+      "userId": "U034",
+      "name": "Umar Nguyen",
+      "role": "employee"
+    },
+    "vendor": {
+      "vendorId": "V023",
+      "legalName": "Fibrewave Communications",
+      "status": "active",
+      "category": "Telecom"
+    },
+    "vendorNameRaw": "Fibrewave Communications",
+    "createdAt": "2026-11-21T21:43:25.020Z"
+  },
+  "document": null,
+  "extraction": {
+    "raw": null,
+    "confidence": null
+  },
+  "lines": [
+    {
+      "lineNo": 1,
+      "description": "Fibre internet 1 Gbps (Toronto HQ)",
+      "lineType": "services",
+      "qty": "1",
+      "unitPriceCents": 89000,
+      "amountCents": 89000,
+      "glAccount": {
+        "code": "6120",
+        "name": "Telecommunications"
+      },
+      "departmentId": "D05",
+      "taxCodes": [
+        "GST5"
+      ],
+      "codingSource": "accepted"
+    }
+  ],
+  "taxes": [
+    {
+      "code": "GST5",
+      "label": "GST5",
+      "rate": null,
+      "amountCents": 4450
+    }
+  ],
+  "validationRuns": [
+    {
+      "occurredAt": "2026-11-21T21:43:25.469Z",
+      "invoiceVersion": 1,
+      "vendorId": "V023",
+      "vendorMatch": {
+        "method": "tax_number",
+        "vendor": {
+          "id": "V023",
+          "status": "active",
+          "country": "CA",
+          "category": "Telecom",
+          "province": "QC",
+          "legalName": "Fibrewave Communications",
+          "qstNumber": "6084666670TQ0001",
+          "requiresPo": false,
+          "onboardedAt": "2025-02-23",
+          "contactEmail": "ar@fibrewavecommunications.example",
+          "gstHstNumber": "225387876RT0001",
+          "invoiceCount": 10,
+          "paymentTermsDays": 21
+        },
+        "candidates": []
+      },
+      "contractId": "C009",
+      "fxRate": null,
+      "totalCadCents": 93450,
+      "blocking": true,
+      "flags": [
+        {
+          "code": "TAX_PROVINCE_MISMATCH",
+          "severity": "block"
+        }
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "flagId": 16,
+      "source": "validation",
+      "code": "TAX_PROVINCE_MISMATCH",
+      "severity": "block",
+      "message": "Delivery to QC expects GST 5% + Quebec QST 9.975%; invoice charges GST 5% ($44.50) (missing Quebec QST 9.975% ($88.78))",
+      "evidence": {
+        "rule": "tax",
+        "field": "taxes",
+        "actual": [
+          "GST5"
+        ],
+        "source": "tax_codes",
+        "missing": [
+          "QST9975"
+        ],
+        "expected": [
+          "GST5",
+          "QST9975"
+        ],
+        "province": "QC",
+        "unexpected": [],
+        "provinceSource": "ship_to"
+      },
+      "status": "open",
+      "raisedAt": "2026-11-21T21:43:25.469Z",
+      "resolvedBy": null,
+      "resolvedAt": null,
+      "resolutionNote": null,
+      "relatedInvoiceId": null
+    }
+  ],
+  "approvals": [
+    {
+      "planId": "AP-00098#1",
+      "attempt": 1,
+      "invoiceVersion": 1,
+      "outcome": "route",
+      "routedAt": "2026-03-09T00:00:00.000Z",
+      "steps": [
+        {
+          "seq": 1,
+          "role": "dept_manager",
+          "policyId": null,
+          "policyVersion": null,
+          "reasons": [
+            {
+              "message": "Historical approval AP-A-00107",
+              "policyId": null
+            }
+          ],
+          "assignedTo": {
+            "userId": "U010",
+            "name": "Wen Zhao",
+            "role": "approver"
+          },
+          "actedBy": {
+            "userId": "U010",
+            "name": "Wen Zhao",
+            "role": "approver"
+          },
+          "onBehalfOf": null,
+          "actedAs": {
+            "role": "approver",
+            "fullName": "Wen Zhao",
+            "approvalLimitCents": 1000000
+          },
+          "decision": "approved",
+          "comment": null,
+          "decidedAt": "2026-03-11T10:18:00.000Z",
+          "acknowledgedFlags": []
+        }
+      ]
+    }
+  ],
+  "payments": [
+    {
+      "paymentId": "PAY-00094",
+      "attemptNo": 1,
+      "method": "EFT",
+      "status": "settled",
+      "currency": "CAD",
+      "amountCents": 93450,
+      "amountCadCents": 93450,
+      "scheduledDate": "2026-03-29",
+      "paidDate": "2026-03-28",
+      "reference": "BRIM-EFT-46447028",
+      "preparedBy": {
+        "userId": "U004",
+        "name": "Jordan Okafor",
+        "role": "ap_clerk"
+      },
+      "releasedBy": {
+        "userId": "U003",
+        "name": "Elise Tremblay",
+        "role": "finance_manager"
+      },
+      "releasedAt": "2026-03-28T00:00:00.000Z",
+      "settledAt": "2026-03-28T00:00:00.000Z",
+      "failedAt": null,
+      "failureCode": null,
+      "failure": null,
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "cancelReason": null,
+      "holdReason": null,
+      "bankAccount": {
+        "version": 1,
+        "status": "verified",
+        "currency": "CAD",
+        "institution": "001",
+        "last4": "8294",
+        "changedAt": null,
+        "channel": null,
+        "requestedBy": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      }
+    }
+  ],
+  "paymentFlags": [],
+  "controls": [
+    {
+      "id": "APPROVER_NOT_REQUESTER",
+      "label": "No one approved their own invoice",
+      "result": "pass",
+      "detail": "1 approval(s), none by the requester."
+    },
+    {
+      "id": "APPROVAL_WITHIN_LIMIT",
+      "label": "An approver's limit covered the amount",
+      "result": "pass",
+      "detail": "Highest approver limit 10000.00 CAD ≥ 934.50 CAD."
+    },
+    {
+      "id": "RELEASER_DID_NOT_APPROVE",
+      "label": "The person who released payment did not approve it",
+      "result": "pass",
+      "detail": "1 release(s) by people independent of the approvals."
+    },
+    {
+      "id": "PREPARER_NOT_RELEASER",
+      "label": "Payment prepared and released by different people",
+      "result": "pass",
+      "detail": "Two people on every payment."
+    },
+    {
+      "id": "PAID_TO_VERIFIED_ACCOUNT",
+      "label": "EFT paid only to a verified bank account",
+      "result": "pass",
+      "detail": "1 EFT payment(s) to verified accounts."
+    },
+    {
+      "id": "NO_OPEN_BLOCKING_FLAGS",
+      "label": "No blocking flag left open after review",
+      "result": "fail",
+      "detail": "Open: TAX_PROVINCE_MISMATCH."
+    },
+    {
+      "id": "PAID_NOT_MORE_THAN_INVOICED",
+      "label": "Not paid more than the invoice total",
+      "result": "pass",
+      "detail": "Paid 934.50 of 934.50 CAD."
+    }
+  ],
+  "timeline": [
+    {
+      "id": 98,
+      "occurredAt": "2026-03-09T00:00:00.000Z",
+      "action": "invoice.imported",
+      "summary": "Imported from history with status Paid (source: paid)",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice",
+      "entityId": "AP-00098",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "status": "Paid",
+        "currency": "CAD",
+        "vendorId": "V023",
+        "totalCents": 93450,
+        "legacyStatus": "paid",
+        "invoiceNumber": "FA-002819",
+        "totalCadCents": 93450
+      },
+      "reason": "Imported from Harborline history (invoices.csv)",
+      "imported": true,
+      "requestId": "597fd485-0745-47b2-8b3e-f402504ec7c6"
+    },
+    {
+      "id": 533,
+      "occurredAt": "2026-03-11T10:18:00.000Z",
+      "action": "approval.decided",
+      "summary": "Wen Zhao (approver) approved step 1",
+      "actor": {
+        "userId": "U010",
+        "name": "Wen Zhao",
+        "role": "approver"
+      },
+      "actorRoleAtTime": "approver",
+      "onBehalfOf": null,
+      "entityType": "approval_step",
+      "entityId": "107",
+      "paymentId": null,
+      "before": {
+        "decision": "pending"
+      },
+      "after": {
+        "seq": 1,
+        "role": "dept_manager",
+        "decision": "approved"
+      },
+      "reason": null,
+      "imported": true,
+      "requestId": "7ad6f025-3167-4463-b929-72ff94bd4ec1"
+    },
+    {
+      "id": 1174,
+      "occurredAt": "2026-03-28T00:00:00.000Z",
+      "action": "payment.scheduled",
+      "summary": "Jordan Okafor (ap_clerk) scheduled payment PAY-00094",
+      "actor": {
+        "userId": "U004",
+        "name": "Jordan Okafor",
+        "role": "ap_clerk"
+      },
+      "actorRoleAtTime": "ap_clerk",
+      "onBehalfOf": null,
+      "entityType": "payment",
+      "entityId": "PAY-00094",
+      "paymentId": "PAY-00094",
+      "before": null,
+      "after": {
+        "method": "EFT",
+        "status": "scheduled",
+        "currency": "CAD",
+        "amountCents": 93450,
+        "plannedDate": "2026-03-29"
+      },
+      "reason": null,
+      "imported": true,
+      "requestId": "5f9780a2-962b-4ce9-9f7c-b7072b88ec2f"
+    },
+    {
+      "id": 1175,
+      "occurredAt": "2026-03-28T00:00:00.000Z",
+      "action": "payment.released",
+      "summary": "Elise Tremblay (finance_manager) released payment PAY-00094",
+      "actor": {
+        "userId": "U003",
+        "name": "Elise Tremblay",
+        "role": "finance_manager"
+      },
+      "actorRoleAtTime": "finance_manager",
+      "onBehalfOf": null,
+      "entityType": "payment",
+      "entityId": "PAY-00094",
+      "paymentId": "PAY-00094",
+      "before": {
+        "status": "scheduled"
+      },
+      "after": {
+        "status": "released",
+        "reference": "BRIM-EFT-46447028"
+      },
+      "reason": null,
+      "imported": true,
+      "requestId": "b35aa8dd-51c0-46c4-aaa8-b06337dc01ae"
+    },
+    {
+      "id": 1176,
+      "occurredAt": "2026-03-28T00:00:00.000Z",
+      "action": "payment.settled",
+      "summary": "Payment PAY-00094 settled",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "payment",
+      "entityId": "PAY-00094",
+      "paymentId": "PAY-00094",
+      "before": {
+        "status": "released"
+      },
+      "after": {
+        "status": "settled"
+      },
+      "reason": null,
+      "imported": true,
+      "requestId": "afc87199-ccfe-4c98-86bc-766de13b41f7"
+    },
+    {
+      "id": 2202,
+      "occurredAt": "2026-11-21T21:43:25.469Z",
+      "action": "flag.raised",
+      "summary": "Flag raised: TAX_PROVINCE_MISMATCH (block) — Delivery to QC expects GST 5% + Quebec QST 9.975%; invoice charges GST 5% ($44.50) (missing Quebec QST 9.975% ($88.78))",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice_flag",
+      "entityId": "16",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "code": "TAX_PROVINCE_MISMATCH",
+        "status": "open",
+        "message": "Delivery to QC expects GST 5% + Quebec QST 9.975%; invoice charges GST 5% ($44.50) (missing Quebec QST 9.975% ($88.78))",
+        "evidence": {
+          "rule": "tax",
+          "field": "taxes",
+          "actual": [
+            "GST5"
+          ],
+          "source": "tax_codes",
+          "missing": [
+            "QST9975"
+          ],
+          "expected": [
+            "GST5",
+            "QST9975"
+          ],
+          "province": "QC",
+          "unexpected": [],
+          "provinceSource": "ship_to"
+        },
+        "severity": "block",
+        "resolvedBy": null,
+        "invoiceVersion": 1,
+        "resolutionNote": null
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "8df9e8d3-0daf-471b-b7fe-5405f7e7f8fe"
+    },
+    {
+      "id": 2203,
+      "occurredAt": "2026-11-21T21:43:25.469Z",
+      "action": "invoice.validated",
+      "summary": "Validation ran on version 1: 1 flag(s), blocking",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice",
+      "entityId": "AP-00098",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "flags": [
+          {
+            "code": "TAX_PROVINCE_MISMATCH",
+            "severity": "block"
+          }
+        ],
+        "fxRate": null,
+        "blocking": true,
+        "vendorId": "V023",
+        "contractId": "C009",
+        "vendorMatch": {
+          "method": "tax_number",
+          "vendor": {
+            "id": "V023",
+            "status": "active",
+            "country": "CA",
+            "category": "Telecom",
+            "province": "QC",
+            "legalName": "Fibrewave Communications",
+            "qstNumber": "6084666670TQ0001",
+            "requiresPo": false,
+            "onboardedAt": "2025-02-23",
+            "contactEmail": "ar@fibrewavecommunications.example",
+            "gstHstNumber": "225387876RT0001",
+            "invoiceCount": 10,
+            "paymentTermsDays": 21
+          },
+          "candidates": []
+        },
+        "totalCadCents": 93450,
+        "invoiceVersion": 1,
+        "deliveryProvince": "QC"
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "8df9e8d3-0daf-471b-b7fe-5405f7e7f8fe"
+    }
+  ]
+}

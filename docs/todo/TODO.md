@@ -24,12 +24,8 @@ Reviewed main `39dc2ac` (including the findings first reproduced on `96bffe4`). 
 
 - [ ] Kickoff: settle the open decisions in `STATUS.md`; fill in owners.
 - [ ] Next.js app scaffold, TypeScript strict, lint, `npm run typecheck`, test runner. [_name_]
-- [ ] Docker Postgres for local; `.env.example`; `npm run db:reset` (migrate + seed). [_name_]
-- [ ] Schema from [`data-model.md`](../architecture/data-model.md); seed every CSV in `brim_ap_dataset/brim_ap_dataset/data/` + `inbox/emails.json`. [_name_]
-- [ ] `core/fire.ts` — transitions from `docs/explainers/brim-ap-diagrams.md`, guards, audit in the same transaction. [_name_]
-- [ ] `core/authorize.ts` + table-driven permission test ([`roles-and-permissions.md`](../architecture/roles-and-permissions.md)). [_name_]
-- [ ] `core/audit.ts`, `core/money.ts`, `core/fx.ts`. [_name_]
-- [ ] Session + role switcher over seeded users. [_name_]
+- [ ] `core/money.ts`, `core/fx.ts` (validation's `lib/money.ts` is the candidate to promote). `core/audit.ts` done 2026-11-21. [_name_]
+- [ ] Session + role switcher over seeded users. Katie's `src/server/session/` exists; still to do: read users from the `users` table and hand services an `Actor` (`src/contracts/actor.ts`). [_name_]
 - [ ] `src/contracts/` for every stage + one fixture each. Approvals + shared `Flag` done 2026-11-21 (`fixtures/approvals/`). [_name_]
 - [ ] Add `zod` and `vitest` to `package.json`; approvals tests already use them (`npx vitest run src/server/features/approvals`). [_name_]
 - [ ] State machine gaps: credit-note path, hold at release time (bank change / duplicate found), payment as its own lifecycle. [_name_]
@@ -70,15 +66,8 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P1 Review screen: suggestion + reason per line, alternatives, bulk-accept high, journal preview. [Youssef]
 - [ ] P2 Optional LLM fallback for lines with no evidence, once the provider is decided; output must pass the expense-account check. [Youssef]
 
-## 4 Validation — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Vendor master, contract caps / end dates / spend limits, PO match, tax vs province, arithmetic. [_name_]
-- [ ] P1 Split-invoice check (same vendor, short window, sum crosses a threshold). [_name_]
-- [ ] P1 Emit `PO_OVER_BALANCE` (P12) and `SPLIT_INVOICE_SUSPECTED` with `evidence.combinedCadCents`; approvals routes on both. [_name_]
 ## 4 Validation — owner: Andrew
-- [ ] P1 DB loader for `ValidationContext` (replaces `dataset/load-context.ts`; per-vendor rows only). [Andrew]
-- [ ] P1 Persist flags to `invoice_flags` (diff by `flagKey`, keep resolutions) + `hasBlocking` as the `submit` guard in `fire()`. Needs `source`/`fingerprint` columns — propose to schema owner. [Andrew]
-- [ ] P1 Override / resolve endpoint: `authorize('flag.override')` + note + audit in one transaction. [Andrew]
-- [ ] P1 Mapper from extraction's contract → `ValidationInput` once it exists (needs `lineType` goods/services per line). [Andrew]
+- [ ] P1 HTTP route handlers / server actions over `overrideFlag` / `resolveFlag` (services done; map `FlagActionError.status` / `Forbidden` to the response). [Andrew]
 - [ ] P2 `validateBankForRelease(vendorId, bankAccountId)` for payments (7) at release time. [Andrew]
 - [ ] P2 Add the incoming fixtures' expected flags to the shared `fixtures/golden/` + `npm run eval`. [Andrew]
 
@@ -101,8 +90,14 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [Katie]
 - [ ] P1 Release checks against approvals: P11 via `approversOf(...allPlans)`; amount ≤ `plan.basis.totalCents`, payee = `plan.basis.vendorId`. [Katie]
 
-## 8 Audit — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Audit view per payment: PDF → extraction → coding → approvals → release; auditor export (CSV). [_name_]
+## 8 Audit + foundation — owner: Andrew
+- [ ] P1 Auditor pages `app/audit` (invoice table → invoice detail → CSV export) over `src/server/features/audit` (contracts `src/contracts/audit-view.ts`, fixtures `fixtures/audit/`). Auditor-only. [_name_ (dashboard)]
+- [ ] P1 Route handlers / server actions over `src/server/pipeline` (ingest, edit, code line, submit, decide), with the session's `Actor`. [_name_]
+- [ ] P1 Payments on the DB: make `features/payments/deps.ts` adapters async over `payments`, `payment_flags`, `vendor_bank_accounts`, `invoice_flags`, `core/audit` + `fire()`. [Katie]
+- [ ] P1 Team decisions in `docs/architecture/8-audit.md`: Controller audit access, historical `rejected` → `Voided`, schema-merge owner. [_name_]
+- [ ] P2 Deploy the DB on Supabase: `db:migrate` + `db:seed` with the direct URL, `ALTER ROLE ap_app LOGIN PASSWORD …`, app uses the pooled URL. [Andrew]
+- [ ] P2 Apply the `data-model.md` column additions listed in `8-audit.md` ("To apply at merge"). [Andrew]
+- [ ] P3 Hash-chain `audit_events` (tamper evidence on top of the trigger + grants). [Andrew]
 
 ## 9 Vendors — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Vendor list, onboard, hold; bank change request + verify by a second person. [_name_]
