@@ -196,7 +196,7 @@ and the code follows.
 
 ### Dashboard connected to the real payments code (decided 2026-11-21)
 
-- **One place for buttons.** Schedule, Release, Retry, Clear flag, Cancel and the bank change
+- **One place for buttons.** Schedule, Release, Retry / Schedule again, Clear flag, Cancel and the bank change
   (enter, verify, reject) sit on the dashboard pages. `/payments-console` keeps only the demo
   controls: "Simulated bank" (the bank's answer for a released payment) and "Reset demo data", linked
   from the dashboard header. *Why:* one screen per role, and an action taken anywhere shows up everywhere,
@@ -207,8 +207,11 @@ and the code follows.
   apart, and a judge will find the one that's wrong.
 - **Defaults while building (Katie to review):** Cancel and the bank change are on the payment's detail
   page (they need a typed reason or numbers). The Finance Manager still doesn't see a Schedule button,
-  which keeps the dashboard's rule. A cancelled payment shows Retry. The audit trail on the detail page is
-  the real payments audit log. The header's "Sample data" badge became the "Simulated bank (demo)" link.
+  which keeps the dashboard's rule. The audit trail on the detail page is the real payments audit log.
+  The header's "Sample data" badge became the "Simulated bank (demo)" link.
+- **A cancelled payment shows "Schedule again", a failed one shows "Retry"** (decided 2026-11-21).
+  Both make a new attempt that goes through every check. *Why:* a cancelled payment didn't fail, so
+  "Retry" would make a judge read it as a failure.
 
 ## Dashboard decisions
 
@@ -226,6 +229,7 @@ _(filled in by the dashboard session)_
 
 | Date | Topic | Decision | By |
 |---|---|---|---|
+| 2026-11-21 | Cancelled payment button | "Schedule again" instead of "Retry"; failed payments keep "Retry" | Katie |
 | 2026-11-21 | Dashboard on real data | Dashboard reads and acts through the payments code; copies deleted; console keeps only the simulated bank + reset | Katie |
 | 2026-11-21 | STATUS Payments owner | "Katie (building), Youssef (listed on main), to confirm" | Katie |
 | 2026-11-21 | Connected to approvals | Who approved and the approved payee/amount now come from Youssef's store; a payments seed loads the dataset history until his flow fills it | Katie |
