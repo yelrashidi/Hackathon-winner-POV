@@ -26,6 +26,7 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 
 ## 1 Intake — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Upload → `documents` + draft invoice. [_name_]
+- [ ] P1 Capture the requester (uploader, or who the clerk assigns) on every invoice: coding's department is 100% right with it, 82.8% without. [_name_]
 - [ ] P1 Ingest AP inbox emails; classify invoice / not-invoice / no-attachment, with reason. [_name_]
 - [ ] P2 Lookalike sender check against vendor domains (feeds the bonus alert). [_name_]
 
@@ -33,9 +34,11 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] P1 PDF text + scanned image path; English and French. [_name_]
 - [ ] P1 Taxes mapped to tax codes; currency; confidence per field; failure → ManualEntry. [_name_]
 
-## 3 Coding — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Vendor → (account, dept) history table from historical invoices; suggestion with reason. [_name_]
-- [ ] P1 Fallback for new vendors (vendor default account, then description similarity). [_name_]
+## 3 Coding — owner: Youssef
+- [ ] P1 Persist `CodingResult` lines to `invoice_lines` (gl_account_code, department_id, coding_source, coding_reason) and rebuild `CodingIndex` from them. [Youssef]
+- [ ] P1 Code / accept API route calling `codeLine` / `acceptConfident`; submit guard `codingSubmitFlags` in `fire('submit')`. [Youssef]
+- [ ] P1 Review screen: suggestion + reason per line, alternatives, bulk-accept high, journal preview. [Youssef]
+- [ ] P2 Optional LLM fallback for lines with no evidence, once the provider is decided; output must pass the expense-account check. [Youssef]
 
 ## 4 Validation — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Vendor master, contract caps / end dates / spend limits, PO match, tax vs province, arithmetic. [_name_]
@@ -61,9 +64,9 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] P1 On invoice edit call `reapprovalReasons`; non-empty → bump `invoices.version`. [Youssef]
 - [ ] P2 Daily `approvalAging` job: reminders and escalation notices. [Youssef]
 
-## 7 Payments — owner: Youssef
-- [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [Youssef]
-- [ ] P1 Release checks against approvals: P11 via `approversOf(...allPlans)`; amount ≤ `plan.basis.totalCents`, payee = `plan.basis.vendorId`. [Youssef]
+## 7 Payments — owner: Katie
+- [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [Katie]
+- [ ] P1 Release checks against approvals: P11 via `approversOf(...allPlans)`; amount ≤ `plan.basis.totalCents`, payee = `plan.basis.vendorId`. [Katie]
 
 ## 8 Audit — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Audit view per payment: PDF → extraction → coding → approvals → release; auditor export (CSV). [_name_]

@@ -11,9 +11,9 @@ the top block is updated by whoever finishes a shared piece.
 | Owner | Features | Also owns |
 |---|---|---|
 | Arpan | _features to fill_ | |
-| Youssef | 6 Approvals, 7 Payments | |
+| Youssef | 3 Coding, 6 Approvals | |
 | Andrew | 4 Validation | |
-| Katie | 7 Payments: Katie (building), Youssef (listed on main), to confirm; payments dashboard | |
+| Katie | 7 Payments, payments dashboard | |
 | shared | foundation (`core/`) | schema merges: _name_ |
 
 ## Now (shared, in order)
@@ -44,8 +44,11 @@ Not started.
 ### 2 Extraction — _Arpan / Youssef / Andrew / Katie_
 Not started.
 
-### 3 Coding — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 3 Coding — Youssef
+**Works** (pure, tested on branch `step-3`): per-line GL account + department suggestions with confidence and reason; journal preview (recoverable tax → 1160/1165, BC PST into goods lines, AP 2100); server-side coding gate, bulk-accept, submit guard (`CODING_NOT_CONFIRMED`), learning loop. Backtest 99.6% (never wrong at high); fixtures in `fixtures/coding/`.
+**Stubbed:** no persistence to `invoice_lines`, no review screen yet; history index built in memory from the dataset.
+**Next:** wire into the analysis pass after validation's `matchVendor`; review screen with bulk-accept.
+**Waiting on:** intake to capture the **requester** (department is 100% right with it, 82.8% without; none of the 56 incoming invoices has one); extraction to keep `lineType`; LLM provider decision (optional fallback). New contract: `src/contracts/coding.ts`.
 
 ### 4 Validation — Andrew
 **Works (standalone, uncommitted on `andrew`):** pure engine + every check in `src/server/features/validation/` (vendor, bank, PO, contract, tax vs delivery province, arithmetic, dates, FX, splits); 264 tests; all 56 incoming invoices raise exactly their hand-written expected flags; history replay blocks only the 3 real tax errors. `npm test` · `npm run validate:batch` · `npm run validate:history`.
@@ -62,7 +65,7 @@ Not started.
 **Next:** approvals API route + approver queue screen once the foundation lands; then 7 Payments.
 **Waiting on:** foundation (schema — `approval_plans` proposal in `6-approvals.md`, `fire`, `authorize`, session); validation (`PO_OVER_BALANCE`, `SPLIT_INVOICE_SUSPECTED.combinedCadCents`); vendors (`conflicts`). Contract change in `src/contracts/` — see [`6-approvals-edge-cases.md`](architecture/6-approvals-edge-cases.md) §13.
 
-### 7 Payments — Katie (building), Youssef (listed on main), to confirm
+### 7 Payments — Katie
 **Works (in memory, on the dataset):** schedule / release / cancel / retry, release rules (P09–P11, scheduler and requester
 can't release, active staff, verified bank, pending bank change, payee and amount = approved, FX re-check, blocking flags),
 simulated EFT with settle or 9 failure reasons, urgency flags (critical / high / low) with clearing rules, bank change +
