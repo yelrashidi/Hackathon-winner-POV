@@ -21,7 +21,7 @@ exists, the teammate's actual code.
 
 | TEMP piece | Where in our code | Waiting on | Owner |
 |---|---|---|---|
-| Approval plans: who approved + approved payee/amount | `deps.ts` `getApprovalFacts` (reads `approvals.csv`) | **Switch ready to do**: Youssef's `getApprovalPlans` / `approversOf` / `getCurrentApprovalPlan` are on `main`; needs the main merge. Then a payments seed loads existing invoices with his `importApprovalPlan` until the real approval flow fills his store | Youssef |
+| Approval history seed (the only approvals TEMP left) | `fake-data/approval-seed.ts` | **Switched 2026-11-21:** `deps.ts` `getApprovalFacts` now calls Youssef's real `getApprovalPlans` + `approversOf` and `getCurrentApprovalPlan().basis`. The seed loads the dataset's approval history into his store with his `importApprovalPlan`, and **stays until his approval flow fills the store itself** | Youssef |
 | Stored validation / duplicate flags | `deps.ts` `getOpenInvoiceFlags` (always empty) | validation persisting flags to `invoice_flags`; duplicates has no owner | Andrew; duplicates: no owner |
 | Release-time bank check | release rules check our own bank versions | Andrew's planned `validateBankForRelease` (not on main yet) | Andrew |
 | Database + transactions | `fake-data/` in-memory store, CSV loader | schema + seed | schema owner: not named |
@@ -52,19 +52,12 @@ exists, the teammate's actual code.
 
 ## Shapes we assume
 
-### A1 Approvals (Youssef) — merged, partly real
-- **Real:** `approversOf(...plans): Set<string>` (`src/server/features/approvals/decide.ts:224`)
-  returns every `actedBy` **and** `onBehalfOf` of an approved step, **across every plan passed in**.
-  Youssef's doc: pass *all* plans the invoice ever had, because a round voided by an edit still counts.
-- **Real:** `ApprovalPlan` contract (`src/contracts/approvals.ts:215`), including `basis`
-  `{ vendorId, currency, totalCents, totalCadCents, requesterId, poId }` — "payments must not pay a
-  different payee or more than `totalCents` in `currency`".
-- **Real on `origin/Youssef` @ `a896a64` (not merged yet):** the plan store,
-  `src/server/features/approvals/store.ts`, in memory with `// TEMP: db` until the schema lands.
-  - `getApprovalPlans(invoiceId, { store? }): Promise<ApprovalPlan[]>` returns every plan, oldest first. This is what P11 uses.
-  - `getCurrentApprovalPlan(invoiceId, { invoiceVersion, store? }): Promise<ApprovalPlan | null>` returns the plan for the current version, which carries `basis`.
-  - **All async**, so our adapters are async too. Pass `{ store }` to share the request's transaction.
-- Used by: release rules (P11 separation of duties, payee and amount match `basis`).
+### A1 Approvals (Youssef) — real since 2026-11-21
+- `deps.ts` `getApprovalFacts(invoiceId)` calls his `getApprovalPlans(invoiceId)` (every plan, oldest first)
+  → `approversOf(...plans)` for P11, and `getCurrentApprovalPlan(invoiceId, { invoiceVersion }).basis` for R7.
+  No current plan for the invoice's version → release refuses `NOT_APPROVED`.
+- **TEMP seed:** `fake-data/approval-seed.ts` rebuilds one plan per open invoice from `approvals.csv` and loads it
+  with his `importApprovalPlan`. It exists only until the approval flow fills his store. His files are unchanged.
 
 ### A2 Users (Youssef's `DirectoryUser`, `src/server/features/approvals/directory.ts:20`) — type real
 `{ id, fullName, role: "employee"|"ap_clerk"|"approver"|"finance_manager"|"controller_admin"|"auditor", departmentId, managerId, approvalLimitCents, status: "active"|"on_leave"|"terminated"|string, statusSince, delegateId }`

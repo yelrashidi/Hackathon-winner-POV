@@ -163,6 +163,8 @@ export function checkRelease(input: ReleaseInput): ReleaseCheck {
   // Pay only what was approved, to whom it was approved
   if (!approval) {
     reasons.push({ code: "NOT_APPROVED", message: "No approval record was found for this invoice." });
+  } else if (!approval.basis) {
+    reasons.push({ code: "NOT_APPROVED", message: `No approval plan is current for version ${invoice.version} of this invoice; it must be approved again.` });
   } else {
     if (payment.vendorId !== approval.basis.vendorId) {
       reasons.push({ code: "PAYEE_MISMATCH", message: `The payment goes to ${payment.vendorId}, but the approval was for ${approval.basis.vendorId}.` });

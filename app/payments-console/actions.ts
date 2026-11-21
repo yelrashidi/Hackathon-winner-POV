@@ -29,7 +29,8 @@ async function actorId(): Promise<string | null> {
   return (await cookies()).get(VIEWING_AS_COOKIE)?.value ?? null;
 }
 
-function toState(result: ActionResult<unknown>, done: string): FormState {
+async function toState(pending: Promise<ActionResult<unknown>>, done: string): Promise<FormState> {
+  const result = await pending;
   refresh();
   if (result.ok) return { ok: true, messages: [done, ...result.warnings] };
   return { ok: false, messages: result.reasons.map((r) => r.message) };
@@ -88,6 +89,6 @@ export async function rejectBankAction(_: FormState, form: FormData): Promise<Fo
 
 /** Demo only: start again from the dataset. */
 export async function resetDemo(): Promise<void> {
-  resetState();
+  await resetState();
   refresh();
 }

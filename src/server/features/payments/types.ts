@@ -61,8 +61,8 @@ export interface BankAccountVersion {
 export interface ApprovalFacts {
   /** Everyone who signed any round, incl. whoever a delegate signed for. */
   approverIds: string[];
-  /** What was approved: payments must not pay another payee or more than this. */
-  basis: { vendorId: string; currency: Currency; totalCents: number };
+  /** What the current plan approved; null when no plan is current for this invoice version. */
+  basis: { vendorId: string; currency: Currency; totalCents: number } | null;
 }
 
 export interface PaymentRec {
@@ -128,7 +128,6 @@ export interface PaymentsState {
   users: Map<string, DirectoryUser>;
   vendors: Map<string, VendorRec>;
   invoices: Map<string, InvoiceRec>;
-  approvals: Map<string, ApprovalFacts>;
   policies: ApprovalPolicy[];
   bankAccounts: BankAccountVersion[];
   payments: PaymentRec[];

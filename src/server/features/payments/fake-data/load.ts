@@ -39,10 +39,8 @@ export function loadDatasetState(): PaymentsState {
   );
 
   const payRows = readCsv("payments.csv", ["payment_id", "invoice_id", "method", "status", "currency", "amount", "amount_cad", "fx_rate_to_cad", "scheduled_date", "prepared_by"]);
-  const approvalRows = readCsv("approvals.csv", ["invoice_id", "action", "approver_user_id"]);
   const invoices = new Map<string, InvoiceRec>();
   const payments: PaymentRec[] = [];
-  const approvals: PaymentsState["approvals"] = new Map();
 
   for (const r of readCsv("invoices.csv", INVOICE_COLUMNS)) {
     const status = OPEN_INVOICE_STATUS[r.status];
@@ -69,10 +67,6 @@ export function loadDatasetState(): PaymentsState {
       isCreditNote: totalCents < 0,
     };
     invoices.set(invoice.id, invoice);
-    approvals.set(invoice.id, {
-      approverIds: approvalRows.filter((a) => a.invoice_id === invoice.id && a.action === "approved").map((a) => a.approver_user_id),
-      basis: { vendorId: invoice.vendorId, currency: invoice.currency, totalCents },
-    });
 
     if (scheduled) {
       const account = payableAccount(bankAccounts, invoice.vendorId);
@@ -110,7 +104,6 @@ export function loadDatasetState(): PaymentsState {
     users,
     vendors,
     invoices,
-    approvals,
     policies: policiesFromCsv(readCsv("approval_policies.csv", ["rule_id", "rule_type", "condition", "required", "notes"]) satisfies PolicyCsvRow[]),
     bankAccounts,
     payments,

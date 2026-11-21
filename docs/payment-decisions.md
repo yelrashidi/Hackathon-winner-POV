@@ -210,6 +210,8 @@ _(filled in by the dashboard session)_
 
 | Date | Topic | Decision | By |
 |---|---|---|---|
+| 2026-11-21 | Connected to approvals | Who approved and the approved payee/amount now come from Youssef's store; a payments seed loads the dataset history until his flow fills it | Katie |
+| 2026-11-21 | Merged main + dashboard | main's tooling kept, Next on tsconfig.next.json; strict index checks fixed in our files | Katie |
 | 2026-11-21 | Built steps 2–8 (defaults) | See "Decided by default while building": dataset CSVs, EFT only, BC-009 pending blocks release, `closed` bank status, `/payments-console`, shared session cookie | Katie |
 | 2026-11-21 | Payment data shape (step 1) | Statuses + moves as in payment-data.md; invoice names Approved/PaymentScheduled/Paid; dashboard's record shapes kept plus bankAccount, cancelledBy/At, failure, flags, releaseCheck; read via listPayments()/getPaymentDetail() | Katie |
 | 2026-11-21 | Bank change and verify | Payments builds the minimum (enter new details, second person verifies), marked TEMP: vendors | Katie |

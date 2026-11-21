@@ -150,8 +150,8 @@ function toRecord(p: PaymentRec): PaymentRecord {
   });
 }
 
-function toInvoiceRecord(i: InvoiceRec): InvoiceRecord {
-  const approval = getApprovalFacts(i.id);
+async function toInvoiceRecord(i: InvoiceRec): Promise<InvoiceRecord> {
+  const approval = await getApprovalFacts(i.id);
   return {
     invoiceId: i.id,
     vendorInvoiceNumber: i.vendorInvoiceNumber,
@@ -167,21 +167,21 @@ function toInvoiceRecord(i: InvoiceRec): InvoiceRecord {
   };
 }
 
-function releaseInputFor(actor: DirectoryUser | undefined, p: PaymentRec, invoice: InvoiceRec) {
+async function releaseInputFor(actor: DirectoryUser | undefined, p: PaymentRec, invoice: InvoiceRec) {
   return {
     actor,
     payment: p,
     invoice,
     vendor: getVendor(p.vendorId),
     bankAccounts: listBankAccounts(p.vendorId),
-    approval: getApprovalFacts(invoice.id),
+    approval: await getApprovalFacts(invoice.id),
     paymentFlags: openFlagsFor(p),
     invoiceFlags: getOpenInvoiceFlags(invoice.id),
     policies: getReleasePolicies(),
   };
 }
 
-function toRow(viewer: DirectoryUser | undefined, invoice: InvoiceRec, attempts: PaymentRec[]): PaymentRow {
+async function toRow(viewer: DirectoryUser | undefined, invoice: InvoiceRec, attempts: PaymentRec[]): Promise<PaymentRow> {
   const current = attempts[attempts.length - 1]!; // callers only pass invoices with an attempt
   const records = attempts.map(toRecord);
   const seen = new Set<string>();
@@ -190,16 +190,16 @@ function toRow(viewer: DirectoryUser | undefined, invoice: InvoiceRec, attempts:
     .filter((f) => (seen.has(f.flagId) ? false : (seen.add(f.flagId), true)))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return {
-    invoice: toInvoiceRecord(invoice),
+    invoice: await toInvoiceRecord(invoice),
     current: records[records.length - 1]!,
     attempts: records,
     flags: rowFlags,
-    releaseCheck: checkRelease(releaseInputFor(viewer, current, invoice)),
+    releaseCheck: checkRelease(await releaseInputFor(viewer, current, invoice)),
   };
 }
 
 /** Every payment the signed-in person may see. */
-export function listPayments(viewerId: string | null): PaymentsView {
+export async function listPayments(viewerId: string | null): Promise<PaymentsView> {
   const viewer = viewerId ? getUser(viewerId) : undefined;
   const rows: PaymentRow[] = [];
   const awaiting: InvoiceRecord[] = [];
@@ -207,10 +207,10 @@ export function listPayments(viewerId: string | null): PaymentsView {
     if (!canSee(viewer, invoice)) continue;
     const attempts = attemptsFor(invoice.id);
     if (attempts.length === 0) {
-      if (invoice.status === "Approved") awaiting.push(toInvoiceRecord(invoice));
+      if (invoice.status === "Approved") awaiting.push(await toInvoiceRecord(invoice));
       continue;
     }
-    rows.push(toRow(viewer, invoice, attempts));
+    rows.push(await toRow(viewer, invoice, attempts));
   }
   rows.sort((a, b) => a.current.scheduledDate.localeCompare(b.current.scheduledDate));
   awaiting.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
@@ -218,12 +218,12 @@ export function listPayments(viewerId: string | null): PaymentsView {
 }
 
 /** One invoice's payment, or null if it has none or the person may not see it. */
-export function getPaymentDetail(viewerId: string | null, invoiceId: string): PaymentRow | null {
+export async function getPaymentDetail(viewerId: string | null, invoiceId: string): Promise<PaymentRow | null> {
   const viewer = viewerId ? getUser(viewerId) : undefined;
   const invoice = getInvoice(invoiceId);
   if (!invoice || !canSee(viewer, invoice)) return null;
   const attempts = attemptsFor(invoiceId);
-  return attempts.length ? toRow(viewer, invoice, attempts) : null;
+  return attempts.length ? await toRow(viewer, invoice, attempts) : null;
 }
 
 /** The invoice's payment audit trail (who, when, what), oldest first. */
@@ -255,7 +255,7 @@ export function getSupplierBank(viewerId: string | null, vendorId: string) {
 // ---------------------------------------------------------------------------------------------
 
 /** Schedule an approved invoice, or retry after a failed attempt (a new attempt, all checks again). */
-export function schedulePayment(actorId: string | null, input: { invoiceId: string; payDate?: string }, opts: ActionOptions = {}): ActionResult<PaymentRecord> {
+export async function schedulePayment(actorId: string | null, input: { invoiceId: string; payDate?: string }, opts: ActionOptions = {}): Promise<ActionResult<PaymentRecord>> {
   const now = opts.now ?? new Date();
   const today = localDate(now);
   const actor = actorId ? getUser(actorId) : undefined;
@@ -318,14 +318,14 @@ export function schedulePayment(actorId: string | null, input: { invoiceId: stri
   return { ok: true, value: toRecord(p), warnings: check.warnings };
 }
 
-export function releasePayment(actorId: string | null, input: { paymentId: string }, opts: ActionOptions = {}): ActionResult<PaymentRecord> {
+export async function releasePayment(actorId: string | null, input: { paymentId: string }, opts: ActionOptions = {}): Promise<ActionResult<PaymentRecord>> {
   const now = opts.now ?? new Date();
   const actor = actorId ? getUser(actorId) : undefined;
   const p = payments().find((x) => x.paymentId === input.paymentId);
   if (!p) return notFound(`Payment ${input.paymentId}`);
   const invoice = getInvoice(p.invoiceId);
   if (!invoice) return notFound(`Invoice ${p.invoiceId}`);
-  const check = checkRelease(releaseInputFor(actor, p, invoice));
+  const check = checkRelease(await releaseInputFor(actor, p, invoice));
   if (!check.allowed) return refuse(403, check.reasons);
 
   const account = listBankAccounts(p.vendorId).find((a) => a.version === p.bankVersion)!;
@@ -341,7 +341,7 @@ export function releasePayment(actorId: string | null, input: { paymentId: strin
   return { ok: true, value: toRecord(p), warnings: [] };
 }
 
-export function cancelPayment(actorId: string | null, input: { paymentId: string; reason: string }, opts: ActionOptions = {}): ActionResult<PaymentRecord> {
+export async function cancelPayment(actorId: string | null, input: { paymentId: string; reason: string }, opts: ActionOptions = {}): Promise<ActionResult<PaymentRecord>> {
   const now = opts.now ?? new Date();
   const actor = actorId ? getUser(actorId) : undefined;
   const p = payments().find((x) => x.paymentId === input.paymentId);
@@ -360,7 +360,7 @@ export function cancelPayment(actorId: string | null, input: { paymentId: string
 }
 
 /** The simulated bank's answer for a released payment. Pressed by a person in the demo. */
-export function simulateSettlement(actorId: string | null, input: { paymentId: string; outcome: "SETTLED" | FailureCode }, opts: ActionOptions = {}): ActionResult<PaymentRecord> {
+export async function simulateSettlement(actorId: string | null, input: { paymentId: string; outcome: "SETTLED" | FailureCode }, opts: ActionOptions = {}): Promise<ActionResult<PaymentRecord>> {
   const now = opts.now ?? new Date();
   const today = localDate(now);
   const actor = actorId ? getUser(actorId) : undefined;
@@ -431,7 +431,7 @@ export function simulateSettlement(actorId: string | null, input: { paymentId: s
   return { ok: true, value: toRecord(p), warnings: [] };
 }
 
-export function clearFlag(actorId: string | null, input: { flagId: string; note: string }, opts: ActionOptions = {}): ActionResult<PaymentFlag> {
+export async function clearFlag(actorId: string | null, input: { flagId: string; note: string }, opts: ActionOptions = {}): Promise<ActionResult<PaymentFlag>> {
   const now = opts.now ?? new Date();
   const actor = actorId ? getUser(actorId) : undefined;
   const f = flags().find((x) => x.flagId === input.flagId);
@@ -460,11 +460,11 @@ export function clearFlag(actorId: string | null, input: { flagId: string; note:
   return { ok: true, value: toFlag(f), warnings: [] };
 }
 
-export function requestBankChange(
+export async function requestBankChange(
   actorId: string | null,
   input: { vendorId: string; institution: string; transit: string; account: string },
   opts: ActionOptions = {},
-): ActionResult<{ version: number; last4: string }> {
+): Promise<ActionResult<{ version: number; last4: string }>> {
   const now = opts.now ?? new Date();
   const actor = actorId ? getUser(actorId) : undefined;
   if (!getVendor(input.vendorId)) return notFound(`Supplier ${input.vendorId}`);
@@ -495,7 +495,7 @@ export function requestBankChange(
   return { ok: true, value: { version, last4 }, warnings: [] };
 }
 
-export function verifyBankChange(actorId: string | null, input: { vendorId: string }, opts: ActionOptions = {}): ActionResult<{ version: number; last4: string }> {
+export async function verifyBankChange(actorId: string | null, input: { vendorId: string }, opts: ActionOptions = {}): Promise<ActionResult<{ version: number; last4: string }>> {
   const now = opts.now ?? new Date();
   const actor = actorId ? getUser(actorId) : undefined;
   const accounts = listBankAccounts(input.vendorId);
@@ -520,7 +520,7 @@ export function verifyBankChange(actorId: string | null, input: { vendorId: stri
   return { ok: true, value: { version: pending.version, last4: pending.last4 }, warnings: [] };
 }
 
-export function rejectBankChange(actorId: string | null, input: { vendorId: string; reason: string }, opts: ActionOptions = {}): ActionResult<{ version: number; last4: string }> {
+export async function rejectBankChange(actorId: string | null, input: { vendorId: string; reason: string }, opts: ActionOptions = {}): Promise<ActionResult<{ version: number; last4: string }>> {
   const now = opts.now ?? new Date();
   const actor = actorId ? getUser(actorId) : undefined;
   const pending = listBankAccounts(input.vendorId).find((a) => a.status === "pending");

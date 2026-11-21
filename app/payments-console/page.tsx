@@ -53,7 +53,7 @@ async function Console() {
   const viewerId = (await cookies()).get("hl_viewing_as")?.value ?? null;
   const users = listUsers().sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role) || a.id.localeCompare(b.id));
   const viewer = users.find((u) => u.id === viewerId);
-  const view = listPayments(viewerId);
+  const view = await listPayments(viewerId);
 
   const open = new Map<string, PaymentFlag>();
   for (const row of view.payments) for (const f of row.flags) if (f.clearedAt === null) open.set(f.flagId, f);

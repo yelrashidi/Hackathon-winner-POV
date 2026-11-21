@@ -7,8 +7,9 @@
 
 import type { ApprovalPolicy } from "@/contracts/approvals";
 import type { Flag } from "@/contracts/flag";
-import type { DirectoryUser } from "@/server/features/approvals";
-import { getState } from "./fake-data/store";
+import { approversOf, getApprovalPlans, getCurrentApprovalPlan, type DirectoryUser } from "@/server/features/approvals";
+import type { Currency } from "@/contracts/payment";
+import { ensureApprovalsSeeded, getState } from "./fake-data/store";
 import type { ApprovalFacts, AuditEvent, BankAccountVersion, FlagRec, InvoiceRec, InvoiceStatus, PaymentRec, VendorRec } from "./types";
 
 // TEMP: foundation (users table) — A2
@@ -34,10 +35,24 @@ export function listInvoices(): InvoiceRec[] {
   return [...getState().invoices.values()];
 }
 
-// TEMP: approvals (Youssef) — A1, A3b. Real version: approversOf(...await getApprovalPlans(id))
-// and (await getCurrentApprovalPlan(id, { invoiceVersion })).basis. Today: approvals.csv history.
-export function getApprovalFacts(invoiceId: string): ApprovalFacts | undefined {
-  return getState().approvals.get(invoiceId);
+// Approvals (Youssef) — A1, A3b: his real store and functions. Only the seed is TEMP: until the
+// approval flow fills his store, fake-data/approval-seed.ts loads the dataset's history into it.
+export async function getApprovalFacts(invoiceId: string): Promise<ApprovalFacts | undefined> {
+  await ensureApprovalsSeeded();
+  const invoice = getInvoice(invoiceId);
+  const plans = await getApprovalPlans(invoiceId);
+  if (!invoice || plans.length === 0) return undefined;
+  const current = await getCurrentApprovalPlan(invoiceId, { invoiceVersion: invoice.version });
+  if (!current) return { approverIds: [...approversOf(...plans)], basis: null };
+  return {
+    approverIds: [...approversOf(...plans)],
+    basis: {
+      // A plan with no vendor (unmatched invoice) approves no payee: PAYEE_MISMATCH.
+      vendorId: current.basis.vendorId ?? "",
+      currency: current.basis.currency as Currency,
+      totalCents: current.basis.totalCents,
+    },
+  };
 }
 
 // Real parser (Youssef's policiesFromCsv); TEMP: db for where the rows come from — A3
