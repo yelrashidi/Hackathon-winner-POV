@@ -6,7 +6,7 @@ This is less "banking" than it sounds. Brim makes corporate credit cards for bus
 
 Harborline Logistics is a fictional 40-person trucking/logistics company. Follow one bill through the system you'd build:
 
-1. **Intake.** An email arrives at `ap@harborline.ca` from "Speedy Tires Ltd" with a PDF attached. Your app picks it up and turns it into a *draft bill*. (Some emails are spam or "thanks for your payment!" messages, and your app should recognise that they aren't bills.)
+1. **Intake.** An email arrives at `you@gmail.com` from "Speedy Tires Ltd" with a PDF attached. Your app picks it up and turns it into a *draft bill*. (Some emails are spam or "thanks for your payment!" messages, and your app should recognise that they aren't bills.)
 2. **Extraction.** Your app reads the PDF and pulls out the fields: vendor = Speedy Tires, invoice #ST-4471, date Nov 3, 8 tires × $250 = $2,000, Ontario HST 13% = $260, total $2,260 CAD. Some PDFs are blurry scans, and some are in French.
 3. **Coding.** "Coding" is accounting jargon for **putting the expense in the right bucket**. The company has a *chart of accounts*, which is basically a list of categories like "6100 – Vehicle Maintenance" or "6400 – Office Supplies." Your app looks at the ~450 past invoices, sees that Speedy Tires bills have always gone to Vehicle Maintenance for the Operations department, and suggests that. It also says why ("12 of the last 12 Speedy Tires invoices were coded here").
 4. **Validation.** Before anyone pays, your app checks:

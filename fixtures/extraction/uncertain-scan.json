@@ -1,0 +1,16 @@
+{
+  "sourceRef": "scan_8749.png",
+  "filename": "scan_8749.png",
+  "verdict": "uncertain",
+  "documentType": null,
+  "reason": "Could not tell what this document is (no extraction model configured) — a clerk should look at it.",
+  "decidedBy": "fallback",
+  "textLayerChars": 0,
+  "signals": [
+    "DOC_NO_TEXT_LAYER",
+    "EXTRACTION_FAILED"
+  ],
+  "extracted": null,
+  "llmRaw": null,
+  "error": "no extraction model configured"
+}

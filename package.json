@@ -15,12 +15,19 @@
     "test:contracts": "vitest run src/contracts/__tests__",
     "check": "npm run typecheck && npm run check:imports && npm test && npm run validate:batch && npm run validate:history",
     "validate:batch": "tsx scripts/validate-batch.ts",
-    "validate:history": "tsx scripts/validate-history.ts"
+    "validate:history": "tsx scripts/validate-history.ts",
+    "gmail:auth": "tsx scripts/gmail-auth.ts",
+    "gmail:poll": "tsx scripts/gmail-poll.ts",
+    "intake:dataset": "tsx scripts/intake-dataset.ts",
+    "fixtures:intake": "tsx scripts/generate-intake-fixtures.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "1.4.0",
+    "@googleapis/gmail": "22.0.2",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "unpdf": "2.1.0",
     "zod": "4.6.7"
   },
   "devDependencies": {

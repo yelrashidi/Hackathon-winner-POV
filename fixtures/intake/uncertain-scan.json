@@ -1,0 +1,24 @@
+{
+  "decision": "needs_review",
+  "kind": "other",
+  "reason": "No attachment is clearly a bill: scan_8749.png — Could not tell what this document is (no extraction model configured) — a clerk should look at it.",
+  "invoiceAttachments": [],
+  "decidedBy": "fallback",
+  "signals": [
+    "ATTACHMENT_DOCUMENT",
+    "INVOICE_TERMS",
+    "KNOWN_VENDOR_SENDER",
+    "DOC_NO_TEXT_LAYER",
+    "EXTRACTION_FAILED",
+    "HAS_UNCERTAIN_DOCUMENT"
+  ],
+  "documents": [
+    {
+      "sourceRef": "scan_8749.png",
+      "filename": "scan_8749.png",
+      "verdict": "uncertain",
+      "documentType": null,
+      "reason": "Could not tell what this document is (no extraction model configured) — a clerk should look at it."
+    }
+  ]
+}

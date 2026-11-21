@@ -1,0 +1,12 @@
+{
+  "source": "dataset",
+  "externalId": "EM-059",
+  "threadId": null,
+  "fromName": "Deskhive Furniture",
+  "fromAddress": "news@deskhivefurniture.example",
+  "toAddress": "ap@harborline-logistics.example",
+  "subject": "Fall sale: 20% off ergonomic chairs",
+  "receivedAt": "2026-10-31T07:47:00",
+  "bodyText": "Our fall sale is on. Shop now and save on ergonomic chairs and sit/stand desks.",
+  "attachments": []
+}
