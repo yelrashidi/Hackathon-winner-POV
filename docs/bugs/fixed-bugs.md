@@ -8,6 +8,7 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Andrew-01 | High | Andrew | 2026-11-21 | Empty string in an extracted field crashed validation |
 | BUG-Andrew-02 | High | Andrew | 2026-11-21 | Impossible dates (2026-02-30) rolled over and raised false date flags |
 | BUG-Andrew-03 | High | Andrew | 2026-11-21 | Unmapped tax line produced a false blocking TAX_MISSING |
+| BUG-Arpan-01 | High | Arpan | 2026-11-21 | Any PDF in an email that said "invoice" became a draft bill |
 
 ---
 
@@ -16,6 +17,14 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 **Why it happened.** The real cause, in one or two lines.
 **Rule added.** docs/rules/<file>.md, or "none — one-off".
 -->
+
+### BUG-Arpan-01
+**Any PDF in an email that said "invoice" became a draft bill** · High · FIXED · found 2026-11-21 by Arpan testing `gmail:poll` (with and without the model)
+
+**Symptom.** An email with invoice wording plus a non-invoice PDF (terms, brochure, receipt) drafted a bill for every PDF attached.
+**Cause.** The intake rule "document attached + invoice words in subject/body → invoice" listed every attachment as a bill without opening any of them.
+**Fix.** The email's wording no longer makes a bill. Each document is read by extraction (`src/server/features/extraction/read-document.ts`): text-layer rules on the document's own text, then one Claude read. Only `invoice` / `credit_note` documents go into `invoiceAttachments` (`decideFromDocuments`, `src/server/features/intake/classify/classify.ts`). Uncommitted on `1209322`. Tests: "drafts nothing when 'Invoice attached' carries a non-invoice PDF". Checked live: a receipt, a quote and a terms PDF were not drafted.
+**Rule added.** `docs/rules/backend.md`: a document's type comes from the document, never from the email.
 
 ### BUG-Andrew-01
 **Empty string in an extracted field crashed validation** · High · FIXED · found 2026-11-21 by a review session (Andrew's)

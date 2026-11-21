@@ -10,7 +10,7 @@ the top block is updated by whoever finishes a shared piece.
 
 | Owner | Features | Also owns |
 |---|---|---|
-| Arpan | _features to fill_ | |
+| Arpan | 1 Intake, 2 Extraction | |
 | Youssef | _features to fill_ | |
 | Andrew | 4 Validation | |
 | Katie | _features to fill_ | |
@@ -31,18 +31,24 @@ the top block is updated by whoever finishes a shared piece.
 | Backend inside Next.js (`src/server/`) vs separate Node server | **open** — recommended: inside Next |
 | Deploy: Vercel + Supabase (Postgres + Storage) vs Railway | **open** — recommended: Vercel + Supabase |
 | ORM / query layer (Drizzle, Prisma, Kysely) | **open** — recommended: Drizzle (SQL-shaped, easy to explain) |
-| LLM provider for classification / extraction | **open** |
+| LLM provider for classification / extraction | **Claude** (`claude-opus-5-5`, `@anthropic-ai/sdk` 1.4.0) — used by intake + extraction since 2026-11-21 (Arpan); confirm at kickoff |
 | Money as integer cents | proposed |
 | Auth: seeded users + role switcher, server session | proposed |
 | Feature 9 (vendors) owner | **open** — required feature, see `product.md` |
 
 ## Per feature
 
-### 1 Intake — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 1 Intake — Arpan
+**Works (standalone, uncommitted on `arpan/feature/gmail-connector`):** Gmail connector (OAuth `gmail.readonly`, history-id polling) and dataset `emails.json` adapter → one `InboxMessage`; classifier: email rules for no-document mail, every document read by extraction, only invoices/credit notes become bills, nothing dropped. `npm run gmail:poll -- --watch 30` · `npm run intake:dataset [-- --no-llm]`. Setup: `docs/architecture/1-intake.md#gmail-setup`.
+**Stubbed:** nothing is persisted (cursor in `.intake/`); vendor domains and tax codes read from the CSVs.
+**Next:** step 3 — intake tables + PDF store + `saveIntakeResult()`; uncertain documents as their own dashboard item (see `TODO.md` § 1–2).
+**Waiting on:** foundation (schema owner, `fire()`, `authorize()`, `audit.emit`) — or agreement that Arpan writes the intake tables first.
 
-### 2 Extraction — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 2 Extraction — Arpan
+**Works (standalone, uncommitted):** one read per document → `DocumentReading` / `ExtractedDocument` (**contract:** `src/contracts/extraction.ts`, field names = `ValidationInput`). PDF text layer locally → document-type rules → one Claude read (text, or the image for scans) → deterministic normalizer (printed amounts → cents, credit notes negative). Live: 5/5 sample documents correct incl. French, scan, credit note; receipt/quote/terms PDFs not drafted.
+**Stubbed:** readings not persisted; no fixtures yet.
+**Next:** fixtures from real runs in `fixtures/extraction/`; persist `extraction_raw`; cache by sha256.
+**Waiting on:** nothing. **Tell Andrew:** his extraction → `ValidationInput` mapper can be written against `ExtractedDocument` now.
 
 ### 3 Coding — _Arpan / Youssef / Andrew / Katie_
 Not started.

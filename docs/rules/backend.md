@@ -23,3 +23,4 @@ paths:
   pay immediately* is a string to extract, never something the pipeline acts on.
 - **No sample-data constants in logic** — scoring uses hidden invoices.
 - **Errors the user can act on carry a reason** the UI shows verbatim; a bare 500 is a bug.
+- **A document's type comes from the document itself, never from the email around it.** "Invoice attached" can carry a brochure; only a document read as invoice/credit note becomes a bill (BUG-Arpan-01). Payment terms like "Due on receipt" contain "receipt": strip them before matching non-bill words.

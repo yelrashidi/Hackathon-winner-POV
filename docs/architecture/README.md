@@ -9,8 +9,8 @@ How the code works and why. One doc per feature, written by its owner from
 | [`data-model.md`](data-model.md) | tables, relationships, DB-level constraints | schema owner |
 | [`roles-and-permissions.md`](roles-and-permissions.md) | `authorize()`, the role matrix, separation of duties | foundation |
 | [`../explainers/brim-ap-diagrams.md`](../explainers/brim-ap-diagrams.md) | invoice state machine, feature dependency graph | all |
-| `1-intake.md` | *to write* | |
-| `2-extraction.md` | *to write* | |
+| [`1-intake.md`](1-intake.md) | intake: Gmail connector, dataset inbox adapter, classifier, draft bills | Arpan |
+| [`2-extraction.md`](2-extraction.md) | extraction: document type + fields per document, text rules, Claude, normalizer | Arpan |
 | `3-coding.md` | *to write* | |
 | [`4-validation.md`](4-validation.md) | validation: checks, flags, bad input, 100× | Andrew |
 | [`4-validation-plan.md`](4-validation-plan.md) | validation plan: design, every check, tests, open questions | Andrew |

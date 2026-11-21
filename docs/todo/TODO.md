@@ -23,14 +23,36 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] `src/contracts/` for every stage + one fixture each. [_name_]
 - [ ] State machine gaps: credit-note path, hold at release time (bank change / duplicate found), payment as its own lifecycle. [_name_]
 
-## 1 Intake — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Upload → `documents` + draft invoice. [_name_]
-- [ ] P1 Ingest AP inbox emails; classify invoice / not-invoice / no-attachment, with reason. [_name_]
-- [ ] P2 Lookalike sender check against vendor domains (feeds the bonus alert). [_name_]
+## 1 Intake — owner: Arpan
 
-## 2 Extraction — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 PDF text + scanned image path; English and French. [_name_]
-- [ ] P1 Taxes mapped to tax codes; currency; confidence per field; failure → ManualEntry. [_name_]
+### Step 3 — persist intake results and show them as draft bills [Arpan]
+Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmail()` returns
+`{ classification, readings }` and nothing is stored. In order:
+
+- [ ] P0 Agree with the schema owner (`STATUS.md`) that the intake tables go in first, and settle the ORM decision (recommended: Drizzle). Shared schema → `schema:` in the PR title. [Arpan]
+- [ ] P1 Migration: `inbox_messages` (source, external_id **UNIQUE (source, external_id)**, from/to, subject, received_at, body_text, decision, kind, reason, decided_by, signals jsonb). Update `data-model.md` in the same PR. [Arpan]
+- [ ] P1 Migration: `documents`: one row per attachment (inbox_message_id, filename, mime, size, **sha256**, storage_key, verdict `bill`/`not_bill`/`uncertain`, document_type, reason, decided_by, text_layer_chars, signals). Every attachment is kept, bills or not, so the dashboard can show why. [Arpan]
+- [ ] P1 Migration: intake columns on `invoices` (status, document_id, source, vendor_name_raw, invoice_number, invoice_number_norm, dates, currency, subtotal/total cents, payment_terms_days, po_number, ship_to_province, is_credit_note, **extraction_raw jsonb**, extraction_confidence jsonb, extraction_warnings) + `invoice_lines` + `invoice_taxes`. [Arpan]
+- [ ] P1 Document store `storeDocument(bytes) → { sha256, storageKey }`: local folder in dev (gitignored), Supabase Storage when deployed; identical bytes stored once. [Arpan]
+- [ ] P1 `saveIntakeResult(msg, result)` in `src/server/features/intake/`: ONE transaction for the email, its documents, invoices, lines, taxes and audit events (actor = system intake user). Re-running the same email changes nothing. [Arpan]
+- [ ] P1 Starting status per document: bill with fields → `Received` → `InReview` (`extractionSucceeded`); bill with no fields → `ManualEntry` (`extractionFailed`); **uncertain → an invoice in `Received` with flag `DOCUMENT_TYPE_UNCERTAIN`** (its own dashboard item, even when the same email had a bill); not a bill → `documents` row only. Transitions only through `fire()`. If `fire()` is not ready, create in `Received` and add the transitions when it lands. [Arpan]
+- [ ] P1 Mapper `ExtractedDocument` → invoice / lines / taxes rows; `invoice_number_norm` = upper-case, no spaces or dashes (duplicates search uses it). [Arpan]
+- [ ] P1 Clerk decision on uncertain documents: "It's a bill" → `ManualEntry`/`InReview`; "Not a bill" → `Voided` (`markNotInvoice`). `authorize()` first, audit in the same transaction. [Arpan]
+- [ ] P1 Wire both sources to `saveIntakeResult`: `gmail:poll` and `intake:dataset`; Gmail cursor moves from `.intake/gmail-state.json` to a DB row. [Arpan]
+- [ ] P1 Vendor domains and tax codes from the DB instead of `vendors.csv` / `tax_codes.csv` (`intake/dataset/vendors.ts`, `extraction/tax-codes.ts`). [Arpan]
+- [ ] P1 Tests: idempotent re-run, rollback leaves nothing half-written, two-invoice email → two invoices, uncertain document → its own item, receipt PDF → `documents` row and no invoice. [Arpan]
+- [ ] P2 Fixtures from real runs: `fixtures/extraction/*.json` (`DocumentReading`) and `fixtures/intake/*.json` (`IntakeClassification`), parsed by `src/contracts/__tests__`. Tell Andrew (mapper) and the coding/duplicates owners. [Arpan]
+
+### After step 3 [Arpan]
+- [ ] P1 Step 4: clerk inbox dashboard. Emails with decision + reason, each document's verdict, PDF viewer through `/api/documents/[id]` (`authorize()` before streaming), and a "Needs a decision" queue for uncertain documents. [Arpan]
+- [ ] P1 Upload → `documents` + draft invoice: same `readDocument` + `saveIntakeResult` path, source `upload`. [Arpan]
+- [ ] P1 Deployed polling: a cron route calls `pollGmail` (Vercel cron), cursor in the DB. [Arpan]
+- [ ] P2 Lookalike sender: validation already flags it (`src/server/features/validation/rules/vendor.ts:131`). Intake only has to pass `fromAddress` through as `senderEmail`. Check it end to end. [Arpan]
+
+## 2 Extraction — owner: Arpan
+- [ ] P1 Cache readings by document sha256, so a resubmitted PDF costs no model call. [Arpan]
+- [ ] P2 Retry a low-confidence text-layer read as a PDF (layout) read; multi-column text can come out of order. [Arpan]
+- [ ] P2 Move `extraction/amounts.ts` into `core/money.ts` when the foundation exists. [Arpan]
 
 ## 3 Coding — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Vendor → (account, dept) history table from historical invoices; suggestion with reason. [_name_]
