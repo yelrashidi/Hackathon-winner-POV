@@ -30,19 +30,21 @@ export default async function PaymentDetailsPage({ params }: PageProps<"/payment
 
   return (
     <>
-      <Link href="/payments" className="text-sm font-medium text-slate-500 hover:text-slate-900">
+      <Link href="/payments" className="text-sm font-medium text-(--brim-link) hover:underline">
         ← All payments
       </Link>
 
       <section className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{invoice.vendorName}</h1>
+          <h1 className="font-(family-name:--brim-font-display) text-[1.75rem] leading-tight font-extrabold tracking-tight text-(--brim-heading)">
+            {invoice.vendorName}
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
             Invoice {invoice.vendorInvoiceNumber} · {invoice.invoiceId}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-semibold tabular-nums tracking-tight text-slate-900">
+          <p className="font-(family-name:--brim-font-display) text-3xl font-extrabold tabular-nums tracking-tight text-(--brim-heading)">
             {formatMoneyWithCode(current?.amountCents ?? invoice.totalCents, current?.currency ?? invoice.currency)}
           </p>
           {(current?.currency ?? invoice.currency) !== "CAD" && (

@@ -61,7 +61,7 @@ export function NeedsAttention({
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
                       href={`/payments/${invoice.invoiceId}`}
-                      className="font-medium text-slate-900 hover:text-indigo-600"
+                      className="font-medium text-slate-900 hover:text-(--brim-link)"
                     >
                       {invoice.vendorName}
                     </Link>

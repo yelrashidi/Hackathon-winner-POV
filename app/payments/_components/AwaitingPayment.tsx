@@ -25,7 +25,7 @@ export function AwaitingPayment({ invoices, role }: { invoices: InvoiceRecord[];
           {invoices.map((inv) => (
             <li key={inv.invoiceId} className="flex flex-wrap items-center gap-x-6 gap-y-2 px-5 py-3.5 text-sm">
               <div className="min-w-56 flex-1">
-                <Link href={`/payments/${inv.invoiceId}`} className="font-medium text-slate-900 hover:text-indigo-600">
+                <Link href={`/payments/${inv.invoiceId}`} className="font-medium text-slate-900 hover:text-(--brim-link)">
                   {inv.vendorName}
                 </Link>
                 <p className="text-xs text-slate-500">

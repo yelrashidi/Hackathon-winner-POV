@@ -66,7 +66,7 @@ function Row({ row, role, showActions }: { row: PaymentRow; role: DashboardRole;
   return (
     <tr className="align-top hover:bg-slate-50/60">
       <td className="px-5 py-3.5">
-        <Link href={`/payments/${invoice.invoiceId}`} className="font-medium text-slate-900 hover:text-indigo-600">
+        <Link href={`/payments/${invoice.invoiceId}`} className="font-medium text-slate-900 hover:text-(--brim-link)">
           {invoice.vendorName}
         </Link>
         <p className="text-xs text-slate-500">Invoice {invoice.vendorInvoiceNumber}</p>
@@ -109,7 +109,7 @@ function Row({ row, role, showActions }: { row: PaymentRow; role: DashboardRole;
 function AttemptHistory({ attempts }: { attempts: PaymentRecord[] }) {
   return (
     <details className="group mt-1.5">
-      <summary className="cursor-pointer list-none text-xs font-medium text-indigo-600 hover:text-indigo-700">
+      <summary className="cursor-pointer list-none text-xs font-medium text-(--brim-link) hover:underline">
         {attempts.length} attempts <span className="inline-block transition group-open:rotate-90">›</span>
       </summary>
       <ol className="mt-2 space-y-1.5 border-l-2 border-slate-200 pl-3">

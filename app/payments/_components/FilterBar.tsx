@@ -24,7 +24,7 @@ export function FilterBar({
       <Select name="status" label="Status" options={statuses} value={status} />
       <Select name="vendor" label="Vendor" options={vendors} value={vendor} />
       {filtered && (
-        <Link href="/payments" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
+        <Link href="/payments" className="text-sm font-medium text-(--brim-link) hover:underline">
           Clear filters
         </Link>
       )}
@@ -45,7 +45,7 @@ function Select({ name, label, options, value }: { name: string; label: string; 
         name={name}
         defaultValue={value}
         onChange={(e) => e.currentTarget.form?.requestSubmit()}
-        className="rounded-lg border border-slate-200 bg-white py-1.5 pl-2.5 pr-8 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        className="rounded-lg border border-slate-200 bg-white py-1.5 pl-2.5 pr-8 text-sm text-slate-900 shadow-sm focus:border-(--brim-link) focus:outline-none focus:ring-2 focus:ring-(--brim-link)/20"
       >
         <option value="">All</option>
         {options.map((o) => (

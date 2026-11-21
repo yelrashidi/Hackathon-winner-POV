@@ -15,7 +15,7 @@ export function NotForYourRole({ page, user }: { page: PaymentsPage; user: Direc
           />
         </svg>
       </div>
-      <h1 className="mt-4 text-lg font-semibold text-slate-900">{page.label} is for {page.forWhom}</h1>
+      <h1 className="mt-4 font-(family-name:--brim-font-display) text-xl font-extrabold text-(--brim-heading)">{page.label} is for {page.forWhom}</h1>
       <p className="mt-2 text-sm text-slate-500">
         {user
           ? `You're viewing as ${user.fullName} (${ROLE_LABEL[user.role]}).`
@@ -24,7 +24,7 @@ export function NotForYourRole({ page, user }: { page: PaymentsPage; user: Direc
       </p>
       <Link
         href="/payments"
-        className="mt-6 inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+        className="mt-6 inline-flex rounded-lg bg-(--brim-accent) px-4 py-2 text-sm font-semibold text-(--brim-on-accent) hover:bg-(--brim-accent-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brim-link) focus-visible:ring-offset-2"
       >
         Go to overview
       </Link>

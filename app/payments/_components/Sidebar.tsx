@@ -25,11 +25,11 @@ export async function Sidebar() {
   return (
     <div className="space-y-6">
       <SidebarNav items={items} />
-      <div className="hidden rounded-lg border border-slate-200 bg-white p-3 lg:block">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+      <div className="hidden rounded-lg bg-white/5 p-3 ring-1 ring-white/10 lg:block">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-white/50">
           {user ? "What you can do" : "Not signed in"}
         </p>
-        <ul className="mt-2 space-y-1 text-xs text-slate-600">
+        <ul className="mt-2 space-y-1 text-xs text-(--brim-on-frame-muted)">
           {(user ? ROLE_ABILITIES[role] : ["Pick who you are in the top-right to act"]).map((a) => (
             <li key={a}>{a}</li>
           ))}
@@ -43,7 +43,7 @@ export function SidebarFallback() {
   return (
     <div className="space-y-2" aria-hidden>
       {[0, 1, 2].map((i) => (
-        <div key={i} className="h-9 animate-pulse rounded-lg bg-slate-200/60" />
+        <div key={i} className="h-9 animate-pulse rounded-lg bg-white/10" />
       ))}
     </div>
   );

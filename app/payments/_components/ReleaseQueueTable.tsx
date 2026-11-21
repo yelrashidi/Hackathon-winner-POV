@@ -55,7 +55,7 @@ export function ReleaseQueueTable({
                     <td className="px-5 py-3.5">
                       <Link
                         href={`/payments/${invoice.invoiceId}`}
-                        className="font-medium text-slate-900 hover:text-indigo-600"
+                        className="font-medium text-slate-900 hover:text-(--brim-link)"
                       >
                         {invoice.vendorName}
                       </Link>

@@ -72,10 +72,10 @@ function Card({
     <>
       <p className="flex items-center justify-between text-sm font-medium text-slate-500">
         {label}
-        {href && <span className="text-slate-300 transition group-hover:text-indigo-500">→</span>}
+        {href && <span className="text-slate-300 transition group-hover:text-(--brim-link)">→</span>}
       </p>
       <p
-        className={`mt-2 text-2xl font-semibold tabular-nums tracking-tight ${alert ? "text-red-600" : "text-slate-900"}`}
+        className={`mt-2 font-(family-name:--brim-font-display) text-3xl font-extrabold tabular-nums tracking-tight ${alert ? "text-red-600" : "text-(--brim-heading)"}`}
       >
         {value}
       </p>
@@ -84,7 +84,7 @@ function Card({
   );
   const className = `group block rounded-xl border bg-white p-5 shadow-sm ${
     alert ? "border-red-200" : "border-slate-200"
-  } ${href ? "transition hover:border-indigo-200 hover:shadow" : ""}`;
+  } ${href ? "transition hover:border-(--brim-accent) hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brim-link)" : ""}`;
 
   return href ? (
     <Link href={href} className={className}>

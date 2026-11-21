@@ -26,10 +26,14 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
             key={item.key}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-              active ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200" : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
+            className={`relative flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brim-accent) ${
+              active
+                ? "bg-(--brim-frame-active) text-(--brim-on-frame)"
+                : "text-(--brim-on-frame-muted) hover:bg-(--brim-frame-active)/60 hover:text-(--brim-on-frame)"
             }`}
           >
+            {/* Active tab marker in the accent colour. */}
+            {active && <span className="absolute inset-y-2 left-0 w-1 rounded-full bg-(--brim-accent)" aria-hidden />}
             <svg
               viewBox="0 0 20 20"
               fill="none"
@@ -37,7 +41,7 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
               strokeWidth={1.6}
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={`h-4 w-4 ${active ? "text-indigo-600" : "text-slate-400"}`}
+              className={`h-4 w-4 ${active ? "text-(--brim-accent)" : "text-white/40"}`}
               aria-hidden
             >
               <path d={ICONS[item.key]} />
@@ -46,7 +50,7 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
             {item.count !== undefined && (
               <span
                 className={`rounded-full px-2 text-xs font-semibold tabular-nums ${
-                  item.alert ? "bg-red-600 text-white" : "bg-slate-200/70 text-slate-600"
+                  item.alert ? "bg-red-500 text-white" : "bg-white/10 text-white/80"
                 }`}
               >
                 {item.count}

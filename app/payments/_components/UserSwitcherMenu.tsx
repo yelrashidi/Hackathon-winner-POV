@@ -38,21 +38,21 @@ export function UserSwitcherMenu({ current, groups }: { current: Current; groups
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white py-1.5 pl-1.5 pr-3 text-left text-sm shadow-sm hover:border-slate-300 hover:bg-slate-50"
+        className="flex items-center gap-2.5 rounded-lg border border-white/15 bg-white/5 py-1.5 pl-1.5 pr-3 text-left text-sm transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brim-accent)"
       >
         <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-            current ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-400"
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+            current ? "bg-(--brim-accent) text-(--brim-on-accent)" : "bg-white/10 text-white/50"
           }`}
         >
           {current ? initials(current.fullName) : "?"}
         </span>
         <span className="leading-tight">
-          <span className="block text-[11px] text-slate-500">Viewing as</span>
-          <span className="block font-medium text-slate-900">
+          <span className="block text-[11px] text-(--brim-on-frame-muted)">Viewing as</span>
+          <span className="block font-medium text-(--brim-on-frame)">
             {current ? (
               <>
-                {current.fullName} <span className="font-normal text-slate-500">({current.roleLabel})</span>
+                {current.fullName} <span className="font-normal text-white/60">({current.roleLabel})</span>
               </>
             ) : (
               "Choose who you are"
@@ -60,11 +60,11 @@ export function UserSwitcherMenu({ current, groups }: { current: Current; groups
           </span>
         </span>
         {(!current || current.viewOnly) && (
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/80">
             View only
           </span>
         )}
-        <svg viewBox="0 0 20 20" fill="currentColor" className="ml-1 h-4 w-4 text-slate-400" aria-hidden>
+        <svg viewBox="0 0 20 20" fill="currentColor" className="ml-1 h-4 w-4 text-white/50" aria-hidden>
           <path
             fillRule="evenodd"
             d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
@@ -97,15 +97,15 @@ export function UserSwitcherMenu({ current, groups }: { current: Current; groups
                       name="userId"
                       value={p.id}
                       role="menuitem"
-                      className={`flex w-full items-center justify-between gap-3 px-3 py-1.5 text-left text-sm hover:bg-slate-50 ${
-                        selected ? "bg-indigo-50/60" : ""
+                      className={`flex w-full items-center justify-between gap-3 px-3 py-1.5 text-left text-sm hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none ${
+                        selected ? "bg-(--brim-accent)/10" : ""
                       }`}
                     >
                       <span className="min-w-0">
                         <span className="block truncate font-medium text-slate-900">{p.fullName}</span>
                         <span className="block truncate text-xs text-slate-500">{p.detail}</span>
                       </span>
-                      {selected && <span className="text-indigo-600">✓</span>}
+                      {selected && <span className="font-semibold text-(--brim-link)">✓</span>}
                     </button>
                   );
                 })}
