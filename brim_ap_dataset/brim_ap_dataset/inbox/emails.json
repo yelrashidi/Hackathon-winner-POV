@@ -1,0 +1,703 @@
+[
+  {
+    "email_id": "EM-002",
+    "from_name": "Keystone Racking Systems Accounts Receivable",
+    "from_address": "ar@keystoneracking.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Keystone Racking Systems - Invoice KE26-1198 attached",
+    "received_at": "2026-10-20T08:25:00",
+    "body": "Hello,\n\nPlease find attached our invoice KE26-1198 for services provided. Payment terms are on the invoice.\n\nThank you,\nKeystone Racking Systems Accounts Receivable",
+    "attachments": [
+      "keystonerackings-inv-002.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-001",
+    "from_name": "Blue Heron Couriers Accounts Receivable",
+    "from_address": "ar@blueheron.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Facture 4443",
+    "received_at": "2026-10-20T14:19:00",
+    "body": "Good afternoon,\n\nAttached is invoice 4443. Kindly remit by the due date.\n\nBlue Heron Couriers Billing",
+    "attachments": [
+      "Invoice 4443.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-005",
+    "from_name": "Trailhead Fuel Services Accounts Receivable",
+    "from_address": "ar@trailheadfuel.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice TR26-1042",
+    "received_at": "2026-10-21T08:35:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture TR26-1042.\n\nCordialement,\nTrailhead Fuel Services",
+    "attachments": [
+      "Invoice TR26-1042.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-003",
+    "from_name": "Evergreen Energy Utility Accounts Receivable",
+    "from_address": "ar@evergreenenergy.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Facture 000850",
+    "received_at": "2026-10-21T11:06:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture 000850.\n\nCordialement,\nEvergreen Energy Utility",
+    "attachments": [
+      "evergreenenergyu_000850.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-004",
+    "from_name": "Polar Freight Lines Ltd. Accounts Receivable",
+    "from_address": "ar@polarfreight.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 000964",
+    "received_at": "2026-10-21T14:12:00",
+    "body": "Hi AP team,\n\nInvoice 000964 attached. Let us know if you have any questions.\n\nRegards,\nPolar Freight Lines Ltd.",
+    "attachments": [
+      "Invoice 000964.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-006",
+    "from_name": "Zephyr Data Services Inc. Accounts Receivable",
+    "from_address": "ar@zephyrdata.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice 7590",
+    "received_at": "2026-10-22T13:27:00",
+    "body": "Hi AP team,\n\nInvoice 7590 attached. Let us know if you have any questions.\n\nRegards,\nZephyr Data Services Inc.",
+    "attachments": [
+      "zephyrdataservic_7590.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-007",
+    "from_name": "Hardhat Outfitters Ltd. Accounts Receivable",
+    "from_address": "ar@hardhatoutfitters.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice 853",
+    "received_at": "2026-10-22T16:13:00",
+    "body": "Hello,\n\nPlease find attached our invoice 853 for services provided. Payment terms are on the invoice.\n\nThank you,\nHardhat Outfitters Ltd. Accounts Receivable",
+    "attachments": [
+      "Invoice 853.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-010",
+    "from_name": "Alpenglow Events & Catering Accounts Receivable",
+    "from_address": "ar@alpenglowevents.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice AL26-0689",
+    "received_at": "2026-10-23T08:04:00",
+    "body": "Good afternoon,\n\nAttached is invoice AL26-0689. Kindly remit by the due date.\n\nAlpenglow Events & Catering Billing",
+    "attachments": [
+      "alpengloweventsc-inv-010.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-008",
+    "from_name": "Harlow & Stern LLP Accounts Receivable",
+    "from_address": "ar@harlow.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice 001470",
+    "received_at": "2026-10-23T11:22:00",
+    "body": "Good afternoon,\n\nAttached is invoice 001470. Kindly remit by the due date.\n\nHarlow & Stern LLP Billing",
+    "attachments": [
+      "harlowsternllp_001470.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-009",
+    "from_name": "Maple Tire & Auto Fleet Accounts Receivable",
+    "from_address": "ar@mapletire.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Maple Tire & Auto Fleet - Invoice 1531 attached",
+    "received_at": "2026-10-23T11:53:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture 1531.\n\nCordialement,\nMaple Tire & Auto Fleet",
+    "attachments": [
+      "mapletireautofle-inv-009.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-011",
+    "from_name": "Prairie Natural Gas Utility Accounts Receivable",
+    "from_address": "ar@prairienatural.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Facture PR26-1012",
+    "received_at": "2026-10-23T13:40:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture PR26-1012.\n\nCordialement,\nPrairie Natural Gas Utility",
+    "attachments": [
+      "scan_8749.png"
+    ]
+  },
+  {
+    "email_id": "EM-012",
+    "from_name": "Lakeshore Hydro Services Accounts Receivable",
+    "from_address": "ar@lakeshorehydro.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Lakeshore Hydro Services - Invoice INV-03018 attached",
+    "received_at": "2026-10-24T17:38:00",
+    "body": "Good afternoon,\n\nAttached is invoice INV-03018. Kindly remit by the due date.\n\nLakeshore Hydro Services Billing",
+    "attachments": [
+      "lakeshorehydrose-inv-012.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-015",
+    "from_name": "Ledgerline Chartered Professional Accountants Accounts Receivable",
+    "from_address": "ar@ledgerlinechartered.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice FA-002176 from Ledgerline Chartered Professional Accountants",
+    "received_at": "2026-10-25T09:30:00",
+    "body": "Good afternoon,\n\nAttached is invoice FA-002176. Kindly remit by the due date.\n\nLedgerline Chartered Professional Accountants Billing",
+    "attachments": [
+      "ledgerlinecharte_FA002176.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-014",
+    "from_name": "Beaumont Riviere S.E.N.C.R.L. Accounts Receivable",
+    "from_address": "ar@beaumontriviere.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Beaumont Riviere S.E.N.C.R.L. - Invoice FA-000557 attached",
+    "received_at": "2026-10-25T14:17:00",
+    "body": "Good afternoon,\n\nAttached is invoice FA-000557. Kindly remit by the due date.\n\nBeaumont Riviere S.E.N.C.R.L. Billing",
+    "attachments": [
+      "beaumontrivieres_FA000557.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-013",
+    "from_name": "Cascadia Cartage Ltd. Accounts Receivable",
+    "from_address": "ar@cascadiacartage.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 1624 from Cascadia Cartage Ltd.",
+    "received_at": "2026-10-25T16:00:00",
+    "body": "Hello,\n\nPlease find attached our invoice 1624 for services provided. Payment terms are on the invoice.\n\nThank you,\nCascadia Cartage Ltd. Accounts Receivable",
+    "attachments": [
+      "scan_8049.png"
+    ]
+  },
+  {
+    "email_id": "EM-016",
+    "from_name": "Great Lakes Carriers Inc. Accounts Receivable",
+    "from_address": "ar@greatlakes.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Great Lakes Carriers Inc. - Invoice GR26-2271 attached",
+    "received_at": "2026-10-26T12:38:00",
+    "body": "Hello,\n\nPlease find attached our invoice GR26-2271 for services provided. Payment terms are on the invoice.\n\nThank you,\nGreat Lakes Carriers Inc. Accounts Receivable",
+    "attachments": [
+      "greatlakescarrie-inv-016.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-022",
+    "from_name": "Laurentian Logistics Inc. Accounts Receivable",
+    "from_address": "ar@laurentianlogistics.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice FA-002399 from Laurentian Logistics Inc.",
+    "received_at": "2026-10-27T09:08:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture FA-002399.\n\nCordialement,\nLaurentian Logistics Inc.",
+    "attachments": [
+      "laurentianlogist_FA002399.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-020",
+    "from_name": "Riverbend Catering Co. Accounts Receivable",
+    "from_address": "ar@riverbendcatering.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Riverbend Catering Co. - Invoice 1739 attached",
+    "received_at": "2026-10-27T10:26:00",
+    "body": "Hello,\n\nPlease find attached our invoice 1739 for services provided. Payment terms are on the invoice.\n\nThank you,\nRiverbend Catering Co. Accounts Receivable",
+    "attachments": [
+      "riverbendcaterin_1739.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-017",
+    "from_name": "Voyageur Corporate Travel Accounts Receivable",
+    "from_address": "ar@voyageurcorporate.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 000903-A from Voyageur Corporate Travel",
+    "received_at": "2026-10-27T12:41:00",
+    "body": "Hello,\n\nPlease find attached our invoice 000903-A for services provided. Payment terms are on the invoice.\n\nThank you,\nVoyageur Corporate Travel Accounts Receivable",
+    "attachments": [
+      "voyageurcorporat-inv-017.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-019",
+    "from_name": "Cascadia Cartage Ltd. Accounts Receivable",
+    "from_address": "ar@cascadiacartage.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice 1625",
+    "received_at": "2026-10-27T13:35:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture 1625.\n\nCordialement,\nCascadia Cartage Ltd.",
+    "attachments": [
+      "cascadiacartagel_1625.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-018",
+    "from_name": "Harlow & Stern LLP Accounts Receivable",
+    "from_address": "ar@harlow.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice 001468",
+    "received_at": "2026-10-27T16:23:00",
+    "body": "Good afternoon,\n\nAttached is invoice 001468. Kindly remit by the due date.\n\nHarlow & Stern LLP Billing",
+    "attachments": [
+      "harlowsternllp_001468.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-021",
+    "from_name": "Sparkgrid CRM Inc. Accounts Receivable",
+    "from_address": "ar@sparkgridcrm.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice FA-002342 from Sparkgrid CRM Inc.",
+    "received_at": "2026-10-27T16:57:00",
+    "body": "Good afternoon,\n\nAttached is invoice FA-002342. Kindly remit by the due date.\n\nSparkgrid CRM Inc. Billing",
+    "attachments": [
+      "sparkgridcrminc_FA002342.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-023",
+    "from_name": "Torque Industrial Maintenance Accounts Receivable",
+    "from_address": "ar@torqueindustrial.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 1771 from Torque Industrial Maintenance",
+    "received_at": "2026-10-28T12:11:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture 1771.\n\nCordialement,\nTorque Industrial Maintenance",
+    "attachments": [
+      "torqueindustrial_1771.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-026",
+    "from_name": "Harlow and Stern LLP Accounts Receivable",
+    "from_address": "ar@harlowandstern-llp.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice HA26-2766",
+    "received_at": "2026-10-28T12:47:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture HA26-2766.\n\nCordialement,\nHarlow and Stern LLP",
+    "attachments": [
+      "Invoice HA26-2766.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-024",
+    "from_name": "Paper Trail Office Supply Accounts Receivable",
+    "from_address": "ar@papertrail.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 2217 from Paper Trail Office Supply",
+    "received_at": "2026-10-28T15:37:00",
+    "body": "Hi AP team,\n\nInvoice 2217 attached. Let us know if you have any questions.\n\nRegards,\nPaper Trail Office Supply",
+    "attachments": [
+      "papertrailoffice_2217.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-025",
+    "from_name": "Great Lakes Carriers Inc. Accounts Receivable",
+    "from_address": "ar@greatlakes.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice CN-GR26-2274",
+    "received_at": "2026-10-28T17:47:00",
+    "body": "Hi AP team,\n\nInvoice CN-GR26-2274 attached. Let us know if you have any questions.\n\nRegards,\nGreat Lakes Carriers Inc.",
+    "attachments": [
+      "greatlakescarrie-inv-025.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-032",
+    "from_name": "Quillpad Documents Ltd. Accounts Receivable",
+    "from_address": "ar@quillpaddocuments.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Quillpad Documents Ltd. - Invoice FA-000318 attached",
+    "received_at": "2026-10-29T10:01:00",
+    "body": "Hello,\n\nPlease find attached our invoice FA-000318 for services provided. Payment terms are on the invoice.\n\nThank you,\nQuillpad Documents Ltd. Accounts Receivable",
+    "attachments": [
+      "Invoice FA-000318.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-034",
+    "from_name": "Northstar Media Buying Accounts Receivable",
+    "from_address": "ar@northstarmedia.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice NO26-1773",
+    "received_at": "2026-10-29T10:12:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture NO26-1773.\n\nCordialement,\nNorthstar Media Buying",
+    "attachments": [
+      "northstarmediabu_NO261773.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-030",
+    "from_name": "Orion Strategy Partners Accounts Receivable",
+    "from_address": "ar@orionstrategy.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 287 from Orion Strategy Partners",
+    "received_at": "2026-10-29T11:15:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture 287.\n\nCordialement,\nOrion Strategy Partners",
+    "attachments": [
+      "Invoice 287.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-033",
+    "from_name": "Prairie Express Haulage Accounts Receivable",
+    "from_address": "ar@prairieexpress.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice FA-001619",
+    "received_at": "2026-10-29T12:02:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture FA-001619.\n\nCordialement,\nPrairie Express Haulage",
+    "attachments": [
+      "Invoice FA-001619.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-028",
+    "from_name": "Polar Freight Lines Ltd. Accounts Receivable",
+    "from_address": "ar@polarfreight.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice 000961",
+    "received_at": "2026-10-29T12:17:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture 000961.\n\nCordialement,\nPolar Freight Lines Ltd.",
+    "attachments": [
+      "Invoice 000961.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-027",
+    "from_name": "Northbound Couriers Accounts Receivable",
+    "from_address": "ar@northboundcouriers.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 000639",
+    "received_at": "2026-10-29T13:05:00",
+    "body": "Hi AP team,\n\nInvoice 000639 attached. Let us know if you have any questions.\n\nRegards,\nNorthbound Couriers",
+    "attachments": [
+      "northboundcourie_000639.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-029",
+    "from_name": "Orion Strategy Partners Accounts Receivable",
+    "from_address": "ar@orionstrategy.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Facture 279",
+    "received_at": "2026-10-29T15:33:00",
+    "body": "Hi AP team,\n\nInvoice 279 attached. Let us know if you have any questions.\n\nRegards,\nOrion Strategy Partners",
+    "attachments": [
+      "orionstrategypar-inv-029.pdf",
+      "orionstrategypar_281.pdf"
+    ]
+  },
+  {
+    "from_name": "Brightmore Consulting Group",
+    "from_address": "ar@brightmoreconsulting.example",
+    "subject": "Invoice attached",
+    "received_at": "2026-10-29T16:29:00",
+    "body": "Hello,\n\nPlease find our October invoice attached.\n\nBrightmore Consulting",
+    "attachments": [],
+    "email_id": "EM-058",
+    "to_address": "ap@harborline-logistics.example"
+  },
+  {
+    "email_id": "EM-031",
+    "from_name": "Brightline Safety Supply Accounts Receivable",
+    "from_address": "ar@brightlinesafety.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 583",
+    "received_at": "2026-10-29T16:52:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture 583.\n\nCordialement,\nBrightline Safety Supply",
+    "attachments": [
+      "brightlinesafety-inv-032.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-036",
+    "from_name": "Fibrewave Communications Accounts Receivable",
+    "from_address": "ar@fibrewavecommunications.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice FA-002853",
+    "received_at": "2026-10-30T09:11:00",
+    "body": "Good afternoon,\n\nAttached is invoice FA-002853. Kindly remit by the due date.\n\nFibrewave Communications Billing",
+    "attachments": [
+      "Invoice FA-002853.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-037",
+    "from_name": "ClearView Janitorial Accounts Receivable",
+    "from_address": "ar@clearviewjanitorial.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice INV-00734",
+    "received_at": "2026-10-30T12:50:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture INV-00734.\n\nCordialement,\nClearView Janitorial",
+    "attachments": [
+      "Invoice INV-00734.pdf"
+    ]
+  },
+  {
+    "from_name": "Torque Industrial Maintenance",
+    "from_address": "ar@torqueindustrial.example",
+    "subject": "Where is payment for invoice 1743?",
+    "received_at": "2026-10-30T14:36:00",
+    "body": "Hi,\n\nWe have not seen payment for invoice 1743 dated 2026-02-04. Could you confirm the status?\n\nThanks,\nTorque Accounts",
+    "attachments": [],
+    "email_id": "EM-057",
+    "to_address": "ap@harborline-logistics.example"
+  },
+  {
+    "email_id": "EM-035",
+    "from_name": "Signal & Sparrow Creative Accounts Receivable",
+    "from_address": "ar@signal.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Facture 000970",
+    "received_at": "2026-10-30T14:43:00",
+    "body": "Hello,\n\nPlease find attached our invoice 000970 for services provided. Payment terms are on the invoice.\n\nThank you,\nSignal & Sparrow Creative Accounts Receivable",
+    "attachments": [
+      "signalsparrowcre_000970.pdf"
+    ]
+  },
+  {
+    "from_name": "Deskhive Furniture",
+    "from_address": "news@deskhivefurniture.example",
+    "subject": "Fall sale: 20% off ergonomic chairs",
+    "received_at": "2026-10-31T07:47:00",
+    "body": "Our fall sale is on. Shop now and save on ergonomic chairs and sit/stand desks.",
+    "attachments": [],
+    "email_id": "EM-059",
+    "to_address": "ap@harborline-logistics.example"
+  },
+  {
+    "email_id": "EM-038",
+    "from_name": "Voyageur Corporate Travel Accounts Receivable",
+    "from_address": "ar@voyageurcorporate.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Facture 000921",
+    "received_at": "2026-10-31T08:57:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture 000921.\n\nCordialement,\nVoyageur Corporate Travel",
+    "attachments": [
+      "voyageurcorporat_000921.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-041",
+    "from_name": "Lattice Ledger Systems Accounts Receivable",
+    "from_address": "ar@latticeledger.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 557 from Lattice Ledger Systems",
+    "received_at": "2026-10-31T10:14:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture 557.\n\nCordialement,\nLattice Ledger Systems",
+    "attachments": [
+      "latticeledgersys_557.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-043",
+    "from_name": "Redline Fleet Cards Inc. Accounts Receivable",
+    "from_address": "ar@redlinefleet.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice FA-001687",
+    "received_at": "2026-10-31T12:14:00",
+    "body": "Hello,\n\nPlease find attached our invoice FA-001687 for services provided. Payment terms are on the invoice.\n\nThank you,\nRedline Fleet Cards Inc. Accounts Receivable",
+    "attachments": [
+      "redlinefleetcard-inv-044.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-040",
+    "from_name": "Benefitwise Group Benefits Admin Accounts Receivable",
+    "from_address": "ar@benefitwisegroup.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Benefitwise Group Benefits Admin - Invoice 262 attached",
+    "received_at": "2026-10-31T13:39:00",
+    "body": "Good afternoon,\n\nAttached is invoice 262. Kindly remit by the due date.\n\nBenefitwise Group Benefits Admin Billing",
+    "attachments": [
+      "benefitwisegroup_262.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-039",
+    "from_name": "Polar Freight Lines Ltd. Accounts Receivable",
+    "from_address": "ar@polarfreight.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Facture 000963",
+    "received_at": "2026-10-31T16:02:00",
+    "body": "Good afternoon,\n\nAttached is invoice 000963. Kindly remit by the due date.\n\nPolar Freight Lines Ltd. Billing",
+    "attachments": [
+      "polarfreightline_000963.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-042",
+    "from_name": "Fixwell Facility Services Accounts Receivable",
+    "from_address": "ar@fixwellfacility.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Facture CN-FA-000413",
+    "received_at": "2026-10-31T17:43:00",
+    "body": "Hello,\n\nPlease find attached our invoice CN-FA-000413 for services provided. Payment terms are on the invoice.\n\nThank you,\nFixwell Facility Services Accounts Receivable",
+    "attachments": [
+      "fixwellfacilitys_CNFA000413.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-045",
+    "from_name": "Cloudbarn Software Inc. Accounts Receivable",
+    "from_address": "ar@cloudbarnsoftware.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice INV-01561",
+    "received_at": "2026-11-01T10:13:00",
+    "body": "Good afternoon,\n\nAttached is invoice INV-01561. Kindly remit by the due date.\n\nCloudbarn Software Inc. Billing",
+    "attachments": [
+      "cloudbarnsoftwar_INV01561.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-046",
+    "from_name": "Cloudbarn Software Inc. Accounts Receivable",
+    "from_address": "ar@cloudbarnsoftware.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice INV-01568",
+    "received_at": "2026-11-01T11:50:00",
+    "body": "Hi AP team,\n\nInvoice INV-01568 attached. Let us know if you have any questions.\n\nRegards,\nCloudbarn Software Inc.",
+    "attachments": [
+      "cloudbarnsoftwar-inv-047.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-044",
+    "from_name": "Queen Street Properties Inc. Accounts Receivable",
+    "from_address": "ar@queenstreet.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 002935 from Queen Street Properties Inc.",
+    "received_at": "2026-11-01T13:11:00",
+    "body": "Hello,\n\nPlease find attached our invoice 002935 for services provided. Payment terms are on the invoice.\n\nThank you,\nQueen Street Properties Inc. Accounts Receivable",
+    "attachments": [
+      "Invoice 002935.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-047",
+    "from_name": "Ironwood Pallet Co. Accounts Receivable",
+    "from_address": "ar@ironwoodpallet.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Facture INV-02210",
+    "received_at": "2026-11-01T13:22:00",
+    "body": "Hi AP team,\n\nInvoice INV-02210 attached. Let us know if you have any questions.\n\nRegards,\nIronwood Pallet Co.",
+    "attachments": [
+      "ironwoodpalletco-inv-048.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-055",
+    "from_name": "Pinecone Collaboration Ltd. Accounts Receivable",
+    "from_address": "ar@pineconecollaboration.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice PI26-2809",
+    "received_at": "2026-11-02T08:14:00",
+    "body": "Hello,\n\nPlease find attached our invoice PI26-2809 for services provided. Payment terms are on the invoice.\n\nThank you,\nPinecone Collaboration Ltd. Accounts Receivable",
+    "attachments": [
+      "pineconecollabor_PI262809.pdf"
+    ]
+  },
+  {
+    "from_name": "Polar Freight Lines Ltd. Accounts Receivable",
+    "from_address": "ar@polarfreight.example",
+    "subject": "Statement of account - October 2026",
+    "received_at": "2026-11-02T09:14:00",
+    "body": "Hello,\n\nAttached is your statement of account for October. No action needed unless you see differences.\n\nPolar Freight Lines Ltd.",
+    "attachments": [],
+    "email_id": "EM-056",
+    "to_address": "ap@harborline-logistics.example"
+  },
+  {
+    "email_id": "EM-053",
+    "from_name": "Lumen Print & Signage Accounts Receivable",
+    "from_address": "ar@lumenprint.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice FA-001761",
+    "received_at": "2026-11-02T09:32:00",
+    "body": "Hi AP team,\n\nInvoice FA-001761 attached. Let us know if you have any questions.\n\nRegards,\nLumen Print & Signage",
+    "attachments": [
+      "lumenprintsignag_FA001761.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-054",
+    "from_name": "Granville Commercial Realty Accounts Receivable",
+    "from_address": "ar@granvillecommercial.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Granville Commercial Realty - Invoice GR26-2864 attached",
+    "received_at": "2026-11-02T09:32:00",
+    "body": "Hello,\n\nPlease find attached our invoice GR26-2864 for services provided. Payment terms are on the invoice.\n\nThank you,\nGranville Commercial Realty Accounts Receivable",
+    "attachments": [
+      "granvillecommerc_GR262864.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-050",
+    "from_name": "Aurora Mobile Business Accounts Receivable",
+    "from_address": "ar@auroramobile.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice AU26-2207",
+    "received_at": "2026-11-02T11:23:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture AU26-2207.\n\nCordialement,\nAurora Mobile Business",
+    "attachments": [
+      "Invoice AU26-2207.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-052",
+    "from_name": "Place Mont-Royal Immobilier Accounts Receivable",
+    "from_address": "ar@placemontroyal.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice FA-000566 from Place Mont-Royal Immobilier",
+    "received_at": "2026-11-02T11:34:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture FA-000566.\n\nCordialement,\nPlace Mont-Royal Immobilier",
+    "attachments": [
+      "placemontroyalim-inv-053.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-048",
+    "from_name": "Summit Packaging Supply Accounts Receivable",
+    "from_address": "ar@summitpackaging.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Invoice 000809 from Summit Packaging Supply",
+    "received_at": "2026-11-02T13:09:00",
+    "body": "Bonjour,\n\nVeuillez trouver ci-joint la facture 000809.\n\nCordialement,\nSummit Packaging Supply",
+    "attachments": [
+      "Invoice 000809.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-049",
+    "from_name": "Tessera Analytics Inc. Accounts Receivable",
+    "from_address": "ar@tesseraanalytics.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Tessera Analytics Inc. - Invoice 002715 attached",
+    "received_at": "2026-11-02T13:12:00",
+    "body": "Hi AP team,\n\nInvoice 002715 attached. Let us know if you have any questions.\n\nRegards,\nTessera Analytics Inc.",
+    "attachments": [
+      "tesseraanalytics-inv-050.pdf"
+    ]
+  },
+  {
+    "email_id": "EM-051",
+    "from_name": "Fixwell Facility Services Accounts Receivable",
+    "from_address": "ar@fixwellfacility.example",
+    "to_address": "ap@harborline-logistics.example",
+    "subject": "Payment due: invoice FA-000415",
+    "received_at": "2026-11-02T14:40:00",
+    "body": "Hi AP team,\n\nInvoice FA-000415 attached. Let us know if you have any questions.\n\nRegards,\nFixwell Facility Services",
+    "attachments": [
+      "fixwellfacilitys-inv-052.pdf"
+    ]
+  }
+]

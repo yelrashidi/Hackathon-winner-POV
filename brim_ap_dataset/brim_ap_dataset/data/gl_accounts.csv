@@ -1,0 +1,31 @@
+account_number,name,account_type,notes
+1160,GST/HST Receivable (input tax credits),asset,Recoverable GST/HST
+1165,QST Receivable (input tax refunds),asset,Recoverable QST
+2100,Accounts Payable,liability,Control account
+5010,Freight & Carrier Costs,expense,
+5020,Fuel & Vehicle Operating,expense,
+5030,Warehousing & Storage,expense,
+5040,Packaging & Pallets,expense,
+5050,Safety Equipment & Supplies,expense,
+6110,Software Subscriptions,expense,
+6120,Telecommunications,expense,
+6130,Cloud Hosting,expense,
+6210,Office Supplies,expense,
+6220,Office Furniture & Equipment,expense,"Expense items under $1,000 per unit"
+6310,Legal Fees,expense,
+6320,Accounting & Audit,expense,
+6330,Consulting Fees,expense,
+6410,Advertising & Promotion,expense,
+6420,Printing & Signage,expense,
+6510,Insurance,expense,Premiums are exempt from GST/HST
+6610,Rent & Operating Costs,expense,
+6620,Utilities,expense,
+6630,Repairs & Maintenance,expense,
+6640,Janitorial & Cleaning,expense,
+6710,Travel,expense,
+6720,Meals & Events,expense,
+6810,Recruiting Fees,expense,
+6820,Employee Benefits Administration,expense,
+6910,Training & Compliance,expense,
+7010,Bank & Payment Fees,expense,
+7020,Foreign Exchange Gain/Loss,expense,

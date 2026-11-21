@@ -1,0 +1,10 @@
+change_id,vendor_id,changed_at,changed_by_user_id,request_channel,verified_by_callback,old_account_last4,new_account_last4
+BC-001,V043,2026-01-14,U004,phone_callback_verified,yes,5553,5964
+BC-002,V029,2026-01-25,U005,phone_callback_verified,yes,8095,6188
+BC-003,V010,2026-02-06,U005,phone_callback_verified,yes,8419,8145
+BC-004,V026,2026-03-22,U004,vendor_portal,yes,7796,3279
+BC-005,V037,2026-04-12,U004,phone_callback_verified,yes,8117,4730
+BC-006,V033,2026-04-26,U004,phone_callback_verified,yes,9939,0921
+BC-007,V040,2026-05-15,U004,vendor_portal,yes,6045,1807
+BC-008,V032,2026-06-16,U005,vendor_portal,yes,4268,8587
+BC-009,V004,2026-10-27,U005,email_request,no,7504,9679
