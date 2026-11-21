@@ -24,6 +24,22 @@ export async function getPayments(): Promise<PaymentsView> {
   return buildView(SAMPLE_INVOICES, SAMPLE_PAYMENTS);
 }
 
+/** An invoice the dashboard knows about (paid, scheduled or approved), or null. */
+export async function getInvoice(invoiceId: string): Promise<InvoiceRecord | null> {
+  return SAMPLE_INVOICES.find((i) => i.invoiceId === invoiceId) ?? null;
+}
+
+/** One invoice's payment with all its attempts, or null if the invoice has no payment. */
+export async function getPaymentRow(invoiceId: string): Promise<PaymentRow | null> {
+  const { payments } = await getPayments();
+  return payments.find((p) => p.invoice.invoiceId === invoiceId) ?? null;
+}
+
+/** Latest attempt failed, or payment is on hold. */
+export function needsAttention(row: PaymentRow): boolean {
+  return row.current.status === "failed" || row.current.status === "on_hold";
+}
+
 function buildView(invoices: InvoiceRecord[], payments: PaymentRecord[]): PaymentsView {
   const attemptsByInvoice = new Map<string, PaymentRecord[]>();
   for (const p of payments) {

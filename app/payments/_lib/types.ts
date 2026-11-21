@@ -2,8 +2,12 @@
 // Shapes follow docs/architecture/data-model.md (payments, invoices). When the real format
 // lands, replace this file with an import from the payment contract and fix what breaks.
 
-/** Payment statuses from the data model. "approved" is an invoice status, not a payment one. */
-export type PaymentStatus = "scheduled" | "released" | "settled" | "failed" | "cancelled";
+/**
+ * Payment statuses from the data model. "approved" is an invoice status, not a payment one.
+ * TEMP: "on_hold" is the payment session's planned hold (a bank-detail failure holds the vendor's
+ * other payments to that account); the name is not final until docs/payment-data.md exists.
+ */
+export type PaymentStatus = "scheduled" | "released" | "settled" | "failed" | "cancelled" | "on_hold";
 
 export type PaymentMethod = "EFT" | "CHEQUE" | "CARD";
 
@@ -37,6 +41,7 @@ export type InvoiceRecord = {
   /** Total converted to CAD at the invoice-date rate; equals totalCents for CAD invoices. */
   totalCadCents: number;
   dueDate: string; // YYYY-MM-DD
+  requestedBy: Person;
   approvedBy: Person[];
   status: "approved" | "payment_scheduled" | "paid";
 };
@@ -59,6 +64,7 @@ export type PaymentRecord = {
   failedAt: string | null;
   failureCode: FailureCode | null;
   cancelReason: string | null;
+  holdReason: string | null;
   preparedBy: Person;
   releasedBy: Person | null;
 };
