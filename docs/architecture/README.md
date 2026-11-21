@@ -11,7 +11,7 @@ How the code works and why. One doc per feature, written by its owner from
 | [`../explainers/brim-ap-diagrams.md`](../explainers/brim-ap-diagrams.md) | invoice state machine, feature dependency graph | all |
 | `1-intake.md` | *to write* | |
 | `2-extraction.md` | *to write* | |
-| `3-coding.md` | *to write* | |
+| [`3-coding.md`](3-coding.md) | smart coding: evidence ladder, departments, journal preview, backtest, edge cases, Q&A | Youssef |
 | [`4-validation.md`](4-validation.md) | validation: checks, flags, bad input, 100× | Andrew |
 | [`4-validation-plan.md`](4-validation-plan.md) | validation plan: design, every check, tests, open questions | Andrew |
 | `5-duplicates.md` | *to write* | |

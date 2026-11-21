@@ -1,0 +1,190 @@
+{
+  "description": "French rent invoice (Loyer de base, Frais d'exploitation) → 6610 Rent; QC GST to 1160 and QST to 1165.",
+  "source": "fixtures/validation/incoming/placemontroyalim-inv-053.json",
+  "vendorId": "V039",
+  "input": {
+    "invoiceId": "IN-placemontroyalim-inv-053",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Place Mont-Royal Immobilier",
+      "gstHstNumber": "157763705RT0001",
+      "qstNumber": "8775870781TQ0001",
+      "province": "QC",
+      "country": "CA"
+    },
+    "senderEmail": "ar@placemontroyal.example",
+    "invoiceNumber": "FA-000566",
+    "invoiceDate": "2026-11-01",
+    "dueDate": "2026-11-01",
+    "receivedDate": "2026-11-02",
+    "currency": "CAD",
+    "paymentTermsDays": 0,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+      "province": "QC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Loyer de base - Montreal",
+        "quantity": 1,
+        "unitPriceCents": 530000,
+        "amountCents": 530000,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "Frais d'exploitation - Montreal",
+        "quantity": 1,
+        "unitPriceCents": 78000,
+        "amountCents": 78000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "TPS (5 %)",
+        "ratePct": 5,
+        "amountCents": 30400
+      },
+      {
+        "code": "QST9975",
+        "label": "TVQ (9,975 %)",
+        "ratePct": 9.975,
+        "amountCents": 60648
+      }
+    ],
+    "subtotalCents": 608000,
+    "totalCents": 699048,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "010",
+      "transit": "79257",
+      "account": "81820788"
+    }
+  },
+  "result": {
+    "invoiceId": "IN-placemontroyalim-inv-053",
+    "vendorId": "V039",
+    "invoiceDepartment": {
+      "value": "D07",
+      "label": "Facilities (D07)",
+      "confidence": "high",
+      "basis": "vendor_description",
+      "reason": "10 of the last 10 Place Mont-Royal Immobilier lines like \"Loyer de base - Montreal\" → Facilities (D07)",
+      "alternatives": []
+    },
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Loyer de base - Montreal",
+        "quantity": 1,
+        "unitPriceCents": 530000,
+        "amountCents": 530000,
+        "lineType": "services",
+        "account": {
+          "value": "6610",
+          "label": "6610 Rent & Operating Costs",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "10 of the last 10 Place Mont-Royal Immobilier lines like \"Loyer de base - Montreal\" → 6610 Rent & Operating Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": "D07",
+          "label": "Facilities (D07)",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "10 of the last 10 Place Mont-Royal Immobilier lines like \"Loyer de base - Montreal\" → Facilities (D07)",
+          "alternatives": []
+        },
+        "glAccount": "6610",
+        "departmentId": "D07",
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      },
+      {
+        "lineNo": 2,
+        "description": "Frais d'exploitation - Montreal",
+        "quantity": 1,
+        "unitPriceCents": 78000,
+        "amountCents": 78000,
+        "lineType": "services",
+        "account": {
+          "value": "6610",
+          "label": "6610 Rent & Operating Costs",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "10 of the last 10 Place Mont-Royal Immobilier lines like \"Frais d'exploitation - Montreal\" → 6610 Rent & Operating Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": "D07",
+          "label": "Facilities (D07)",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "10 of the last 10 Place Mont-Royal Immobilier lines like \"Frais d'exploitation - Montreal\" → Facilities (D07)",
+          "alternatives": []
+        },
+        "glAccount": "6610",
+        "departmentId": "D07",
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      }
+    ],
+    "journal": {
+      "currency": "CAD",
+      "debits": [
+        {
+          "glAccount": "6610",
+          "departmentId": "D07",
+          "amountCents": 530000,
+          "kind": "line",
+          "lineNo": 1,
+          "taxCode": null
+        },
+        {
+          "glAccount": "6610",
+          "departmentId": "D07",
+          "amountCents": 78000,
+          "kind": "line",
+          "lineNo": 2,
+          "taxCode": null
+        },
+        {
+          "glAccount": "1160",
+          "departmentId": null,
+          "amountCents": 30400,
+          "kind": "recoverable_tax",
+          "lineNo": null,
+          "taxCode": "GST5"
+        },
+        {
+          "glAccount": "1165",
+          "departmentId": null,
+          "amountCents": 60648,
+          "kind": "recoverable_tax",
+          "lineNo": null,
+          "taxCode": "QST9975"
+        }
+      ],
+      "credit": {
+        "glAccount": "2100",
+        "amountCents": 699048
+      },
+      "balanced": true,
+      "differenceCents": 0
+    },
+    "flags": []
+  }
+}
