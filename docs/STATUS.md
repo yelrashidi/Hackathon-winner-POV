@@ -13,7 +13,7 @@ the top block is updated by whoever finishes a shared piece.
 | Arpan | _features to fill_ | |
 | Youssef | _features to fill_ | |
 | Andrew | _features to fill_ | |
-| Katie | _features to fill_ | |
+| Katie | 7 Payments | |
 | shared | foundation (`core/`) | schema merges: _name_ |
 
 ## Now (shared, in order)
@@ -56,8 +56,15 @@ Not started.
 ### 6 Approvals — _Arpan / Youssef / Andrew / Katie_
 Not started.
 
-### 7 Payments — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 7 Payments — Katie
+**Works (in memory, on the dataset):** schedule / release / cancel / retry, release rules (P09–P11, scheduler and requester
+can't release, active staff, verified bank, pending bank change, payee and amount = approved, FX re-check, blocking flags),
+simulated EFT with settle or 9 failure reasons, urgency flags (critical / high / low) with clearing rules, bank change +
+second-person verify, audit events. 36 tests. Contract `src/contracts/payment.ts`, guide `docs/payment-data.md`, page `/payments-console`.
+**Stubbed:** everything from other features sits behind `src/server/features/payments/deps.ts` (`// TEMP:`); data is in memory.
+**Next:** connect to teammates' code (`docs/payment-assumptions.md`), dashboard merge. **Waiting on:** schema, `fire()`,
+`authorize()`, audit (no owner); Youssef's plan store merge; Payments ownership on Youssef's branch (R8).
+**Schema change:** `vendor_bank_accounts.currency` and a `closed` status (schema owner, feature 9 owner).
 
 ### 8 Audit + foundation — _Arpan / Youssef / Andrew / Katie_
 Not started.
