@@ -1,0 +1,130 @@
+{
+  "description": "Credit note referencing GR26-2262: coded exactly like that invoice (5010, Operations), negative journal.",
+  "source": "fixtures/validation/incoming/greatlakescarrie-inv-025.json",
+  "vendorId": "V002",
+  "input": {
+    "invoiceId": "IN-greatlakescarrie-inv-025",
+    "documentType": "credit_note",
+    "vendor": {
+      "nameRaw": "Great Lakes Carriers Inc.",
+      "gstHstNumber": "367912731RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@greatlakes.example",
+    "invoiceNumber": "CN-GR26-2274",
+    "invoiceDate": "2026-10-27",
+    "dueDate": "2026-11-26",
+    "receivedDate": "2026-10-28",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": "GR26-2262",
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1055 W Hastings St, Suite 900, Vancouver BC V6E 2E9",
+      "province": "BC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Credit - damaged shipment claim",
+        "quantity": 1,
+        "unitPriceCents": -64000,
+        "amountCents": -64000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5,
+        "amountCents": -3200
+      }
+    ],
+    "subtotalCents": -64000,
+    "totalCents": -67200,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "010",
+      "transit": "66160",
+      "account": "234408577"
+    }
+  },
+  "result": {
+    "invoiceId": "IN-greatlakescarrie-inv-025",
+    "vendorId": "V002",
+    "invoiceDepartment": {
+      "value": "D01",
+      "label": "Operations (D01)",
+      "confidence": "high",
+      "basis": "credit_note_original",
+      "reason": "Reverses invoice GR26-2262, which was charged to Operations (D01)",
+      "alternatives": []
+    },
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Credit - damaged shipment claim",
+        "quantity": 1,
+        "unitPriceCents": -64000,
+        "amountCents": -64000,
+        "lineType": "services",
+        "account": {
+          "value": "5010",
+          "label": "5010 Freight & Carrier Costs",
+          "confidence": "high",
+          "basis": "credit_note_original",
+          "reason": "Reverses Great Lakes Carriers Inc. invoice GR26-2262 (AP-00358): its line \"LTL shipment Montreal-Regina\" was coded 5010 Freight & Carrier Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": "D01",
+          "label": "Operations (D01)",
+          "confidence": "high",
+          "basis": "credit_note_original",
+          "reason": "Reverses invoice GR26-2262, which was charged to Operations (D01)",
+          "alternatives": []
+        },
+        "glAccount": "5010",
+        "departmentId": "D01",
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      }
+    ],
+    "journal": {
+      "currency": "CAD",
+      "debits": [
+        {
+          "glAccount": "5010",
+          "departmentId": "D01",
+          "amountCents": -64000,
+          "kind": "line",
+          "lineNo": 1,
+          "taxCode": null
+        },
+        {
+          "glAccount": "1160",
+          "departmentId": null,
+          "amountCents": -3200,
+          "kind": "recoverable_tax",
+          "lineNo": null,
+          "taxCode": "GST5"
+        }
+      ],
+      "credit": {
+        "glAccount": "2100",
+        "amountCents": -67200
+      },
+      "balanced": true,
+      "differenceCents": 0
+    },
+    "flags": []
+  }
+}

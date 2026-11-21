@@ -1,0 +1,374 @@
+{
+  "description": "Polar Freight, five LTL shipments and a fuel surcharge: all freight (5010), high confidence from the vendor's own lines; ON HST to 1160.",
+  "source": "fixtures/validation/incoming/invoice-000961.json",
+  "vendorId": "V001",
+  "input": {
+    "invoiceId": "IN-invoice-000961",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Polar Freight Lines Ltd.",
+      "gstHstNumber": "995133220RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@polarfreight.example",
+    "invoiceNumber": "000961",
+    "invoiceDate": "2026-10-01",
+    "dueDate": "2026-10-31",
+    "receivedDate": "2026-10-29",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+      "province": "QC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "LTL shipment Montreal-Saskatoon",
+        "quantity": 1,
+        "unitPriceCents": 148813,
+        "amountCents": 148813,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "LTL shipment Montreal-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 184353,
+        "amountCents": 184353,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 3,
+        "description": "LTL shipment Calgary-Edmonton",
+        "quantity": 1,
+        "unitPriceCents": 163673,
+        "amountCents": 163673,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 4,
+        "description": "LTL shipment Winnipeg-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 37294,
+        "amountCents": 37294,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 5,
+        "description": "LTL shipment Hamilton-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 44613,
+        "amountCents": 44613,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 6,
+        "description": "Fuel surcharge (7.24%)",
+        "quantity": 1,
+        "unitPriceCents": 41901,
+        "amountCents": 41901,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5,
+        "amountCents": 31032
+      },
+      {
+        "code": "QST9975",
+        "label": "QST (9.975%)",
+        "ratePct": 9.975,
+        "amountCents": 61910
+      }
+    ],
+    "subtotalCents": 620647,
+    "totalCents": 713589,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "004",
+      "transit": "95688",
+      "account": "410652201"
+    }
+  },
+  "result": {
+    "invoiceId": "IN-invoice-000961",
+    "vendorId": "V001",
+    "invoiceDepartment": {
+      "value": "D01",
+      "label": "Operations (D01)",
+      "confidence": "high",
+      "basis": "vendor_description",
+      "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"LTL shipment Montreal-Saskatoon\" → Operations (D01)",
+      "alternatives": []
+    },
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "LTL shipment Montreal-Saskatoon",
+        "quantity": 1,
+        "unitPriceCents": 148813,
+        "amountCents": 148813,
+        "lineType": "services",
+        "account": {
+          "value": "5010",
+          "label": "5010 Freight & Carrier Costs",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"LTL shipment Montreal-Saskatoon\" → 5010 Freight & Carrier Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": "D01",
+          "label": "Operations (D01)",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"LTL shipment Montreal-Saskatoon\" → Operations (D01)",
+          "alternatives": []
+        },
+        "glAccount": "5010",
+        "departmentId": "D01",
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      },
+      {
+        "lineNo": 2,
+        "description": "LTL shipment Montreal-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 184353,
+        "amountCents": 184353,
+        "lineType": "services",
+        "account": {
+          "value": "5010",
+          "label": "5010 Freight & Carrier Costs",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"LTL shipment Montreal-Ottawa\" → 5010 Freight & Carrier Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": "D01",
+          "label": "Operations (D01)",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"LTL shipment Montreal-Ottawa\" → Operations (D01)",
+          "alternatives": []
+        },
+        "glAccount": "5010",
+        "departmentId": "D01",
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      },
+      {
+        "lineNo": 3,
+        "description": "LTL shipment Calgary-Edmonton",
+        "quantity": 1,
+        "unitPriceCents": 163673,
+        "amountCents": 163673,
+        "lineType": "services",
+        "account": {
+          "value": "5010",
+          "label": "5010 Freight & Carrier Costs",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "9 of the last 9 Polar Freight Lines Ltd. lines like \"LTL shipment Calgary-Edmonton\" → 5010 Freight & Carrier Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": "D01",
+          "label": "Operations (D01)",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "9 of the last 9 Polar Freight Lines Ltd. lines like \"LTL shipment Calgary-Edmonton\" → Operations (D01)",
+          "alternatives": []
+        },
+        "glAccount": "5010",
+        "departmentId": "D01",
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      },
+      {
+        "lineNo": 4,
+        "description": "LTL shipment Winnipeg-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 37294,
+        "amountCents": 37294,
+        "lineType": "services",
+        "account": {
+          "value": "5010",
+          "label": "5010 Freight & Carrier Costs",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"LTL shipment Montreal-Ottawa\" → 5010 Freight & Carrier Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": "D01",
+          "label": "Operations (D01)",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"LTL shipment Montreal-Ottawa\" → Operations (D01)",
+          "alternatives": []
+        },
+        "glAccount": "5010",
+        "departmentId": "D01",
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      },
+      {
+        "lineNo": 5,
+        "description": "LTL shipment Hamilton-Ottawa",
+        "quantity": 1,
+        "unitPriceCents": 44613,
+        "amountCents": 44613,
+        "lineType": "services",
+        "account": {
+          "value": "5010",
+          "label": "5010 Freight & Carrier Costs",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"LTL shipment Montreal-Ottawa\" → 5010 Freight & Carrier Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": "D01",
+          "label": "Operations (D01)",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"LTL shipment Montreal-Ottawa\" → Operations (D01)",
+          "alternatives": []
+        },
+        "glAccount": "5010",
+        "departmentId": "D01",
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      },
+      {
+        "lineNo": 6,
+        "description": "Fuel surcharge (7.24%)",
+        "quantity": 1,
+        "unitPriceCents": 41901,
+        "amountCents": 41901,
+        "lineType": "services",
+        "account": {
+          "value": "5010",
+          "label": "5010 Freight & Carrier Costs",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"Fuel surcharge (7.24%)\" → 5010 Freight & Carrier Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": "D01",
+          "label": "Operations (D01)",
+          "confidence": "high",
+          "basis": "vendor_description",
+          "reason": "12 of the last 12 Polar Freight Lines Ltd. lines like \"Fuel surcharge (7.24%)\" → Operations (D01)",
+          "alternatives": []
+        },
+        "glAccount": "5010",
+        "departmentId": "D01",
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      }
+    ],
+    "journal": {
+      "currency": "CAD",
+      "debits": [
+        {
+          "glAccount": "5010",
+          "departmentId": "D01",
+          "amountCents": 148813,
+          "kind": "line",
+          "lineNo": 1,
+          "taxCode": null
+        },
+        {
+          "glAccount": "5010",
+          "departmentId": "D01",
+          "amountCents": 184353,
+          "kind": "line",
+          "lineNo": 2,
+          "taxCode": null
+        },
+        {
+          "glAccount": "5010",
+          "departmentId": "D01",
+          "amountCents": 163673,
+          "kind": "line",
+          "lineNo": 3,
+          "taxCode": null
+        },
+        {
+          "glAccount": "5010",
+          "departmentId": "D01",
+          "amountCents": 37294,
+          "kind": "line",
+          "lineNo": 4,
+          "taxCode": null
+        },
+        {
+          "glAccount": "5010",
+          "departmentId": "D01",
+          "amountCents": 44613,
+          "kind": "line",
+          "lineNo": 5,
+          "taxCode": null
+        },
+        {
+          "glAccount": "5010",
+          "departmentId": "D01",
+          "amountCents": 41901,
+          "kind": "line",
+          "lineNo": 6,
+          "taxCode": null
+        },
+        {
+          "glAccount": "1160",
+          "departmentId": null,
+          "amountCents": 31032,
+          "kind": "recoverable_tax",
+          "lineNo": null,
+          "taxCode": "GST5"
+        },
+        {
+          "glAccount": "1165",
+          "departmentId": null,
+          "amountCents": 61910,
+          "kind": "recoverable_tax",
+          "lineNo": null,
+          "taxCode": "QST9975"
+        }
+      ],
+      "credit": {
+        "glAccount": "2100",
+        "amountCents": 713589
+      },
+      "balanced": true,
+      "differenceCents": 0
+    },
+    "flags": []
+  }
+}
