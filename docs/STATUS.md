@@ -11,6 +11,8 @@ the top block is updated by whoever finishes a shared piece.
 | Owner | Features | Also owns |
 |---|---|---|
 | Arpan | _features to fill_ | |
+| Youssef | 6 Approvals, 7 Payments | |
+| Andrew | _features to fill_ | |
 | Youssef | _features to fill_ | |
 | Andrew | 4 Validation | |
 | Katie | _features to fill_ | |
@@ -56,11 +58,14 @@ Not started.
 ### 5 Duplicates — _Arpan / Youssef / Andrew / Katie_
 Not started.
 
-### 6 Approvals — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 6 Approvals — Youssef
+**Works** (tested): routing from `approval_policies` P01–P13 with delegation, escalation and separation of duties; the approve/reject gate `checkDecision`; re-approval on edits; aging; saving and loading plans and decisions (`saveApprovalPlan`, `getApprovalPlans`, `getCurrentApprovalPlan`, `saveDecision`). 137 tests; fixtures in `fixtures/approvals/`.
+**Stubbed:** the store is in-memory (`// TEMP: db`) until the schema lands; not wired to `fire()`, `authorize()`, an API route or a screen yet. Tests need `zod` + `vitest` in `package.json`.
+**Next:** approvals API route + approver queue screen once the foundation lands; then 7 Payments.
+**Waiting on:** foundation (schema — `approval_plans` proposal in `6-approvals.md`, `fire`, `authorize`, session); validation (`PO_OVER_BALANCE`, `SPLIT_INVOICE_SUSPECTED.combinedCadCents`); vendors (`conflicts`). Contract change in `src/contracts/` — see [`6-approvals-edge-cases.md`](architecture/6-approvals-edge-cases.md) §13.
 
-### 7 Payments — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 7 Payments — Youssef
+Not started. Builds on approvals: P11 via `approversOf(...allPlans)`, and pay no more than `plan.basis` to no other payee.
 
 ### 8 Audit + foundation — _Arpan / Youssef / Andrew / Katie_
 Not started.

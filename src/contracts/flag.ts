@@ -8,6 +8,13 @@ import { z } from "zod";
 export const FlagSeverity = z.enum(["block", "warn", "info"]);
 export type FlagSeverity = z.infer<typeof FlagSeverity>;
 
+/**
+ * open       — the problem is live.
+ * resolved   — the underlying problem was fixed (e.g. the PO was amended). No longer applies.
+ * overridden — a person accepted it without fixing it. A `block` flag stops blocking, but the
+ *              condition is still true, so routing rules that depend on it still apply, and the
+ *              person who overrode it may not approve the invoice.
+ */
 export const FlagStatus = z.enum(["open", "resolved", "overridden"]);
 export type FlagStatus = z.infer<typeof FlagStatus>;
 
@@ -20,7 +27,9 @@ export const Flag = z.object({
   evidence: z.record(z.string(), z.unknown()).default({}),
   relatedInvoiceId: z.string().optional(),
   relatedCardTxnId: z.string().optional(),
-  /** Only `open` flags affect routing; resolved/overridden ones are history. */
   status: FlagStatus.default("open"),
+  /** Who resolved or overrode it, and why (invoice_flags.resolved_by / resolution_note). */
+  resolvedBy: z.string().nullable().optional(),
+  resolutionNote: z.string().nullable().optional(),
 });
 export type Flag = z.infer<typeof Flag>;

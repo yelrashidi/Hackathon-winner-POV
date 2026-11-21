@@ -1,0 +1,221 @@
+{
+  "description": "US$9,000 hosting invoice is $12,082.50 CAD, so it needs the finance manager too; a price warning must be acknowledged to approve.",
+  "asOf": "2026-11-02T00:00:00.000Z",
+  "decidedAt": "2026-11-03T15:00:00.000Z",
+  "input": {
+    "invoiceVersion": 1,
+    "submittedBy": "U004",
+    "poId": null,
+    "poRequesterId": null,
+    "conflicts": [],
+    "lineDepartmentIds": [
+      "D05"
+    ],
+    "departmentSpendYtdCadCents": null,
+    "flags": [
+      {
+        "code": "PRICE_OVER_CONTRACT",
+        "severity": "warn",
+        "message": "Monthly fee US$9,000.00 exceeds the contract's US$8,000.00 not-to-exceed (test fixture)",
+        "evidence": {
+          "invoicedCents": 900000,
+          "capCents": 800000
+        },
+        "status": "open"
+      }
+    ],
+    "invoiceId": "FX-APPR-002",
+    "vendorId": "V021",
+    "vendorNameRaw": "Redstone Cloud Hosting LLC",
+    "departmentId": "D05",
+    "requesterId": "U031",
+    "currency": "USD",
+    "totalCents": 900000,
+    "fxRateToCad": 1.3425,
+    "totalCadCents": 1208250
+  },
+  "plan": {
+    "invoiceId": "FX-APPR-002",
+    "invoiceVersion": 1,
+    "departmentId": "D05",
+    "routedAt": "2026-11-02T00:00:00.000Z",
+    "outcome": "route",
+    "routingCadCents": 1208250,
+    "basis": {
+      "vendorId": "V021",
+      "currency": "USD",
+      "totalCents": 900000,
+      "totalCadCents": 1208250,
+      "requesterId": "U031",
+      "poId": null
+    },
+    "steps": [
+      {
+        "seq": 1,
+        "role": "dept_manager",
+        "alsoCovers": [],
+        "policyId": "P02",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P02",
+            "message": "$12,082.50 CAD: Invoice total over $10,000 CAD — Adds the finance manager"
+          }
+        ],
+        "routedTo": "U010",
+        "assignedTo": "U010",
+        "onBehalfOf": null,
+        "resolution": [],
+        "decision": "pending",
+        "actedBy": null,
+        "actedAs": null,
+        "acknowledgedFlags": [],
+        "comment": null,
+        "decidedAt": null
+      },
+      {
+        "seq": 2,
+        "role": "finance_manager",
+        "alsoCovers": [],
+        "policyId": "P02",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P02",
+            "message": "$12,082.50 CAD: Invoice total over $10,000 CAD — Adds the finance manager"
+          }
+        ],
+        "routedTo": "U003",
+        "assignedTo": "U003",
+        "onBehalfOf": null,
+        "resolution": [],
+        "decision": "pending",
+        "actedBy": null,
+        "actedAs": null,
+        "acknowledgedFlags": [],
+        "comment": null,
+        "decidedAt": null
+      }
+    ],
+    "excludedApprovers": [
+      {
+        "userId": "U031",
+        "reason": "requested this invoice",
+        "kind": "self"
+      },
+      {
+        "userId": "U004",
+        "reason": "submitted this invoice",
+        "kind": "self"
+      }
+    ],
+    "attention": [
+      {
+        "code": "PRICE_OVER_CONTRACT",
+        "severity": "warn",
+        "status": "open",
+        "message": "Monthly fee US$9,000.00 exceeds the contract's US$8,000.00 not-to-exceed (test fixture)"
+      }
+    ],
+    "holdReasons": [],
+    "notes": []
+  },
+  "approved": {
+    "invoiceId": "FX-APPR-002",
+    "invoiceVersion": 1,
+    "departmentId": "D05",
+    "routedAt": "2026-11-02T00:00:00.000Z",
+    "outcome": "route",
+    "routingCadCents": 1208250,
+    "basis": {
+      "vendorId": "V021",
+      "currency": "USD",
+      "totalCents": 900000,
+      "totalCadCents": 1208250,
+      "requesterId": "U031",
+      "poId": null
+    },
+    "steps": [
+      {
+        "seq": 1,
+        "role": "dept_manager",
+        "alsoCovers": [],
+        "policyId": "P02",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P02",
+            "message": "$12,082.50 CAD: Invoice total over $10,000 CAD — Adds the finance manager"
+          }
+        ],
+        "routedTo": "U010",
+        "assignedTo": "U010",
+        "onBehalfOf": null,
+        "resolution": [],
+        "decision": "approved",
+        "actedBy": "U010",
+        "actedAs": {
+          "fullName": "Wen Zhao",
+          "role": "approver",
+          "approvalLimitCents": 1000000
+        },
+        "acknowledgedFlags": [
+          "PRICE_OVER_CONTRACT"
+        ],
+        "comment": null,
+        "decidedAt": "2026-11-03T15:00:00.000Z"
+      },
+      {
+        "seq": 2,
+        "role": "finance_manager",
+        "alsoCovers": [],
+        "policyId": "P02",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P02",
+            "message": "$12,082.50 CAD: Invoice total over $10,000 CAD — Adds the finance manager"
+          }
+        ],
+        "routedTo": "U003",
+        "assignedTo": "U003",
+        "onBehalfOf": null,
+        "resolution": [],
+        "decision": "approved",
+        "actedBy": "U003",
+        "actedAs": {
+          "fullName": "Elise Tremblay",
+          "role": "finance_manager",
+          "approvalLimitCents": 5000000
+        },
+        "acknowledgedFlags": [
+          "PRICE_OVER_CONTRACT"
+        ],
+        "comment": null,
+        "decidedAt": "2026-11-03T15:00:00.000Z"
+      }
+    ],
+    "excludedApprovers": [
+      {
+        "userId": "U031",
+        "reason": "requested this invoice",
+        "kind": "self"
+      },
+      {
+        "userId": "U004",
+        "reason": "submitted this invoice",
+        "kind": "self"
+      }
+    ],
+    "attention": [
+      {
+        "code": "PRICE_OVER_CONTRACT",
+        "severity": "warn",
+        "status": "open",
+        "message": "Monthly fee US$9,000.00 exceeds the contract's US$8,000.00 not-to-exceed (test fixture)"
+      }
+    ],
+    "holdReasons": [],
+    "notes": []
+  }
+}
