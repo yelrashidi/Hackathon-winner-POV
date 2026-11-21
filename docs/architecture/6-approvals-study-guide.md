@@ -115,9 +115,9 @@ and `steps` (effect: `chain [roles]`, `add_step role`, `hold`, …). Seeded from
   (order in section 6).
 - **`resolveRole(role, dept, opts, ctx)`** (`:140`): pass 1 tries every holder as-is (incl. their
   delegate); pass 2 escalates from the first.
-- **`effectiveAssignee(plan, step, ctx)`** (`:185`): who may act on a step **right now**, re-resolved
+- **`effectiveAssignee(plan, step, ctx)`** (`:186`): who may act on a step **right now**, re-resolved
   against today's directory.
-- **`signersOf(steps)`** (`:161`): everyone who signed or was signed for. **`signedAuthority`** (`:172`): highest limit among actual signers.
+- **`signersOf(steps)`** (`:162`): everyone who signed or was signed for. **`signedAuthority`** (`:173`): highest limit among actual signers.
 
 ### The decision gate (`decide.ts`)
 - **`checkDecision(plan, invoice, actorId, body, ctx) → ok | denied`** (`:91`): the only gate. `body`
@@ -136,12 +136,12 @@ and `steps` (effect: `chain [roles]`, `add_step role`, `hold`, …). Seeded from
 - **`businessDaysBetween(from, to)`** (`:111`): weekdays only (holidays not modelled).
 
 ### Storage (`store.ts`) — all async, optional `{ store }` for a transaction-bound store
-- **`saveApprovalPlan(plan)`** (`:150`): append a fresh plan. Refuses plans that already contain decisions.
-- **`getApprovalPlans(invoiceId)`** (`:190`): every plan, oldest first.
-- **`getCurrentApprovalPlan(invoiceId, { invoiceVersion })`** (`:201`): latest plan for that version; null if edited and not resubmitted.
-- **`saveDecision(invoiceId, invoiceVersion, result)`** (`:211`): conditional write of one decision.
-- **`importApprovalPlan(plan)`** (`:164`): seed / tests only.
-- **`ApprovalStore`** (`:57`): the 4 methods a database must implement; **`InMemoryApprovalStore`** (`:72`) is the `// TEMP: db` one; **`ApprovalStoreError`** (`:114`) maps to 404 / 409 / 400.
+- **`saveApprovalPlan(plan)`** (`:151`): append a fresh plan. Refuses plans that already contain decisions.
+- **`getApprovalPlans(invoiceId)`** (`:191`): every plan, oldest first.
+- **`getCurrentApprovalPlan(invoiceId, { invoiceVersion })`** (`:202`): latest plan for that version; null if edited and not resubmitted.
+- **`saveDecision(invoiceId, invoiceVersion, result)`** (`:212`): conditional write of one decision.
+- **`importApprovalPlan(plan)`** (`:165`): seed / tests only.
+- **`ApprovalStore`** (`:57`): the 4 methods a database must implement; **`InMemoryApprovalStore`** (`:72`) is the `// TEMP: db` one; **`ApprovalStoreError`** (`:115`) maps to 404 / 409 / 400.
 
 ### Seed
 - **`policiesFromCsv(rows)`** (`policies-from-csv.ts:23`): CSV text → structured policies; fails loudly on a row it does not understand.

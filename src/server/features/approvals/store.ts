@@ -93,7 +93,8 @@ export class InMemoryApprovalStore implements ApprovalStore {
   async updatePendingStep(planId: string, seq: number, decided: ApprovalStepRow): Promise<boolean> {
     const rows = this.steps.get(decided.invoiceId) ?? [];
     const index = rows.findIndex((r) => r.planId === planId && r.seq === seq);
-    if (index < 0 || rows[index].decision !== "pending") return false;
+    const row = rows[index];
+    if (!row || row.decision !== "pending") return false;
     rows[index] = structuredClone(decided);
     return true;
   }

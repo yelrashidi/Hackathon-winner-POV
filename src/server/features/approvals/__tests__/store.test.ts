@@ -84,7 +84,7 @@ describe("approval store — plans", () => {
   it("round-trips a plan exactly, and gives it an id", async () => {
     const plan = planApprovals(input(), ctx);
     await saveApprovalPlan(plan, { store });
-    const [loaded] = await getApprovalPlans("S-1", { store });
+    const loaded = (await getApprovalPlans("S-1", { store }))[0]!;
     expect(loaded.planId).toBe("S-1#1");
     expect(withoutId(loaded)).toEqual(plan);
   });
@@ -96,7 +96,7 @@ describe("approval store — plans", () => {
     await saveApprovalPlan(planApprovals(input({ invoiceVersion: 2, totalCents: 1_900_000, totalCadCents: 1_900_000 }), ctx), { store });
     const plans = await getApprovalPlans("S-1", { store });
     expect(plans.map((p) => [p.planId, p.invoiceVersion])).toEqual([["S-1#1", 1], ["S-1#2", 1], ["S-1#3", 2]]);
-    expect(plans[0].steps[0]).toMatchObject({ decision: "rejected", actedBy: "U003", comment: "Wrong month" });
+    expect(plans[0]!.steps[0]!).toMatchObject({ decision: "rejected", actedBy: "U003", comment: "Wrong month" });
   });
 
   it("current plan: latest for the version; null once the invoice moved on or was never routed", async () => {
@@ -115,7 +115,7 @@ describe("approval store — plans", () => {
     const approved = approveAll(plan, input(), ctx, AT);
     expect(await errorCode(saveApprovalPlan(approved, { store }))).toBe("INVALID");
     await importApprovalPlan(approved, { store });
-    expect(withoutId((await getApprovalPlans("S-1", { store }))[0])).toEqual(approved);
+    expect(withoutId((await getApprovalPlans("S-1", { store }))[0]!)).toEqual(approved);
   });
 
   it("refuses a second plan for a version that is in approval, or already approved", async () => {
@@ -144,19 +144,19 @@ describe("approval store — plans", () => {
   it("hands out copies: changing a plan in memory does not change what is stored", async () => {
     const plan = planApprovals(input(), ctx);
     await saveApprovalPlan(plan, { store });
-    plan.steps[0].assignedTo = "U999";
-    const loaded = (await getApprovalPlans("S-1", { store }))[0];
-    loaded.steps[0].decision = "approved";
-    const again = (await getApprovalPlans("S-1", { store }))[0];
-    expect(again.steps[0]).toMatchObject({ assignedTo: "U003", decision: "pending" });
+    plan.steps[0]!.assignedTo = "U999";
+    const loaded = (await getApprovalPlans("S-1", { store }))[0]!;
+    loaded.steps[0]!.decision = "approved";
+    const again = (await getApprovalPlans("S-1", { store }))[0]!;
+    expect(again.steps[0]!).toMatchObject({ assignedTo: "U003", decision: "pending" });
   });
 
   it("the in-memory store itself returns copies, like a database would", async () => {
     await saveApprovalPlan(planApprovals(input(), ctx), { store });
-    (await store.listSteps("S-1"))[0].decision = "approved";
-    (await store.listPlans("S-1"))[0].outcome = "hold";
-    expect((await store.listSteps("S-1"))[0].decision).toBe("pending");
-    expect((await store.listPlans("S-1"))[0].outcome).toBe("route");
+    (await store.listSteps("S-1"))[0]!.decision = "approved";
+    (await store.listPlans("S-1"))[0]!.outcome = "hold";
+    expect((await store.listSteps("S-1"))[0]!.decision).toBe("pending");
+    expect((await store.listPlans("S-1"))[0]!.outcome).toBe("route");
   });
 });
 
@@ -165,8 +165,8 @@ describe("approval store — decisions", () => {
     await saveApprovalPlan(planApprovals(input(), ctx), { store });
     await decide(input(), "U003", { action: "approve" });
     let plan = (await getCurrentApprovalPlan("S-1", { store }))!;
-    expect(plan.steps[0]).toMatchObject({ decision: "approved", actedBy: "U003", onBehalfOf: "U012", actedAs: { role: "finance_manager" }, decidedAt: AT.toISOString() });
-    expect(plan.steps[1].decision).toBe("pending");
+    expect(plan.steps[0]!).toMatchObject({ decision: "approved", actedBy: "U003", onBehalfOf: "U012", actedAs: { role: "finance_manager" }, decidedAt: AT.toISOString() });
+    expect(plan.steps[1]!.decision).toBe("pending");
     await decide(input(), "U002", { action: "approve", comment: "ok" });
     plan = (await getCurrentApprovalPlan("S-1", { store }))!;
     expect(plan.steps.map((s) => s.decision)).toEqual(["approved", "approved"]);
@@ -203,8 +203,8 @@ describe("approval store — decisions", () => {
 
     const plan = (await getCurrentApprovalPlan("S-1", { store }))!;
     const fake = (step: ApprovalPlan["steps"][number]): DecisionResult => ({ planId: plan.planId, steps: plan.steps, step, event: "stepApproved", isLastStep: false });
-    expect(await errorCode(saveDecision("S-1", 1, fake(plan.steps[0]), { store }))).toBe("INVALID"); // still pending
-    const skipAhead = { ...plan.steps[1], decision: "approved" as const, actedBy: "U002", decidedAt: AT.toISOString() };
+    expect(await errorCode(saveDecision("S-1", 1, fake(plan.steps[0]!), { store }))).toBe("INVALID"); // still pending
+    const skipAhead = { ...plan.steps[1]!, decision: "approved" as const, actedBy: "U002", decidedAt: AT.toISOString() };
     expect(await errorCode(saveDecision("S-1", 1, fake(skipAhead), { store }))).toBe("CONFLICT");
     expect(await errorCode(saveDecision("NOPE", 1, fake(skipAhead), { store }))).toBe("NOT_FOUND");
   });

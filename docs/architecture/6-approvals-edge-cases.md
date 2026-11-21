@@ -49,7 +49,7 @@ and the defaults the team should confirm. The design itself is in [`6-approvals.
 | Unknown status (e.g. `suspended`) | Treated as unavailable, never as active | `resolve.ts:52` | same |
 | `manager_id` loop in the org chart | Detected; hold with "the management chain loops back…" | `resolve.ts:76` | "survives a management chain that loops" |
 | Nobody above (the CFO's own purchase) | Hold with the reason; no silent self-approval | `resolve.ts:94` | "holds when the only approver above is the requester" |
-| Two holders of a role (e.g. two finance managers), one is the requester | The other one signs before escalating | `resolve.ts:146` | "tries a second holder of the role before escalating" |
+| Two holders of a role (e.g. two finance managers), one is the requester | The other one signs before escalating | `resolve.ts:147` | "tries a second holder of the role before escalating" |
 | `cfo` is not a user role | CFO = the `controller_admin` with no manager; also the controller's fallback | `resolve.ts:133` | "routes to … cfo:U001" |
 | 4 roles but only 3 eligible people (Finance dept > $250k) | One person covers two roles (`alsoCovers`), **only** when nobody else is left | `route.ts:205` | "collapses roles only when nobody else is left" |
 | Last approver's limit is below the amount | Escalates to someone whose limit covers it | `route.ts:175`, `resolve.ts:54` | "escalates past an approver whose limit is too low…" |
@@ -98,7 +98,7 @@ and the defaults the team should confirm. The design itself is in [`6-approvals.
 |---|---|---|---|
 | Approval chain keyed on something other than an amount | Rejected on save (it could replace the amount tiers) | `src/contracts/approvals.ts:81` | "rejects a chain keyed on something other than an amount…" |
 | Release rule filed as an approval rule | Rejected on save | `src/contracts/approvals.ts:84` | "rejects a release rule filed as an approval rule" |
-| A new policy row the seed does not understand | Seed fails loudly, naming the row | `policies-from-csv.ts:109` | "refuses to seed a policy row it does not understand" |
+| A new policy row the seed does not understand | Seed fails loudly, naming the row | `policies-from-csv.ts:112` | "refuses to seed a policy row it does not understand" |
 | Two amount chains with the same priority | The longer (stricter) chain wins | `route.ts:330` | — |
 | Amount ranges with a gap | Hold: "No active amount policy covers $X" | `route.ts:145` | — |
 | Admin deactivates P07 (self-approval) | Still enforced: the brief requires it | `resolve.ts:66` | — |
@@ -127,7 +127,7 @@ and the defaults the team should confirm. The design itself is in [`6-approvals.
 ## 8. Changes after routing (self-healing instead of dead ends)
 
 At every decision the current step is re-resolved against **today's** directory
-(`resolve.ts:185`, called at `decide.ts:150`), so the plan never points at someone who can no
+(`resolve.ts:186`, called at `decide.ts:150`), so the plan never points at someone who can no
 longer act.
 
 | Change | Result | Test |

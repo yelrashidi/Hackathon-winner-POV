@@ -175,7 +175,7 @@ export function planApprovals(rawInput: ApprovalInput, ctx: ApprovalContext, his
     const minLimitCents = index === groups.length - 1 && authoritySoFar < routingCadCents ? routingCadCents : 0;
     const r = resolveRole(role, input.departmentId, { excluded, taken, minLimitCents }, ctx);
     const reasons = group.map((g) => ({ policyId: g.policy?.id ?? null, message: g.message }));
-    const lead = group.find((g) => g.policy) ?? group[0];
+    const leadPolicy = group.find((g) => g.policy)?.policy ?? null; // the policy that created the step
 
     if (r.assignee) {
       taken.add(r.assignee);
@@ -184,8 +184,8 @@ export function planApprovals(rawInput: ApprovalInput, ctx: ApprovalContext, his
         seq: steps.length + 1,
         role,
         alsoCovers: [],
-        policyId: lead.policy?.id ?? null,
-        policyVersion: lead.policy?.version ?? null,
+        policyId: leadPolicy?.id ?? null,
+        policyVersion: leadPolicy?.version ?? null,
         reasons,
         routedTo: r.routedTo ?? r.assignee,
         assignedTo: r.assignee,
@@ -212,7 +212,7 @@ export function planApprovals(rawInput: ApprovalInput, ctx: ApprovalContext, his
       });
       return;
     }
-    hold(`No eligible ${role} approver. ${r.trail.map((t) => t.message).join(" ")}`, lead.policy?.id ?? null);
+    hold(`No eligible ${role} approver. ${r.trail.map((t) => t.message).join(" ")}`, leadPolicy?.id ?? null);
   });
 
   // 7. Authority ------------------------------------------------------------------------------------

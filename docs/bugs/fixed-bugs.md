@@ -36,7 +36,7 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 **Leave or termination after routing left nobody able to approve** · Medium · FIXED · found 2026-11-21 by Youssef
 
 **Symptom.** Routed to Dev; Dev is then terminated: every approve attempt is `NOT_ASSIGNED`, forever.
-**Fix.** `checkDecision` re-resolves the current step against today's directory (`decide.ts:150` → `resolve.ts:185`, `fb86afa`).
+**Fix.** `checkDecision` re-resolves the current step against today's directory (`decide.ts:150` → `resolve.ts:186`, `fb86afa`).
 **Why it happened.** The decision trusted the assignee stored at routing time.
 **Rule added.** `docs/rules/backend.md`.
 
