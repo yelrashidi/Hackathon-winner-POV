@@ -8,6 +8,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "db:up": "docker compose up -d --wait db",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx --env-file-if-exists=.env scripts/db-migrate.ts",
+    "db:seed": "tsx --env-file-if-exists=.env scripts/seed.ts",
+    "db:reset": "tsx --env-file-if-exists=.env scripts/db-reset.ts",
+    "db:ingest": "tsx --env-file-if-exists=.env scripts/db-ingest.ts",
+    "audit:fixtures": "tsx scripts/audit-fixtures.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
@@ -18,15 +25,19 @@
     "validate:history": "tsx scripts/validate-history.ts"
   },
   "dependencies": {
+    "drizzle-orm": "0.45.4",
     "next": "16.4.6",
+    "postgres": "3.4.9",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.15",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "tailwindcss": "4.3.3",

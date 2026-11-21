@@ -1,0 +1,23 @@
+# Local Postgres for Harborline AP. `npm run db:up`, then `npm run db:reset`.
+# Two roles: `postgres` (owner — migrations + seed, DATABASE_URL_ADMIN) and `ap_app` (the app,
+# DATABASE_URL), which cannot change or backdate audit history (migration 0001_audit_guards.sql).
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: harborline
+      AP_APP_PASSWORD: ap_app_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d harborline"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+volumes:
+  pgdata:
