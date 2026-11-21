@@ -15,6 +15,7 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Andrew-03 | High | Andrew | 2026-11-21 | Unmapped tax line produced a false blocking TAX_MISSING |
 | BUG-Andrew-04 | Medium | Andrew | 2026-11-21 | A refused coding attempt hung the request instead of returning 403 |
 | BUG-Andrew-05 | Low | Andrew | 2026-11-21 | Seeded history showed a payment "scheduled" after it was released |
+| BUG-Andrew-06 | High | Andrew | 2026-11-21 | Intake scripts never saved anything: the DB adapter existed but nothing called it |
 | BUG-Arpan-01 | High | Arpan | 2026-11-21 | Any PDF in an email that said "invoice" became a draft bill |
 | BUG-Arpan-02 | High | Arpan | 2026-11-21 | Gmail advanced its cursor past messages excluded by the delivery cap |
 | BUG-Arpan-03 | High | Arpan | 2026-11-21 | Credit notes kept positive amounts when their total was missing or already negative |
@@ -158,3 +159,10 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 **Symptom.** In AP-00098's timeline, "released" (03-28) came before "scheduled" (03-29).
 **Cause.** `payments.csv` `scheduled_date` is the *planned* pay date and can fall after the actual `paid_date`. The CSV doesn't record when the payment was scheduled.
 **Fix.** The seed places `payment.scheduled` at the earlier of the two dates, keeps `plannedDate` in `after`, and marks `metadata.timeApproximate` (`src/server/db/seed/seed.ts`).
+
+### BUG-Andrew-06
+**Intake scripts never saved anything: the DB adapter existed but nothing called it** · High · FIXED · found 2026-11-21 by a teammate reviewing PR #12
+
+**Symptom.** `npm run gmail:poll` and `npm run intake:dataset` classified and printed each email; no invoice reached Postgres.
+**Cause.** `ingestFromIntake` was built and tested on fixtures, but the two entry points were never switched to it. The Gmail cursor was also saved *before* processing, so once saving existed a DB error would have skipped mail for good.
+**Fix.** `scripts/intake-save.ts` calls `ingestFromIntake` per email (and keeps each bill's bytes for a `documents` row); both scripts use it; Gmail's cursor advances only after every new email is saved. Verified with all 59 dataset emails, twice, into Docker Postgres.

@@ -1,6 +1,6 @@
 # 8 — Audit trail + database foundation
 
-**Owner:** Andrew · **Code as of:** `96bffe4` + uncommitted work on `andrew-audit-db` (2026-11-21)
+**Owner:** Andrew · **Code as of:** `b8ef1fe` + intake-script wiring on `andrew-audit-db` (2026-11-21)
 
 ## What it does
 Every change to an invoice, flag, approval, payment or bank account writes one row to
@@ -57,7 +57,7 @@ await withAction(actor /* from the session, never the browser */, async (ctx) =>
 
 | Step | Call | What happens |
 |---|---|---|
-| in (from 1–2) | `ingestFromIntake(message, { classification, readings })` | intake + extraction hand-off. A readable bill → `ingestInvoice`; an unreadable bill → `ManualEntry` (`extractionFailed`); not a bill → kept on `inbox_messages` with its reason. Idempotent per (email, attachment) |
+| in (from 1–2) | `ingestFromIntake(message, { classification, readings })` | intake + extraction hand-off. A readable bill → `ingestInvoice`; an unreadable bill → `ManualEntry` (`extractionFailed`); not a bill → kept on `inbox_messages` with its reason. With the attachment bytes, the bill links to a `documents` row (sha256, storage key). Idempotent per (email, attachment). Called by `gmail:poll` and `intake:dataset` (`scripts/intake-save.ts`) |
 | in | `ingestInvoice(validationInput, { source })` | saves the invoice, its lines and taxes → `extractionSucceeded` → **validation** (4: vendor, CAD total, flags) → **coding** (3: account and department per line, journal) |
 | review | `codeInvoiceLine(actor, id, lineNo, { glAccount, departmentId, note })` / `acceptConfidentLines(actor, id)` | Youssef's `codeLine` / `acceptConfident` checks run, then `invoice.line_coded` is written |
 | review | `editInvoice(actor, id, patch)` | the clerk corrects fields (for example the **requester**, which approvals needs) → `fieldsEdited` → analysis re-runs |
@@ -131,6 +131,8 @@ None: audit records every stage's flags and the decisions taken on them. Its own
 - **An unknown invoice or payment id.** `AuditNotFound` (404).
 - **An event with an action outside `AUDIT_ACTIONS`.** Zod rejects it at `emit()`, so the transaction rolls back and the change is not saved.
 - **CSV export values that look like spreadsheet formulas** (`=`, `+`, `-`, `@`). They are prefixed with `'`, so opening the file in Excel can't run them.
+- **The same email polled twice, or a save that failed halfway.** `ingestFromIntake` reports `already_ingested` and reuses the `documents` row; Gmail's cursor stays put until every email is saved (BUG-Andrew-06).
+- **A bill extraction could not read.** It becomes a `ManualEntry` invoice with the reason, never a guessed one.
 - **History has no extraction output and no "scheduled at" time.** The detail shows `extraction.raw = null`, and those events carry `metadata.imported` / `timeApproximate`.
 
 ## At 100× volume
@@ -138,6 +140,7 @@ None: audit records every stage's flags and the decisions taken on them. Its own
 - **The invoice list runs about 8 correlated subqueries per row**, fine for a page of 50. At 100×, keep a summary column (flag counts, last activity) updated in the same transaction, or a materialized view.
 - **The CSV export builds the whole file as one string in each call**, so keep it scoped by date range or invoice. For a full year, page by `id` and stream the file.
 - **Seeding history writes about 2,000 events**, in chunks of 300. That's fine at 100×.
+- **Intake saves one email at a time**, one transaction per bill. At 100× (≈5,000 emails a day) that is still seconds; the slow part is the extraction model call, not Postgres.
 
 ## Running it
 Needs Docker: Docker Desktop, or without admin rights on a Mac, Colima. Colima was verified on 2026-11-21 with

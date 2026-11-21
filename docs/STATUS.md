@@ -57,9 +57,9 @@ the top block is updated by whoever finishes a shared piece.
 **Waiting on:** intake to capture the **requester** (department is 100% right with it, 82.8% without; none of the 56 incoming invoices has one); extraction to keep `lineType`; LLM provider decision (optional fallback). New contract: `src/contracts/coding.ts`.
 
 ### 4 Validation — Andrew
-**Works (merged engine; DB layer uncommitted on `andrew-audit-db`):** every check in `src/server/features/validation/`. **On Postgres:** `loadDbContext`, `validateWithin`, and flags saved to `invoice_flags` via `syncFlags` (one row per `flagKey`, so human decisions survive re-runs). `overrideFlag` / `resolveFlag` need a note (also a DB CHECK) and are audited. The DB path reproduces the CSV run on all 56 incoming invoices.
-**Stubbed:** input is still our assumed extraction shape (`src/contracts/validation.ts`).
-**Next:** `validateBankForRelease` for payments. (Intake → pipeline adapter done: `ingestFromIntake`.)
+**Works (merged to main, PR #12):** every check in `src/server/features/validation/`. **On Postgres:** `loadDbContext`, `validateWithin`, and flags saved to `invoice_flags` via `syncFlags` (one row per `flagKey`, so human decisions survive re-runs). `overrideFlag` / `resolveFlag` need a note (also a DB CHECK) and are audited. The DB path reproduces the CSV run on all 56 incoming invoices.
+**Input:** extraction's real output via `readingToValidationInput` (`src/server/pipeline/intake.ts`).
+**Next:** `validateBankForRelease` for payments.
 **Waiting on:** Katie (payments reading stored flags instead of `deps.ts`).
 
 ### 5 Duplicates — _Arpan / Youssef / Andrew / Katie_
@@ -77,13 +77,14 @@ Not started.
 **Schema change:** `vendor_bank_accounts.currency` + a `closed` status.
 
 ### 8 Audit + foundation — Andrew
-**Works (uncommitted on `andrew-audit-db`, tested on PGlite and Docker Postgres 16):**
+**Works (merged to main via PR #12; follow-ups on `andrew-audit-db`; tested on PGlite and Docker Postgres 16):**
 - **Schema + seed:** 22 tables; `npm run db:reset` loads the whole dataset, including a reconstructed history audit trail.
 - **Append-only `audit_events`:** a trigger blocks edits for every role, and the `ap_app` role has no UPDATE/DELETE and cannot backdate.
+- **Intake → DB:** `gmail:poll` and `intake:dataset` save every email through `ingestFromIntake`: bills validated, coded, audited, linked to a `documents` row (sha256); unreadable → `ManualEntry`; idempotent.
 - **Pipeline:** `src/server/pipeline/` runs ingest → validation + coding → review → `submitForApproval` / `decideApproval` (Postgres `ApprovalStore`), each step audited in the same transaction.
 - **Auditor dashboard services:** `listAuditInvoices`, `getInvoiceAuditDetail` (incl. control checks) and `exportAuditCsv`, auditor-only, with fixtures in `fixtures/audit/`.
 
-**Stubbed:** no `app/audit` pages yet; payments (7) not on the DB.
+**Stubbed:** no `app/audit` pages yet; payments (7) not on the DB; uncertain scans make no invoice yet (Arpan's TODO).
 **Next:** the auditor pages (dashboard owner); Supabase deploy.
 **Waiting on:** team decisions: Controller audit access, historical `rejected` → `Voided`, schema-merge owner (`docs/architecture/8-audit.md`).
 **Contract + core + schema change:** new `src/contracts/{actor,audit,audit-view}.ts`, `src/server/core/`, `src/server/db/`. Affects Youssef (coding and approvals on the DB through his public API) and Katie (payments tables, audit names).

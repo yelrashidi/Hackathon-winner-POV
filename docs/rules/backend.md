@@ -32,3 +32,4 @@ paths:
 - **No `import "server-only"` under `src/`**: `npm run check:imports` loads every module with tsx and it throws there (BUG-Katie-02).
 - **Authorize (and `recordDenied`) before `withAction` opens the transaction** — logging a refusal from inside it waits on its own connection (BUG-Andrew-04).
 - **A mailbox cursor may advance only after every covered page and message is fetched**; a page size must never become a silent delivery cap (BUG-Arpan-02).
+- **A new entry point is not done until it calls the persistence path**: run it against Postgres and count rows, not just the service's tests. A mailbox cursor advances only after every email is saved (BUG-Andrew-06).
