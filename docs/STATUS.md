@@ -54,10 +54,10 @@ Not started.
 Not started.
 
 ### 6 Approvals — Youssef
-**Works** (pure functions, tested): routing from `approval_policies` P01–P13 with delegation, escalation and separation of duties; the approve/reject gate `checkDecision`; re-approval on edits; aging. 122 tests incl. a history replay and a 3,000-invoice fuzz; fixtures in `fixtures/approvals/`.
-**Stubbed:** not wired yet — no schema, `fire()`, `authorize()`, API route or screen. Tests need `zod` + `vitest` in `package.json`.
+**Works** (tested): routing from `approval_policies` P01–P13 with delegation, escalation and separation of duties; the approve/reject gate `checkDecision`; re-approval on edits; aging; saving and loading plans and decisions (`saveApprovalPlan`, `getApprovalPlans`, `getCurrentApprovalPlan`, `saveDecision`). 137 tests; fixtures in `fixtures/approvals/`.
+**Stubbed:** the store is in-memory (`// TEMP: db`) until the schema lands; not wired to `fire()`, `authorize()`, an API route or a screen yet. Tests need `zod` + `vitest` in `package.json`.
 **Next:** approvals API route + approver queue screen once the foundation lands; then 7 Payments.
-**Waiting on:** foundation (schema, `fire`, `authorize`, session); validation (`PO_OVER_BALANCE`, `SPLIT_INVOICE_SUSPECTED.combinedCadCents`); vendors (`conflicts`). Contract change in `src/contracts/` — see [`6-approvals-edge-cases.md`](architecture/6-approvals-edge-cases.md) §13.
+**Waiting on:** foundation (schema — `approval_plans` proposal in `6-approvals.md`, `fire`, `authorize`, session); validation (`PO_OVER_BALANCE`, `SPLIT_INVOICE_SUSPECTED.combinedCadCents`); vendors (`conflicts`). Contract change in `src/contracts/` — see [`6-approvals-edge-cases.md`](architecture/6-approvals-edge-cases.md) §13.
 
 ### 7 Payments — Youssef
 Not started. Builds on approvals: P11 via `approversOf(...allPlans)`, and pay no more than `plan.basis` to no other payee.

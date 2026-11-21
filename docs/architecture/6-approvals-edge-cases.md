@@ -1,6 +1,6 @@
 # 6 — Approvals: edge cases, controls and decisions
 
-**Owner:** Youssef · **Written:** 2026-11-21 · **Code as of:** `90dc21c`
+**Owner:** Youssef · **Written:** 2026-11-21 · **Code as of:** `a896a64`
 
 Everything the approvals feature handles beyond the happy path, what we deliberately left out,
 and the defaults the team should confirm. The design itself is in [`6-approvals.md`](6-approvals.md).
@@ -25,7 +25,7 @@ and the defaults the team should confirm. The design itself is in [`6-approvals.
 | Delegate signs their own request on someone's behalf | Impossible, same reason | `resolve.ts:48` | "never lets the delegate approve their own request…" |
 | One person signs two steps (directly or through a delegate) | Later step escalates at routing; `ALREADY_SIGNED` at decision | `resolve.ts:50`, `decide.ts:145` | "never lets one person hold two steps…", "treats a signature by your delegate as your signature" |
 | Employee, AP clerk or auditor tries to approve | `ROLE_CANNOT_APPROVE`; never routed to them | `resolve.ts:53`, `decide.ts:144` | "refuses the auditor / AP clerk" |
-| Approver releases the payment (P11) | Step 7 must call `approversOf(...allPlans)`: includes people signed *for* and approvers from voided rounds | `decide.ts:224` | "approversOf spans every round…" |
+| Approver releases the payment (P11) | Step 7 must call `approversOf(...allPlans)`: includes people signed *for* and approvers from voided rounds | `decide.ts:226` | "approversOf spans every round…" |
 | Requester changed on the invoice after routing | The current requester is excluded too | `decide.ts:85` | "the requester changes on the invoice…" |
 
 ## 2. Delegation and leave
@@ -121,8 +121,8 @@ and the defaults the team should confirm. The design itself is in [`6-approvals.
 | Vendor put on hold since routing | 409 `VENDOR_NOT_PAYABLE` (reject still allowed) | `decide.ts:175` | "vendor put on hold → cannot approve, can still reject" |
 | Finished chain lacks authority for the amount | 403 `INSUFFICIENT_AUTHORITY` | `decide.ts:180` | — (defence in depth) |
 | Nobody can sign the step any more | 409 `NO_ELIGIBLE_APPROVER`: resubmit to re-route | `decide.ts:152` | "nobody left → a clear 409…" |
-| Double click / two approvers at once | `applyDecision` throws on a non-pending step; the DB write must be `WHERE decision = 'pending'` | `decide.ts:202` | "walks the happy path…" (double click) |
-| Route handler checks one thing, applies another | Impossible: `applyDecision` takes the actor and request from the check | `decide.ts:198` | — |
+| Double click / two approvers at once | `applyDecision` throws on a non-pending step; the DB write must be `WHERE decision = 'pending'` | `decide.ts:204` | "walks the happy path…" (double click) |
+| Route handler checks one thing, applies another | Impossible: `applyDecision` takes the actor and request from the check | `decide.ts:200` | — |
 
 ## 8. Changes after routing (self-healing instead of dead ends)
 
@@ -211,9 +211,25 @@ longer act.
 
 ## 14. How this was verified
 
-- **122 tests** (116 behaviour + 6 fixture checks), run on Zod 3.25 and 4.6. Refusals are table-driven, so the Q&A answer to "how are roles enforced?" is one table.
+- **137 tests** (116 behaviour + 6 fixture checks + 15 store), run on Zod 3.25 and 4.6 with vitest 3 and 4. Refusals are table-driven, so the Q&A answer to "how are roles enforced?" is one table.
 - **History replay**: every routed historical invoice is approved end to end by the people it waits on; nobody signs twice; the requester never signs.
 - **Org-chaos test**: 3,000 random invoices with random leave, terminations, delegates, manager loops, conflicts and warnings. Invariants: no crash, plan always valid, no excluded person assigned, nobody twice, everyone assigned active, the chain always carries the amount, and the walk always finishes.
-- **Mutation testing**: 13 bugs re-introduced on purpose; 12 made tests fail. The survivor (marking the on-behalf-of person as taken *during routing*) is unreachable there and is covered at decision time.
+- **Mutation testing**: 13 bugs re-introduced on purpose; 12 made tests fail. The survivor (marking the on-behalf-of person as taken *during routing*) is unreachable there and is covered at decision time. Store: 6 guards removed one at a time; all 6 caught (one only after a store-level test was added).
 - **Fixtures** in `fixtures/approvals/` are re-checked against a fresh run on every test run, so they cannot go stale silently.
 - Run: `npx vitest run src/server/features/approvals` (needs `zod` and `vitest` in `package.json`).
+
+## 15. Saving plans and decisions (`store.ts`)
+
+| Case | What happens | Test (`__tests__/store.test.ts`) |
+|---|---|---|
+| A saved plan that already says "approved" (forged approval) | `INVALID`: decisions only arrive through `saveDecision` | "refuses a plan that already carries decisions…" |
+| Two approvers / two tabs click at once | Conditional write: exactly one is saved, the other gets `CONFLICT` | "two clicks at once…" |
+| A decision made on a plan that has since been replaced | `CONFLICT`, even when the step looks identical (the new plan may have new exceptions to acknowledge) | "refuses a decision made on a plan that has since been replaced" |
+| A decision on a plan that was never saved | `INVALID` | "refuses a decision on a plan that was never saved…" |
+| A step decided out of order, or a still-pending step | `CONFLICT` / `INVALID` | same |
+| Re-planning while a plan is in approval, to get a different approver | `CONFLICT` until it is rejected or the invoice is edited | "refuses a second plan for a version that is in approval, or already approved" |
+| A plan for an older version after a newer one | `CONFLICT` | "refuses an older version…" |
+| Invoice edited, not resubmitted yet | `getCurrentApprovalPlan(…, { invoiceVersion })` is `null`, so payments cannot pay on the voided plan | "current plan: latest for the version…" |
+| An approver from a round voided by an edit | Still in `approversOf(...getApprovalPlans())`, so still barred from releasing | "payments sees every signer, including from a round voided by an edit" |
+| Caller changes a plan object it loaded | Stored data unchanged: everything returned is a copy | "hands out copies…", "the in-memory store itself returns copies…" |
+| Postgres later | Same async signatures; implement the 4 `ApprovalStore` methods (queries in the comments) | — |

@@ -49,7 +49,7 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 **`applyDecision` could record a different actor or action than was checked** · Medium · FIXED · found 2026-11-21 by Youssef
 
 **Symptom.** A handler could check `reject` for one user and then apply `approve` for another; nothing stopped it.
-**Fix.** `applyDecision` takes the actor and request from the check result only (`decide.ts:198`, `fb86afa`).
+**Fix.** `applyDecision` takes the actor and request from the check result only (`decide.ts:200`, `fb86afa`).
 **Why it happened.** Actor and action were separate arguments to the write.
 **Rule added.** `docs/rules/backend.md`.
 

@@ -47,7 +47,8 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] P1 Already paid by card (card_transactions by vendor, amount, date). [_name_]
 
 ## 6 Approvals — owner: Youssef
-- [ ] P1 Persist plans to `approval_steps` per invoice version; API route that calls `checkDecision` and writes `WHERE decision = 'pending'`. [Youssef]
+- [ ] P1 Postgres `ApprovalStore` (the 4 queries in `store.ts`) once the schema lands; schema owner to sequence the `approval_plans` proposal in `6-approvals.md`. [Youssef]
+- [ ] P1 Approve / reject API route: the flow at the top of `store.ts`, in one transaction with `fire()`. [Youssef]
 - [ ] P1 Approver queue screen (`waitingOn`) showing reasons, notes and exceptions to acknowledge. [Youssef]
 - [ ] P1 Admin policy editor over `ApprovalPolicy` rows (the schema already rejects bad rows). [Youssef]
 - [ ] P1 On invoice edit call `reapprovalReasons`; non-empty → bump `invoices.version`. [Youssef]

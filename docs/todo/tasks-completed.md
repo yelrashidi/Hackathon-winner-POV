@@ -11,6 +11,7 @@ Format:
 
 ---
 
+- [x] **Approval plan storage API** — 2026-11-21 · Youssef · `a896a64`. `saveApprovalPlan` / `getApprovalPlans` / `getCurrentApprovalPlan` / `saveDecision` behind an `ApprovalStore` interface; in-memory for now (`// TEMP: db`), Postgres needs only the 4 store queries. Asked for by Katie (payments).
 - [x] **Approvals policy engine from `approval_policies` (P01–P13)** — 2026-11-21 · Youssef · `fb86afa`. Pure `planApprovals`; plans carry `invoiceVersion` but are not persisted yet (no schema). Every edge case: [`6-approvals-edge-cases.md`](../architecture/6-approvals-edge-cases.md).
 - [x] **Self-approval escalation, delegation, absent approver** — 2026-11-21 · Youssef · `fb86afa`. Exclusions are checked before delegation, delegation is one hop, and the step is re-resolved at decision time, so leave and terminations after routing self-heal. Admin policy editor still open.
 - [x] **Docs and agent setup** — 2026-11-20 · Arpan. `CLAUDE.md`, `product.md`, architecture overview, data model, roles, rules, STATUS, TODO, bugs, `/wrap-up`, `/commit-msg`.

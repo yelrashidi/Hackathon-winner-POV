@@ -1,6 +1,6 @@
 # 6 — Approvals
 
-**Owner:** Youssef · **Code as of:** `90dc21c` · Every edge case, with `file:line` and test:
+**Owner:** Youssef · **Code as of:** `a896a64` · Every edge case, with `file:line` and test:
 [`6-approvals-edge-cases.md`](6-approvals-edge-cases.md)
 
 ## What it does
@@ -23,9 +23,10 @@ the approvals (`reapprovalReasons`), and is this approval sitting too long (`app
 - Policies: `ApprovalPolicy` = one `approval_policies` row; the schema rejects nonsense rows
 - Code: `src/server/features/approvals/` — `route.ts` (planApprovals), `resolve.ts` (who signs,
   shared by routing and decisions), `decide.ts` (checkDecision, applyDecision, approversOf,
-  waitingOn), `lifecycle.ts` (reapprovalReasons, approvalAging), `policies-from-csv.ts` (seed)
+  waitingOn), `lifecycle.ts` (reapprovalReasons, approvalAging), `store.ts` (saving and loading plans
+  and decisions), `policies-from-csv.ts` (seed)
 - Tests: `__tests__/approvals.test.ts` (116 cases incl. a 3,000-invoice randomized org-chaos test) and
-  `__tests__/fixtures.test.ts` (6)
+  `__tests__/fixtures.test.ts` (6) and `__tests__/store.test.ts` (15)
 - Fixtures: `fixtures/approvals/` — 5 cases (delegate + escalation, USD over a tier with a warning to
   acknowledge, self-approval escalated, held, blocked), each with `input`, `plan` and `approved`;
   the test fails if one is stale. Regenerate: `UPDATE_FIXTURES=1 npx vitest run fixtures`
@@ -104,10 +105,29 @@ per invoice version. The approver queue is `approval_steps (decision = 'pending'
 - Re-approval tolerance: lesser of 2% and $100 (`REAPPROVAL_TOLERANCE`).
 - Aging: remind after 2 business days, escalate after 5 or within 3 days of the due date.
 
+## Persistence (`store.ts`)
+All async, each with an optional `{ store }` so a store bound to the request's transaction can be
+passed; the in-memory store is marked `// TEMP: db` until Postgres lands.
+
+| Function | Does |
+|---|---|
+| `saveApprovalPlan(plan)` | appends a freshly routed plan; refuses plans that carry decisions, a second plan while one is in approval for the same version, and older versions |
+| `getApprovalPlans(invoiceId)` | every plan, all versions, oldest first: feed into `approversOf(...plans)` |
+| `getCurrentApprovalPlan(invoiceId, { invoiceVersion })` | latest plan for that version; null if the invoice was edited and not resubmitted |
+| `saveDecision(invoiceId, invoiceVersion, result)` | persists one `applyDecision()` result; conditional write, so the second of two clicks gets `CONFLICT`; only onto the plan the decision was made on |
+| `importApprovalPlan(plan)` | seed and tests only: a plan that already has decisions |
+
+Errors are `ApprovalStoreError` with `status` 404 / 409 / 400. **Schema proposal for the schema
+owner:** an `approval_plans` table (`id`, `invoice_id`, `invoice_version`, `attempt`, `outcome`,
+`routing_cad_cents`, `basis` / `excluded_approvers` / `attention` / `hold_reasons` / `notes` as jsonb,
+`routed_at`), and on `approval_steps`: `plan_id`, `role`, `also_covers`, `routed_to`, `reasons`,
+`resolution`, `acted_as` (jsonb), `acknowledged_flags`. The four queries are written on `ApprovalStore`.
+
 ## For the route handler and teammates (not in this pure code)
 - Load plan + invoice **in the same transaction** as the write; the actor comes from the session.
-- Write the step with `WHERE seq = $n AND decision = 'pending'`; 0 rows → 409 (two clicks).
-- Every resubmit is a new plan; keep old plans (audit trail, `approversOf`, `history` notes).
+  The approve / reject flow is spelled out at the top of `store.ts`.
+- Every resubmit is a new plan (`saveApprovalPlan`); old plans are kept for the audit trail,
+  `approversOf` and the `history` notes.
 - On an invoice edit, call `reapprovalReasons`; non-empty → bump `invoices.version`.
 - Feature 9 supplies `conflicts`; validation supplies `SPLIT_INVOICE_SUSPECTED.combinedCadCents`
   and `PO_OVER_BALANCE`; step 7 checks payee and amount against `basis` and P11 via `approversOf`.
