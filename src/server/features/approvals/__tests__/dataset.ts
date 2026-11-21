@@ -75,7 +75,15 @@ export function loadContext(asOf: Date = DATASET_AS_OF): ApprovalContext {
     ]),
   );
   const departments = new Map<string, DirectoryDepartment>(
-    readCsv("departments.csv").map((d) => [d.department_id, { id: d.department_id, name: d.name, managerId: d.manager_user_id }]),
+    readCsv("departments.csv").map((d) => [
+      d.department_id,
+      {
+        id: d.department_id,
+        name: d.name,
+        managerId: d.manager_user_id,
+        annualBudgetCents: d.annual_budget_cad ? dollarsToCents(d.annual_budget_cad) : null,
+      },
+    ]),
   );
   const vendors = new Map<string, DirectoryVendor>(
     readCsv("vendors.csv").map((v) => [
@@ -105,6 +113,9 @@ export function withUser(ctx: ApprovalContext, id: string, patch: Partial<Direct
 
 /** Historical invoices.csv rows as ApprovalInput (no flags: history has none). */
 export function historicalInputs(): ApprovalInput[] {
+  const lineDepts = new Map<string, string[]>();
+  for (const l of readCsv("invoice_lines.csv")) lineDepts.set(l.invoice_id, [...(lineDepts.get(l.invoice_id) ?? []), l.department_id]);
+  const poRequester = new Map(readCsv("purchase_orders.csv").map((p) => [p.po_id, p.requester_user_id]));
   return readCsv("invoices.csv").map((r) => ({
     invoiceId: r.invoice_id,
     invoiceVersion: 1,
@@ -113,6 +124,11 @@ export function historicalInputs(): ApprovalInput[] {
     departmentId: r.department_id,
     requesterId: r.requester_user_id,
     poId: r.po_id || null,
+    poRequesterId: (r.po_id && poRequester.get(r.po_id)) || null,
+    currency: r.currency,
+    totalCents: dollarsToCents(r.total),
+    fxRateToCad: Number(r.fx_rate_to_cad),
     totalCadCents: dollarsToCents(r.total_cad),
+    lineDepartmentIds: lineDepts.get(r.invoice_id) ?? [],
   }));
 }

@@ -96,7 +96,7 @@ function parseRow(row: PolicyCsvRow, index: number): ApprovalPolicy {
         ...base,
         ruleType,
         priority: 0,
-        conditions: { kind: "open_flag", code: "PO_OVER_BALANCE" },
+        conditions: { kind: "flag_raised", code: "PO_OVER_BALANCE" },
         steps: { type: "add_step", role: "finance_manager" },
       };
     }

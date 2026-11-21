@@ -14,7 +14,8 @@ export type UserRole =
   | "controller_admin"
   | "auditor";
 
-export type UserStatus = "active" | "on_leave" | "terminated";
+/** active | on_leave | terminated. Anything else (e.g. "suspended") is treated as unavailable. */
+export type UserStatus = "active" | "on_leave" | "terminated" | (string & {});
 
 export interface DirectoryUser {
   id: string;
@@ -32,6 +33,8 @@ export interface DirectoryDepartment {
   id: string;
   name: string;
   managerId: string;
+  /** departments.annual_budget_cad in cents; null if not set. */
+  annualBudgetCents: number | null;
 }
 
 export interface DirectoryVendor {
@@ -56,13 +59,21 @@ export interface ApprovalContext {
 }
 
 /** Roles that may hold an approval step. Anyone else is skipped up the manager chain. */
-export const APPROVING_ROLES: ReadonlySet<UserRole> = new Set([
+export const APPROVING_ROLES: ReadonlySet<string> = new Set(["approver", "finance_manager", "controller_admin"]);
+
+/** Roles that may request a purchase (permission matrix: everyone except the auditor). */
+export const REQUESTING_ROLES: ReadonlySet<string> = new Set([
+  "employee",
+  "ap_clerk",
   "approver",
   "finance_manager",
   "controller_admin",
 ]);
 
-export function displayName(ctx: Pick<ApprovalContext, "users">, userId: string | null): string {
+/** Vendor statuses an invoice may be routed and approved for. */
+export const ROUTABLE_VENDOR_STATUSES: ReadonlySet<string> = new Set(["active", "pending_review"]);
+
+export function displayName(ctx: Pick<ApprovalContext, "users">, userId: string | null | undefined): string {
   if (!userId) return "nobody";
   const u = ctx.users.get(userId);
   return u ? `${u.fullName} (${u.id})` : userId;
@@ -73,4 +84,10 @@ export function formatCad(cents: number): string {
   const abs = Math.abs(cents);
   const dollars = Math.floor(abs / 100).toLocaleString("en-CA");
   return `${sign}$${dollars}.${String(abs % 100).padStart(2, "0")}`;
+}
+
+/** Text that came from an invoice is data: keep it short in messages. React escapes it on render. */
+export function clip(text: string, max = 80): string {
+  const oneLine = text.replace(/\s+/g, " ").trim();
+  return oneLine.length > max ? `${oneLine.slice(0, max - 1)}…` : oneLine;
 }
