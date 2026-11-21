@@ -1,0 +1,41 @@
+user_id,full_name,email,title,department_id,manager_id,role,approval_limit_cad,work_province,status,status_since,delegate_user_id,hire_date
+U001,Priya Raman,priya.raman@harborline-logistics.example,Chief Financial Officer,D08,,controller_admin,500000,ON,active,,,2024-12-17
+U002,Marcus Webb,marcus.webb@harborline-logistics.example,Controller,D04,U001,controller_admin,250000,ON,active,,,2020-01-09
+U003,Elise Tremblay,elise.tremblay@harborline-logistics.example,Finance Manager,D04,U002,finance_manager,50000,QC,active,,,2024-06-28
+U004,Jordan Okafor,jordan.okafor@harborline-logistics.example,AP Clerk,D04,U003,ap_clerk,0,ON,active,,,2017-05-20
+U005,Sam Patel,sam.patel@harborline-logistics.example,AP Clerk,D04,U003,ap_clerk,0,BC,active,,,2017-11-22
+U006,Hannah Lindqvist,hannah.lindqvist@harborline-logistics.example,Internal Auditor,D04,U002,auditor,0,ON,active,,,2019-12-10
+U007,Dev Malhotra,dev.malhotra@harborline-logistics.example,Operations Manager,D01,U001,approver,10000,ON,active,,,2017-10-16
+U008,Chloe Bergeron,chloe.bergeron@harborline-logistics.example,Sales Director,D02,U001,approver,10000,QC,active,,,2025-06-10
+U009,Tomas Alvarez,tomas.alvarez@harborline-logistics.example,Marketing Manager,D03,U001,approver,10000,BC,active,,,2025-09-07
+U010,Wen Zhao,wen.zhao@harborline-logistics.example,IT Manager,D05,U001,approver,10000,ON,active,,,2017-01-08
+U011,Grace Mbeki,grace.mbeki@harborline-logistics.example,People & Culture Manager,D06,U001,approver,10000,ON,active,,,2020-08-02
+U012,Liam O'Connor,liam.o.connor@harborline-logistics.example,Facilities Manager,D07,U001,approver,10000,AB,on_leave,2026-10-20,U003,2019-06-13
+U013,Aiden Grant,aiden.grant@harborline-logistics.example,Dispatcher,D01,U007,employee,0,ON,active,,,2019-09-11
+U014,Farid Fraser,farid.fraser@harborline-logistics.example,Fleet Coordinator,D01,U007,employee,0,ON,active,,,2018-07-26
+U015,Noah Park,noah.park@harborline-logistics.example,Dispatcher,D01,U007,employee,0,BC,terminated,2026-09-15,,2025-05-02
+U016,Wyatt Mitchell,wyatt.mitchell@harborline-logistics.example,Warehouse Lead,D01,U007,employee,0,AB,active,,,2022-01-03
+U017,Camille Dubois,camille.dubois@harborline-logistics.example,Warehouse Lead,D01,U007,employee,0,AB,active,,,2023-11-13
+U018,Amara Walker,amara.walker@harborline-logistics.example,Fleet Coordinator,D01,U007,employee,0,QC,active,,,2018-10-08
+U019,Stefan Haddad,stefan.haddad@harborline-logistics.example,Logistics Analyst,D01,U007,employee,0,ON,active,,,2024-07-08
+U020,Mei Walker,mei.walker@harborline-logistics.example,Warehouse Lead,D01,U007,employee,0,QC,active,,,2024-01-11
+U021,Ben Sokolov,ben.sokolov@harborline-logistics.example,Logistics Analyst,D01,U007,employee,0,ON,active,,,2019-12-18
+U022,Noah Kowalski,noah.kowalski@harborline-logistics.example,Customer Success Manager,D02,U008,employee,0,BC,active,,,2017-09-20
+U023,Mei Mitchell,mei.mitchell@harborline-logistics.example,Sales Development Rep,D02,U008,employee,0,QC,active,,,2023-05-15
+U024,Olivia Bhatt,olivia.bhatt@harborline-logistics.example,Sales Development Rep,D02,U008,employee,0,AB,active,,,2022-06-14
+U025,Stefan Reyes,stefan.reyes@harborline-logistics.example,Account Executive,D02,U008,employee,0,ON,active,,,2023-06-19
+U026,Stefan Hussain,stefan.hussain@harborline-logistics.example,Account Executive,D02,U008,employee,0,BC,active,,,2017-08-10
+U027,Isla Morrison,isla.morrison@harborline-logistics.example,Marketing Specialist,D03,U009,employee,0,QC,active,,,2017-03-18
+U028,Noah Haddad,noah.haddad@harborline-logistics.example,Content Designer,D03,U009,employee,0,ON,active,,,2025-01-05
+U029,Zane Reyes,zane.reyes@harborline-logistics.example,Content Designer,D03,U009,employee,0,AB,active,,,2023-01-08
+U030,Camille Campbell,camille.campbell@harborline-logistics.example,Accountant,D04,U002,employee,0,AB,active,,,2024-09-22
+U031,Elena Bouchard,elena.bouchard@harborline-logistics.example,Developer,D05,U010,employee,0,BC,active,,,2022-02-07
+U032,Noah Singh,noah.singh@harborline-logistics.example,Systems Administrator,D05,U010,employee,0,ON,active,,,2018-12-11
+U033,Wyatt Lavoie,wyatt.lavoie@harborline-logistics.example,Support Analyst,D05,U010,employee,0,AB,active,,,2025-01-23
+U034,Umar Nguyen,umar.nguyen@harborline-logistics.example,Developer,D05,U010,employee,0,AB,active,,,2020-11-23
+U035,Wyatt Bhatt,wyatt.bhatt@harborline-logistics.example,Recruiter,D06,U011,employee,0,ON,active,,,2020-01-27
+U036,Olivia Singh,olivia.singh@harborline-logistics.example,HR Generalist,D06,U011,employee,0,BC,active,,,2017-11-16
+U037,Kavya Morrison,kavya.morrison@harborline-logistics.example,Maintenance Technician,D07,U012,employee,0,ON,active,,,2022-07-14
+U038,Olivia Kowalski,olivia.kowalski@harborline-logistics.example,Facilities Coordinator,D07,U012,employee,0,ON,active,,,2025-08-20
+U039,Yara Bouchard,yara.bouchard@harborline-logistics.example,Maintenance Technician,D07,U012,employee,0,ON,active,,,2017-04-09
+U040,Elena Hussain,elena.hussain@harborline-logistics.example,Executive Assistant,D08,U001,employee,0,BC,active,,,2020-08-24

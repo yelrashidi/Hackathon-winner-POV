@@ -1,0 +1,28 @@
+contract_id,vendor_id,description,billing_type,monthly_fee,currency,hourly_rate_cap,fuel_surcharge_cap_pct,not_to_exceed_monthly,start_date,end_date,auto_renew,status
+C001,V015,Monthly fixed fee agreement,fixed_monthly,2400.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C002,V016,Monthly fixed fee agreement,fixed_monthly,3100.00,USD,,,,2026-01-01,2026-12-31,yes,active
+C003,V017,Monthly fixed fee agreement,fixed_monthly,780.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C004,V018,Monthly fixed fee agreement,fixed_monthly,1950.00,USD,,,,2026-01-01,2026-12-31,yes,active
+C005,V019,Monthly fixed fee agreement,fixed_monthly,1320.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C006,V020,Monthly fixed fee agreement,fixed_monthly,460.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C007,V021,Monthly fixed fee agreement,fixed_monthly,4800.00,USD,,,,2026-01-01,2026-12-31,yes,active
+C008,V022,Monthly fixed fee agreement,fixed_monthly,2150.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C009,V023,Monthly fixed fee agreement,fixed_monthly,890.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C010,V034,Monthly fixed fee agreement,fixed_monthly,3640.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C011,V035,Monthly fixed fee agreement,fixed_monthly,5900.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C012,V036,Monthly fixed fee agreement,fixed_monthly,16600.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C013,V037,Monthly fixed fee agreement,fixed_monthly,7750.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C014,V038,Monthly fixed fee agreement,fixed_monthly,10600.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C015,V039,Monthly fixed fee agreement,fixed_monthly,6080.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C016,V045,Monthly fixed fee agreement,fixed_monthly,2250.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C017,V049,Monthly fixed fee agreement,fixed_monthly,2190.00,CAD,,,,2026-01-01,2026-12-31,yes,active
+C018,V001,Freight rate card with fuel surcharge cap,rate_card,,CAD,,12,28000.00,2026-01-01,2026-12-31,yes,active
+C019,V002,Freight rate card with fuel surcharge cap,rate_card,,CAD,,12,28000.00,2026-01-01,2026-12-31,yes,active
+C020,V004,Freight rate card with fuel surcharge cap,rate_card,,CAD,,10,28000.00,2026-01-01,2026-12-31,yes,active
+C021,V005,Freight rate card with fuel surcharge cap,rate_card,,CAD,,12,28000.00,2026-01-01,2026-12-31,yes,active
+C022,V026,Legal retainer with hourly rate cap,retainer,,CAD,520.00,,20000.00,2026-01-01,2026-12-31,yes,active
+C023,V029,Consulting rate agreement,rate_card,,CAD,245.00,,25000.00,2026-01-01,2026-12-31,yes,active
+C024,V028,Quarterly review and tax advisory,retainer,,CAD,380.00,,15000.00,2026-01-01,2026-12-31,yes,active
+C025,V044,Maintenance services agreement,blanket,,CAD,,,15000.00,2025-07-01,2026-06-30,yes,expired
+C026,V043,Maintenance services agreement,blanket,,CAD,,,15000.00,2026-01-01,2026-12-31,yes,active
+C027,V008,Fleet fuel card program,blanket,,CAD,,,9000.00,2026-01-01,2026-12-31,yes,active
