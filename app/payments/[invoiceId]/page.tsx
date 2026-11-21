@@ -5,13 +5,13 @@ import type { ReactNode } from "react";
 import { getCurrentUser } from "@/server/session/current-user";
 import { actionFor, ActionsSpot } from "../_components/ActionsSpot";
 import { describeAttempt } from "../_components/PaymentsTable";
+import { FlagList } from "../_components/Flags";
 import { StatusBadge } from "../_components/StatusBadge";
 import { canAct, dashboardRole } from "../_lib/access";
 import { getInvoice, getPaymentRow } from "../_lib/data";
-import { FAILURE_REASONS } from "../_lib/failure-reasons";
 import { formatDate, formatMoney, formatMoneyWithCode } from "../_lib/format";
 import { releaseBlockers, whoCanRelease } from "../_lib/release-check";
-import type { InvoiceRecord, PaymentRecord } from "../_lib/types";
+import type { InvoiceRecord, PaymentFlag, PaymentRecord } from "../_lib/types";
 
 export const metadata: Metadata = { title: "Payment details" };
 
@@ -107,6 +107,12 @@ export default async function PaymentDetailsPage({ params }: PageProps<"/payment
       </div>
 
       {row && (
+        <Card title={`Flags (${row.flags.length})`} note="Open flags first. Cleared flags stay here, greyed, with who cleared them and why.">
+          <FlagList flags={row.flags} row={row} user={user} />
+        </Card>
+      )}
+
+      {row && (
         <Card title={`Payment attempts (${row.attempts.length})`}>
           <ol className="space-y-3">
             {row.attempts.map((a) => (
@@ -130,7 +136,7 @@ export default async function PaymentDetailsPage({ params }: PageProps<"/payment
         title="Audit trail"
         note="Sample, built from the payment records. The real one comes from the audit log (feature 8), with exact times."
       >
-        <AuditTrail invoice={invoice} attempts={row?.attempts ?? []} />
+        <AuditTrail invoice={invoice} attempts={row?.attempts ?? []} flags={row?.flags ?? []} />
       </Card>
     </>
   );
@@ -162,7 +168,7 @@ function StatusPanel({
 
   switch (current.status) {
     case "failed": {
-      const reason = current.failureCode ? FAILURE_REASONS[current.failureCode] : null;
+      const reason = current.failure;
       return (
         <Panel tone="red" title={`Failed at the bank on ${formatDate(current.failedAt)}`}>
           {reason && <p>{reason.message}</p>}
@@ -171,7 +177,7 @@ function StatusPanel({
               <span className="font-medium">Next step:</span> {reason.nextStep}
             </p>
           )}
-          {action && reason?.group !== "escalate" && <ActionsSpot label={action} />}
+          {action && reason?.retryRule !== "ESCALATE" && <ActionsSpot label={action} />}
         </Panel>
       );
     }
@@ -293,7 +299,7 @@ function Item({ label, children }: { label: string; children: ReactNode }) {
 
 type AuditEvent = { when: string | null; who: string; what: string; tone: "default" | "good" | "bad" | "warn" };
 
-function auditEvents(invoice: InvoiceRecord, attempts: PaymentRecord[]): AuditEvent[] {
+function auditEvents(invoice: InvoiceRecord, attempts: PaymentRecord[], flags: PaymentFlag[]): AuditEvent[] {
   const events: AuditEvent[] = [
     { when: null, who: invoice.requestedBy.name, what: "Requested the invoice", tone: "default" },
     ...invoice.approvedBy.map((p) => ({ when: null, who: p.name, what: "Approved the invoice", tone: "default" as const })),
@@ -307,8 +313,8 @@ function auditEvents(invoice: InvoiceRecord, attempts: PaymentRecord[]): AuditEv
     if (a.status === "settled") {
       events.push({ when: a.settledAt, who: "Bank", what: `Settled: the supplier received the money${n}`, tone: "good" });
     }
-    if (a.status === "failed" && a.failureCode) {
-      events.push({ when: a.failedAt, who: "Bank", what: `Failed: ${FAILURE_REASONS[a.failureCode].message}${n}`, tone: "bad" });
+    if (a.status === "failed" && a.failure) {
+      events.push({ when: a.failedAt, who: "Bank", what: `Failed: ${a.failure.message}${n}`, tone: "bad" });
     }
     if (a.status === "on_hold") {
       events.push({ when: null, who: "System", what: `Put on hold: ${a.holdReason ?? ""}`, tone: "warn" });
@@ -317,15 +323,35 @@ function auditEvents(invoice: InvoiceRecord, attempts: PaymentRecord[]): AuditEv
       events.push({ when: null, who: "AP", what: `Cancelled: ${a.cancelReason ?? ""}`, tone: "default" });
     }
   }
+  for (const f of flags) {
+    const level = f.urgency[0].toUpperCase() + f.urgency.slice(1);
+    events.push({ when: f.createdAt, who: "System", what: `${level} flag raised: ${f.message}`, tone: f.urgency === "low" ? "warn" : "bad" });
+    if (f.clearedAt) {
+      events.push({
+        when: f.clearedAt,
+        who: f.clearedAutomatically ? "System" : (f.clearedBy?.name ?? "—"),
+        what: `Cleared the ${f.urgency} flag${f.clearedAutomatically ? " automatically" : ""}${f.clearNote ? `: ${f.clearNote}` : ""}`,
+        tone: "good",
+      });
+    }
+  }
   return events;
 }
 
 const DOT = { default: "bg-slate-300", good: "bg-emerald-500", bad: "bg-red-500", warn: "bg-amber-500" };
 
-function AuditTrail({ invoice, attempts }: { invoice: InvoiceRecord; attempts: PaymentRecord[] }) {
+function AuditTrail({
+  invoice,
+  attempts,
+  flags,
+}: {
+  invoice: InvoiceRecord;
+  attempts: PaymentRecord[];
+  flags: PaymentFlag[];
+}) {
   return (
     <ol className="relative space-y-4 border-l border-slate-200 pl-5">
-      {auditEvents(invoice, attempts).map((e, i) => (
+      {auditEvents(invoice, attempts, flags).map((e, i) => (
         <li key={i} className="relative text-sm">
           <span className={`absolute -left-[1.6rem] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-white ${DOT[e.tone]}`} />
           <p className="text-slate-900">

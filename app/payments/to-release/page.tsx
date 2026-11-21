@@ -6,7 +6,6 @@ import { PageHeader } from "../_components/PageHeader";
 import { ReleaseQueueTable, type ReleaseItem } from "../_components/ReleaseQueueTable";
 import { canSeePage, dashboardRole, pageByKey } from "../_lib/access";
 import { getPayments } from "../_lib/data";
-import { FAILURE_REASONS } from "../_lib/failure-reasons";
 import { releaseBlockers, whoCanRelease } from "../_lib/release-check";
 
 export const metadata: Metadata = { title: "Release queue" };
@@ -38,9 +37,7 @@ export default async function ToReleasePage() {
 
   const escalations = view.payments.filter(
     (p) =>
-      p.current.status === "failed" &&
-      p.current.failureCode !== null &&
-      FAILURE_REASONS[p.current.failureCode].group === "escalate",
+      p.current.status === "failed" && p.current.failure?.retryRule === "ESCALATE",
   );
 
   return (
@@ -61,8 +58,9 @@ export default async function ToReleasePage() {
         <NeedsAttention
           rows={escalations}
           role={role}
+          user={user}
           title="Escalations"
-          description="Held by the bank as possible fraud, or frozen. No retry: the Controller reviews."
+          description="Held by the bank as possible fraud. No retry: the Controller reviews and clears the hold."
           emptyText="No escalations."
         />
       )}

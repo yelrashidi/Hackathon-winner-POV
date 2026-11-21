@@ -12,6 +12,8 @@ const CHIP: Record<Exclude<BlockerCode, "NOT_A_RELEASER">, { label: string; clas
   APPROVED_IT: { label: "You approved it", className: "bg-rose-50 text-rose-700 ring-rose-200" },
   REQUESTED_IT: { label: "You requested it", className: "bg-rose-50 text-rose-700 ring-rose-200" },
   SCHEDULED_IT: { label: "You scheduled it", className: "bg-rose-50 text-rose-700 ring-rose-200" },
+  FRAUD_HOLD: { label: "Fraud hold", className: "bg-red-600 text-white ring-red-600" },
+  BANK_NOT_PAYABLE: { label: "Bank account failed", className: "bg-amber-100 text-amber-900 ring-amber-300" },
 };
 
 export function ReleaseQueueTable({

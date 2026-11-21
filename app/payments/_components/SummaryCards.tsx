@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { PaymentsView } from "../_lib/data";
-import { needsAttention } from "../_lib/data";
+import { needsAttention, openFlagCounts } from "../_lib/data";
 import { addDays, formatMoney } from "../_lib/format";
 
 /** `today` is passed in (read at request time by the page) so this component stays pure. */
@@ -23,6 +23,7 @@ export function SummaryCards({
   );
   const released = current.filter((p) => p.status === "released");
   const attention = view.payments.filter(needsAttention);
+  const flags = openFlagCounts(view.payments);
   const awaitingCents = view.awaitingPayment.reduce((s, i) => s + i.totalCadCents, 0);
 
   return (
@@ -47,7 +48,7 @@ export function SummaryCards({
       <Card
         label="Needs attention"
         value={String(attention.length)}
-        detail="failed or on hold"
+        detail={`${flags.critical} critical · ${flags.high} high · ${flags.low} low open flags`}
         alert={attention.length > 0}
         href={links.attention}
       />

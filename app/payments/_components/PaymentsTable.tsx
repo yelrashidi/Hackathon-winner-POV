@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { DashboardRole } from "../_lib/access";
 import { canAct } from "../_lib/access";
-import type { PaymentRow } from "../_lib/data";
-import { FAILURE_REASONS } from "../_lib/failure-reasons";
+import { openFlags, type PaymentRow } from "../_lib/data";
 import { formatDate, formatMoney, formatMoneyWithCode } from "../_lib/format";
 import type { PaymentRecord } from "../_lib/types";
 import { actionFor, ActionsSpot } from "./ActionsSpot";
+import { FlagBadge } from "./Flags";
 import { StatusBadge } from "./StatusBadge";
 
 export function PaymentsTable({
@@ -62,6 +62,7 @@ function Row({ row, role, showActions }: { row: PaymentRow; role: DashboardRole;
   const { invoice, current, attempts } = row;
   const isUsd = current.currency !== "CAD";
   const action = actionFor(role, current.status);
+  const topFlag = openFlags(row)[0];
 
   return (
     <tr className="align-top hover:bg-slate-50/60">
@@ -83,8 +84,13 @@ function Row({ row, role, showActions }: { row: PaymentRow; role: DashboardRole;
       <td className="px-5 py-3.5 text-slate-700">{formatDate(current.scheduledDate)}</td>
       <td className="px-5 py-3.5">
         <StatusBadge status={current.status} />
-        {current.status === "failed" && current.failureCode && (
-          <p className="mt-1 max-w-56 text-xs text-red-700">{FAILURE_REASONS[current.failureCode].message}</p>
+        {current.status === "failed" && current.failure && (
+          <p className="mt-1 max-w-56 text-xs text-red-700">{current.failure.message}</p>
+        )}
+        {topFlag && (
+          <div className="mt-1.5">
+            <FlagBadge urgency={topFlag.urgency} />
+          </div>
         )}
         {current.status === "on_hold" && current.holdReason && (
           <p className="mt-1 max-w-56 text-xs text-amber-800">{current.holdReason}</p>
@@ -126,7 +132,7 @@ function AttemptHistory({ attempts }: { attempts: PaymentRecord[] }) {
 export function describeAttempt(a: PaymentRecord): string {
   switch (a.status) {
     case "failed":
-      return `Failed ${formatDate(a.failedAt)}${a.failureCode ? `, ${FAILURE_REASONS[a.failureCode].message.toLowerCase()}` : ""}`;
+      return `Failed ${formatDate(a.failedAt)}${a.failure ? `, ${a.failure.message.toLowerCase()}` : ""}`;
     case "settled":
       return `Settled ${formatDate(a.settledAt)}`;
     case "released":

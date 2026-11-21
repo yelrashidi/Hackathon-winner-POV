@@ -6,7 +6,8 @@ import "server-only";
 // check when we merge Katie, so the rules exist once.
 
 import { listUsers, type DirectoryUser } from "@/server/session/users";
-import type { PaymentRow } from "./data";
+import { openFlags, type PaymentRow } from "./data";
+import type { PaymentFlag } from "./types";
 import { formatMoney } from "./format";
 
 /** A Finance Manager releases up to $100,000.00 CAD; above that needs a Controller. */
@@ -17,7 +18,9 @@ export type BlockerCode =
   | "NEEDS_CONTROLLER"
   | "APPROVED_IT"
   | "REQUESTED_IT"
-  | "SCHEDULED_IT";
+  | "SCHEDULED_IT"
+  | "FRAUD_HOLD"
+  | "BANK_NOT_PAYABLE";
 
 export type Blocker = { code: BlockerCode; message: string };
 
@@ -29,6 +32,17 @@ export function releaseBlockers(user: DirectoryUser | null, row: PaymentRow): Bl
 
   const blockers: Blocker[] = [];
   const { invoice, current } = row;
+  const open = openFlags(row);
+
+  if (open.some((f) => f.urgency === "critical")) {
+    blockers.push({ code: "FRAUD_HOLD", message: "Stopped: fraud hold on this supplier. Controller must review." });
+  }
+  if (open.some((f) => f.urgency === "high" && f.scope === "supplier")) {
+    blockers.push({
+      code: "BANK_NOT_PAYABLE",
+      message: "A payment to this supplier's bank account failed. It can't be paid until new bank details are verified.",
+    });
+  }
 
   if (user.role === "finance_manager" && current.amountCadCents > FM_RELEASE_LIMIT_CAD_CENTS) {
     blockers.push({
@@ -56,4 +70,17 @@ export function whoCanRelease(row: PaymentRow): DirectoryUser[] {
       u.status === "active" &&
       releaseBlockers(u, row).length === 0,
   );
+}
+
+/**
+ * TEMP: who may clear a flag (docs/payment-data.md). Critical: Controller role only, never whoever
+ * scheduled the payment that raised it. High and low: AP Clerk, Finance Manager or Controller.
+ */
+export function canClearFlag(user: DirectoryUser | null, flag: PaymentFlag, row: PaymentRow): boolean {
+  if (!user || flag.clearedAt !== null) return false;
+  if (flag.urgency === "critical") {
+    const raisedBy = row.attempts.find((a) => a.paymentId === flag.paymentId) ?? row.current;
+    return user.role === "controller_admin" && raisedBy.preparedBy.userId !== user.id;
+  }
+  return user.role === "ap_clerk" || user.role === "finance_manager" || user.role === "controller_admin";
 }
