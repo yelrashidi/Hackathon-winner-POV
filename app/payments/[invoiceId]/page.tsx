@@ -324,7 +324,7 @@ function auditEvents(invoice: InvoiceRecord, attempts: PaymentRecord[], flags: P
     }
   }
   for (const f of flags) {
-    const level = f.urgency[0].toUpperCase() + f.urgency.slice(1);
+    const level = f.urgency.charAt(0).toUpperCase() + f.urgency.slice(1);
     events.push({ when: f.createdAt, who: "System", what: `${level} flag raised: ${f.message}`, tone: f.urgency === "low" ? "warn" : "bad" });
     if (f.clearedAt) {
       events.push({

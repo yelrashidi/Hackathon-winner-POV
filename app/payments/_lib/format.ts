@@ -22,7 +22,8 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 export function formatDate(isoDate: string | null): string {
   if (!isoDate) return "—";
   const [, month, day] = isoDate.slice(0, 10).split("-").map(Number);
-  return `${MONTHS[month - 1]} ${day}`;
+  const name = month ? MONTHS[month - 1] : undefined;
+  return name && day ? `${name} ${day}` : isoDate; // not a YYYY-MM-DD date: show it as is
 }
 
 /** Today as YYYY-MM-DD in Toronto time (Harborline's head office). */

@@ -36,21 +36,27 @@ let cached: DirectoryUser[] | null = null;
 export function listUsers(): DirectoryUser[] {
   if (cached) return cached;
   const [header, ...rows] = parseCsv(readFileSync(USERS_CSV, "utf8"));
-  const col = (name: string) => header.indexOf(name);
-  cached = rows.map((r) => ({
-    id: r[col("user_id")],
-    fullName: r[col("full_name")],
-    title: r[col("title")],
-    role: r[col("role")] as UserRole,
-    departmentId: r[col("department_id")],
-    managerId: r[col("manager_id")] || null,
+  if (!header) throw new Error("users.csv is empty");
+  const at = (r: string[], name: string): string => {
+    const i = header.indexOf(name);
+    if (i < 0) throw new Error(`users.csv has no column "${name}"`);
+    return r[i] ?? "";
+  };
+  const users = rows.map((r) => ({
+    id: at(r, "user_id"),
+    fullName: at(r, "full_name"),
+    title: at(r, "title"),
+    role: at(r, "role") as UserRole,
+    departmentId: at(r, "department_id"),
+    managerId: at(r, "manager_id") || null,
     // approval_limit_cad is whole dollars in the dataset.
-    approvalLimitCents: Number(r[col("approval_limit_cad")] || 0) * 100,
-    status: r[col("status")],
-    statusSince: r[col("status_since")] || null,
-    delegateId: r[col("delegate_user_id")] || null,
+    approvalLimitCents: Number(at(r, "approval_limit_cad") || 0) * 100,
+    status: at(r, "status"),
+    statusSince: at(r, "status_since") || null,
+    delegateId: at(r, "delegate_user_id") || null,
   }));
-  return cached;
+  cached = users;
+  return users;
 }
 
 export function findUser(id: string): DirectoryUser | null {

@@ -15,6 +15,23 @@ Shapes below come from [`architecture/data-model.md`](architecture/data-model.md
 [`architecture/roles-and-permissions.md`](architecture/roles-and-permissions.md) and, where it
 exists, the teammate's actual code.
 
+## Still TEMP — and who each is waiting on (2026-11-21)
+
+`grep -rn "TEMP:" src/ app/` finds every one in code.
+
+| TEMP piece | Where in our code | Waiting on | Owner |
+|---|---|---|---|
+| Approval plans: who approved + approved payee/amount | `deps.ts` `getApprovalFacts` (reads `approvals.csv`) | **Switch ready to do**: Youssef's `getApprovalPlans` / `approversOf` / `getCurrentApprovalPlan` are on `main`; needs the main merge. Then a payments seed loads existing invoices with his `importApprovalPlan` until the real approval flow fills his store | Youssef |
+| Stored validation / duplicate flags | `deps.ts` `getOpenInvoiceFlags` (always empty) | validation persisting flags to `invoice_flags`; duplicates has no owner | Andrew; duplicates: no owner |
+| Release-time bank check | release rules check our own bank versions | Andrew's planned `validateBankForRelease` (not on main yet) | Andrew |
+| Database + transactions | `fake-data/` in-memory store, CSV loader | schema + seed | schema owner: not named |
+| Invoice status changes | `deps.ts` `fireInvoiceEvent` | `core/fire.ts` | foundation: no owner |
+| Permission checks | role checks inside `rules.ts` | `core/authorize.ts` (proposal R2: it calls our rules) | foundation: no owner |
+| Audit events | `deps.ts` `emitAudit` (in memory) | `core/audit.ts` + `audit_events` table | 8 Audit: no owner |
+| Money helpers | `money.ts` (`formatMoney`, `cadMatches`) | `core/money.ts` (Andrew has money helpers inside validation, not exported) | foundation: no owner |
+| Vendors + bank accounts, bank change/verify | `deps.ts` bank adapters, data in `fake-data/` | feature 9 | 9 Vendors: no owner |
+| Login / signed-in person | cookie `hl_viewing_as` (`src/server/session/`, `app/payments-console/actions.ts`) | real session + role switcher | foundation: no owner |
+
 ## Summary
 
 | # | Dependency | Feature · owner | Exists today? | Adapter | Risk |

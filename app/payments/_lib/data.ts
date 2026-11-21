@@ -72,7 +72,9 @@ function buildView(invoices: InvoiceRecord[], payments: PaymentRecord[], flags: 
       continue;
     }
     const rowFlags = [...new Map(attempts.flatMap((a) => a.flags).map((f) => [f.flagId, f])).values()].sort(newestFirst);
-    rows.push({ invoice, current: attempts[attempts.length - 1], attempts, flags: rowFlags });
+    const current = attempts.at(-1);
+    if (!current) continue; // unreachable: empty attempts handled above
+    rows.push({ invoice, current, attempts, flags: rowFlags });
   }
 
   // Newest scheduled date first.
