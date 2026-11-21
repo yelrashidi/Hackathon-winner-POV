@@ -1,0 +1,120 @@
+# Claude reviews every non-draft PR against the project's hard rules (.claude/CLAUDE.md)
+# and the path rules in docs/rules/. It posts inline comments plus one summary comment.
+# It never pushes code and never approves/blocks the PR — a human still merges.
+#
+# Setup (once, by a repo admin):
+#   Settings → Secrets and variables → Actions → New repository secret
+#   Name: ANTHROPIC_API_KEY   Value: an Anthropic API key
+#   (or run `/install-github-app` inside Claude Code, which sets this up for you)
+
+name: Claude PR review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# A new push to the same PR cancels the review still running for the old commit.
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # Skip drafts, and skip PRs from forks (they cannot read the API key secret).
+    if: >-
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Claude review
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          track_progress: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+            PR TITLE: ${{ github.event.pull_request.title }}
+
+            You are reviewing a pull request for Brim AP, a 4-person hackathon project
+            (accounts payable automation). Read `.claude/CLAUDE.md` first; it is the team's
+            contract. Then get the diff with `gh pr diff ${{ github.event.pull_request.number }}`
+            and the description with `gh pr view ${{ github.event.pull_request.number }}`.
+
+            Load the project context before judging anything:
+            - `docs/product.md`: the 9 required features, their "done means" and status, and
+              what is OUT OF SCOPE until features 1–9 work.
+            - `docs/STATUS.md`: who owns which feature, which decisions are still **open**.
+            - `docs/architecture/overview.md` and `docs/architecture/README.md`, then the
+              `docs/architecture/<feature>.md` for each feature the PR touches (if it exists).
+            - `docs/todo/TODO.md`: grep for the work this PR claims to do.
+            For every file the diff touches, check whether a rule in `docs/rules/*.md` covers it
+            (each rule has a `paths:` header) and read that rule before judging the file.
+
+            Check, in this order of importance:
+            1. Scope: is this PR inside the project and inside its feature?
+               - Name which required feature (1–9) or shared foundation piece (`src/server/core/`,
+                 `src/contracts/`, schema, seed/eval scripts, docs, CI) the PR serves. If it serves
+                 none, say so: that is a blocking scope issue.
+               - Bonus / out-of-scope work from `docs/product.md` (reconciliation, journal export,
+                 card pay, analytics, Slack approve, etc.) while any of features 1–9 is not `works`
+                 → blocking, unless the PR description explains why the team agreed to it.
+               - The change must do what that feature's "done means" and feature doc describe — not
+                 more, not something different. Call out behaviour the feature doc does not mention.
+               - Files must sit in the target layout from CLAUDE.md. A feature PR stays in its own
+                 `src/server/features/<feature>/` and its `app/` area; it reaches other features only
+                 through `src/contracts/` schemas, never by importing another feature's internals.
+                 Edits to another feature's folder → should-fix, name the owner from STATUS.md.
+               - Unrelated changes bundled into the PR (drive-by refactors, other features) → should-fix,
+                 suggest splitting.
+               - The PR must not quietly settle a decision STATUS.md lists as **open** (e.g. adding an
+                 ORM, LLM provider or deploy target that is still undecided), and must not add a
+                 framework, service or heavy dependency outside the stack in CLAUDE.md. Flag it and
+                 ask for the decision to be recorded in STATUS.md first.
+            2. Correctness bugs: logic errors, wrong edge cases, crashes, broken types.
+            3. The CLAUDE.md hard rules:
+               - status changes only through `fire(invoiceId, event, actor)`, never a raw status UPDATE
+               - every mutating endpoint calls `authorize()` server-side (separation of duties lives there)
+               - every mutation writes an audit event in the same transaction (real actor, `on_behalf_of` for delegates)
+               - no dataset-specific answers: no invoice numbers, vendor names or amounts from
+                 `brim_ap_dataset/` hard-coded in logic
+               - money is integer cents, never JS floats; rates are decimals
+               - every flag has a stable SCREAMING_SNAKE `code`, a severity, and a message with real numbers
+               - LLMs only for fuzzy judgment (classification, extraction, coding suggestions),
+                 never for validation, duplicate verdicts, approval routing or permissions
+               - nothing edits `brim_ap_dataset/`
+            4. Shared-code changes: if the diff touches `src/contracts/`, `src/server/core/` or the
+               DB schema/migrations, say so in the summary (it affects teammates) and check that
+               fixtures were regenerated for contract changes.
+            5. Explainability: flag code that is needlessly clever — every team member must be able
+               to explain it in a live Q&A.
+
+            Do NOT review the PR title, description format or template checklist. The team has
+            agreed not to enforce them; use the description only as context for what the PR does.
+
+            How to report:
+            - Use `mcp__github_inline_comment__create_inline_comment` for each concrete issue,
+              on the exact line, saying what is wrong and what to do instead. Only comment on
+              lines this PR changed. Do not comment on style nits a formatter would fix.
+            - Then post ONE summary comment with `gh pr comment`: a short verdict
+              (looks good / needs changes), one line "Scope: feature N — <name>" (or "Scope: outside the project"), the list of issues by severity
+              (blocking / should-fix / nit), and which hard rules you checked.
+            - If you find nothing, say so plainly in the summary. Do not invent issues.
+            - Do not modify files, push commits, or approve/request changes on the PR.
+
+          claude_args: |
+            --model claude-sonnet-5-5
+            --max-turns 40
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Read,Glob,Grep"
