@@ -213,6 +213,9 @@ export const AttentionFlag = z.object({
 export type AttentionFlag = z.infer<typeof AttentionFlag>;
 
 export const ApprovalPlan = z.object({
+  /** Set by the approvals store when the plan is saved; absent on a plan that was never saved.
+   *  A decision is only saved onto the plan it was made on. */
+  planId: z.string().optional(),
   invoiceId: z.string(),
   invoiceVersion: z.number().int().positive(),
   departmentId: z.string(),
