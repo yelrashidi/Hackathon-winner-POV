@@ -27,3 +27,5 @@ paths:
 - **Decide who may act from today's users table at request time**, not from who was assigned earlier (BUG-Youssef-03).
 - **An override unblocks; it does not make the condition false** — rules keyed on the flag still apply (BUG-Youssef-04).
 - **Write exactly what was authorized**: take the actor and action from the authorization result, not from separate arguments (BUG-Youssef-05).
+- **Next.js can load a server module more than once**, so module-level state (an in-memory store, a "seeded" flag) is not one per process; share it on `globalThis` or set it up per module copy (BUG-Katie-01).
+- **No `import "server-only"` under `src/`**: `npm run check:imports` loads every module with tsx and it throws there (BUG-Katie-02).

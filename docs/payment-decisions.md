@@ -302,6 +302,7 @@ _(Moved here from `docs/dashboard-todo.md` on 2026-11-21, a one-time exception b
 
 | Date | Topic | Decision | By |
 |---|---|---|---|
+| 2026-11-21 | Wrap-up docs | STATUS section, TODO moved to completed (Katie), duplicate pair as a Duplicates TODO, BUG-Katie-01/02 + 2 backend rules, `7-payments.md` | Katie |
 | 2026-11-21 | Schedule again confirmation | After "Schedule again" the message reads "Payment scheduled again (new attempt)" | Katie |
 | 2026-11-21 | Cancelled payment button | "Schedule again" instead of "Retry"; failed payments keep "Retry" | Katie |
 | 2026-11-21 | Dashboard on real data | Dashboard reads and acts through the payments code; copies deleted; console keeps only the simulated bank + reset | Katie |

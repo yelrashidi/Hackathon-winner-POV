@@ -11,6 +11,8 @@ Format:
 
 ---
 
+- [x] **Schedule, release (limits, separation of duties, verified bank account), status dashboard** — 2026-11-21 · Katie · `b69ce5d`. In-memory payments service + `/payments` dashboard on the real code; simulated EFT with 9 failure reasons, urgency flags, two-person bank change. Stubbed: everything from other features behind `deps.ts` (`docs/payment-assumptions.md`). Surprise: the dataset already has a duplicate scheduled twice (AP-00394 / AP-00407).
+- [x] **Release checks against approvals** — 2026-11-21 · Katie · `b69ce5d`. P11 via `approversOf(...getApprovalPlans())`; payee and amount against `getCurrentApprovalPlan().basis`. A TEMP seed loads `approvals.csv` into Youssef's store until his flow fills it.
 - [x] **Approval plan storage API** — 2026-11-21 · Youssef · `a896a64`. `saveApprovalPlan` / `getApprovalPlans` / `getCurrentApprovalPlan` / `saveDecision` behind an `ApprovalStore` interface; in-memory for now (`// TEMP: db`), Postgres needs only the 4 store queries. Asked for by Katie (payments).
 - [x] **Approvals policy engine from `approval_policies` (P01–P13)** — 2026-11-21 · Youssef · `fb86afa`. Pure `planApprovals`; plans carry `invoiceVersion` but are not persisted yet (no schema). Every edge case: [`6-approvals-edge-cases.md`](../architecture/6-approvals-edge-cases.md).
 - [x] **Self-approval escalation, delegation, absent approver** — 2026-11-21 · Youssef · `fb86afa`. Exclusions are checked before delegation, delegation is one hop, and the step is re-resolved at decision time, so leave and terminations after routing self-heal. Admin policy editor still open.

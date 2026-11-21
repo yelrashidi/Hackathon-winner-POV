@@ -18,6 +18,6 @@ How the code works and why. One doc per feature, written by its owner from
 | [`6-approvals.md`](6-approvals.md) | approval routing, separation of duties, the approve/reject gate | Youssef |
 | [`6-approvals-edge-cases.md`](6-approvals-edge-cases.md) | every approvals edge case with `file:line` + test, what was left out, defaults to confirm | Youssef |
 | [`6-approvals-study-guide.md`](6-approvals-study-guide.md) | Q&A prep: every function, the logic traced on a real invoice, design reasons, likely questions | Youssef |
-| `7-payments.md` | *to write* | |
+| [`7-payments.md`](7-payments.md) | payments: schedule, release rules, simulated EFT, failures and urgency flags, bank change | Katie |
 | `8-audit.md` | *to write* | |
 | `9-vendors.md` | *to write* | |
