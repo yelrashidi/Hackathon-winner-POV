@@ -12,10 +12,8 @@ the top block is updated by whoever finishes a shared piece.
 |---|---|---|
 | Arpan | _features to fill_ | |
 | Youssef | 6 Approvals, 7 Payments | |
-| Andrew | _features to fill_ | |
-| Youssef | _features to fill_ | |
 | Andrew | 4 Validation | |
-| Katie | _features to fill_ | |
+| Katie | 7 Payments: Katie (building), Youssef (listed on main), to confirm; payments dashboard | |
 | shared | foundation (`core/`) | schema merges: _name_ |
 
 ## Now (shared, in order)
@@ -64,8 +62,16 @@ Not started.
 **Next:** approvals API route + approver queue screen once the foundation lands; then 7 Payments.
 **Waiting on:** foundation (schema — `approval_plans` proposal in `6-approvals.md`, `fire`, `authorize`, session); validation (`PO_OVER_BALANCE`, `SPLIT_INVOICE_SUSPECTED.combinedCadCents`); vendors (`conflicts`). Contract change in `src/contracts/` — see [`6-approvals-edge-cases.md`](architecture/6-approvals-edge-cases.md) §13.
 
-### 7 Payments — Youssef
-Not started. Builds on approvals: P11 via `approversOf(...allPlans)`, and pay no more than `plan.basis` to no other payee.
+### 7 Payments — Katie (building), Youssef (listed on main), to confirm
+**Works (in memory, on the dataset):** schedule / release / cancel / retry, release rules (P09–P11, scheduler and requester
+can't release, active staff, verified bank, pending bank change, payee and amount = approved, FX re-check, blocking flags),
+simulated EFT with settle or 9 failure reasons, urgency flags (critical / high / low) with clearing rules, bank change +
+second-person verify, audit events. Contract `src/contracts/payment.ts`, guide `docs/payment-data.md`, page `/payments-console`,
+dashboard pages under `/payments`. Builds on approvals: P11 via `approversOf(...allPlans)`, pay no more than `plan.basis`.
+**Stubbed:** everything from other features sits behind `src/server/features/payments/deps.ts` (`// TEMP:`), listed with owners in
+`docs/payment-assumptions.md`; data is in memory. **Waiting on:** schema, `fire()`, `authorize()`, audit (no owner); Andrew
+(stored flags, release-time bank check); vendors (no owner).
+**Schema change:** `vendor_bank_accounts.currency` and a `closed` status (schema owner, feature 9 owner).
 
 ### 8 Audit + foundation — _Arpan / Youssef / Andrew / Katie_
 Not started.
