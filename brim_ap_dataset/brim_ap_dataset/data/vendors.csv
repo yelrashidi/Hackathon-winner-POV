@@ -1,0 +1,57 @@
+vendor_id,legal_name,category,default_gl_account,address,province_or_state,country,gst_hst_number,qst_number,payment_terms_days,early_pay_discount,preferred_payment_method,accepts_card_payment,bank_institution,bank_transit,bank_account,bank_details_updated_at,ap_contact_email,requires_po,status,onboarded_at
+V001,Polar Freight Lines Ltd.,Freight & Carriers,5010,"5379 Industrial Pkwy, Hamilton ON K6S 2G2",ON,CA,995133220RT0001,,30,,EFT,no,004,95688,410652201,,ar@polarfreight.example,no,active,2022-11-08
+V002,Great Lakes Carriers Inc.,Freight & Carriers,5010,"6086 Centre St, Hamilton ON P7M 6H6",ON,CA,367912731RT0001,,30,,EFT,no,010,66160,234408577,,ar@greatlakes.example,no,active,2020-11-09
+V003,Prairie Express Haulage,Freight & Carriers,5010,"7890 Maple Ave, Winnipeg MB R3M 2P7",MB,CA,293017221RT0001,,30,,CHEQUE,no,006,61654,448967293,,ar@prairieexpress.example,no,active,2021-06-07
+V004,Cascadia Cartage Ltd.,Freight & Carriers,5010,"7313 Rue Sainte-Catherine, Surrey BC V5K 5N1",BC,CA,669086667RT0001,,30,,EFT,no,003,92968,953389679,2026-10-27,ar@cascadiacartage.example,no,active,2021-08-15
+V005,Laurentian Logistics Inc.,Freight & Carriers,5010,"1502 Centre St, Montreal QC G9V 5B6",QC,CA,790628686RT0001,1745206219TQ0001,30,,EFT,no,001,85308,177982930,,ar@laurentianlogistics.example,no,active,2021-01-18
+V006,Northbound Couriers,Freight & Carriers,5010,"7735 Elm St, Calgary AB T2R 5A3",AB,CA,219708387RT0001,,30,,EFT,no,004,78406,941017438,,ar@northboundcouriers.example,no,active,2025-09-09
+V007,Trailhead Fuel Services,Fuel & Fleet,5020,"5650 Industrial Pkwy, Toronto ON N2L 6G6",ON,CA,723947408RT0001,,15,,EFT,yes,016,23298,210444486,,ar@trailheadfuel.example,no,active,2022-12-16
+V008,Redline Fleet Cards Inc.,Fuel & Fleet,5020,"1685 Granville St, Edmonton AB T9Y 6K3",AB,CA,902831173RT0001,,15,,EFT,no,002,76299,859382597,,ar@redlinefleet.example,no,active,2025-12-15
+V009,Maple Tire & Auto Fleet,Fuel & Fleet,5020,"3876 Centre St, Hamilton ON N8J 8E6",ON,CA,741252350RT0001,,15,,EFT,no,016,88270,186877225,,ar@mapletire.example,no,active,2024-05-06
+V010,Ironwood Pallet Co.,Warehouse & Packaging,5040,"1689 Harbour Rd, Hamilton ON M5M 1K7",ON,CA,906611224RT0001,,30,2/10 net 30,EFT,no,003,86211,974188145,2026-02-06,ar@ironwoodpallet.example,yes,active,2021-02-02
+V011,Summit Packaging Supply,Warehouse & Packaging,5040,"4066 Portage Ave, Vancouver BC V1T 8N3",BC,CA,386986545RT0001,,30,,EFT,no,001,11931,941078394,,ar@summitpackaging.example,yes,active,2019-08-07
+V012,Keystone Racking Systems,Warehouse & Packaging,5040,"4068 Centre St, Saskatoon SK S9R 3C8",SK,CA,768446978RT0001,,30,,CHEQUE,no,016,95739,97756574,,ar@keystoneracking.example,yes,active,2019-05-16
+V013,Brightline Safety Supply,Safety Supplies,5050,"6267 King St W, Calgary AB T1K 4K6",AB,CA,612797763RT0001,,30,,EFT,no,004,81404,973649931,,ar@brightlinesafety.example,yes,active,2019-08-11
+V014,Hardhat Outfitters Ltd.,Safety Supplies,5050,"1110 Commerce Dr, Mississauga ON L7E 6C9",ON,CA,907785286RT0001,,30,,EFT,no,002,04768,790026655,,ar@hardhatoutfitters.example,yes,active,2025-01-01
+V015,Cloudbarn Software Inc.,Software & SaaS,6110,"5501 Industrial Pkwy, Toronto ON N8P 6R6",ON,CA,422479028RT0001,,30,,CARD,yes,,,,,ar@cloudbarnsoftware.example,no,active,2024-02-06
+V016,Tessera Analytics Inc.,Software & SaaS,6110,"351 King St W, Seattle WA 43465",WA,US,,,30,,CARD,yes,,,,,ar@tesseraanalytics.example,no,active,2023-08-22
+V017,Pinecone Collaboration Ltd.,Software & SaaS,6110,"4868 Industrial Pkwy, Vancouver BC V5A 9A8",BC,CA,705518273RT0001,,30,,CARD,yes,,,,,ar@pineconecollaboration.example,no,active,2024-06-03
+V018,Sparkgrid CRM Inc.,Software & SaaS,6110,"7348 Rue Sainte-Catherine, Austin TX 35030",TX,US,,,30,,CARD,yes,,,,,ar@sparkgridcrm.example,no,active,2023-10-06
+V019,Lattice Ledger Systems,Software & SaaS,6110,"6893 Granville St, Mississauga ON N3Y 1K7",ON,CA,548383828RT0001,,30,,EFT,no,010,28847,274198068,,ar@latticeledger.example,no,active,2022-04-07
+V020,Quillpad Documents Ltd.,Software & SaaS,6110,"1636 Rue Sainte-Catherine, Montreal QC H3M 4H3",QC,CA,959267705RT0001,9036969075TQ0001,30,,EFT,no,016,66098,506760345,,ar@quillpaddocuments.example,no,active,2020-10-06
+V021,Redstone Cloud Hosting LLC,Cloud Hosting,6130,"9875 Rue Sainte-Catherine, Chicago IL 55824",IL,US,,,0,,CARD,yes,,,,,ar@redstonecloud.example,no,active,2019-03-11
+V022,Aurora Mobile Business,Telecom,6120,"5804 Granville St, Toronto ON L4J 6S4",ON,CA,511304707RT0001,,21,,EFT,no,010,26841,377190807,,ar@auroramobile.example,no,active,2024-11-12
+V023,Fibrewave Communications,Telecom,6120,"8319 Maple Ave, Montreal QC H8J 1E7",QC,CA,225387876RT0001,6084666670TQ0001,21,,EFT,no,001,16610,548268294,,ar@fibrewavecommunications.example,no,active,2025-02-23
+V024,Paper Trail Office Supply,Office Supplies,6210,"4694 Centre St, Toronto ON M2E 5M7",ON,CA,807091741RT0001,,30,2/10 net 30,EFT,yes,003,19916,935395864,,ar@papertrail.example,no,active,2023-07-10
+V025,Deskhive Furniture Ltd.,Office Furniture,6220,"9796 Granville St, Vancouver BC V8A 1X5",BC,CA,384047193RT0001,,30,,EFT,no,001,90202,715207798,,ar@deskhivefurniture.example,yes,active,2023-08-02
+V026,Harlow & Stern LLP,Legal,6310,"8817 Harbour Rd, Toronto ON N7S 1L9",ON,CA,134920677RT0001,,30,,EFT,no,004,18643,736063279,2026-03-22,ar@harlow.example,no,active,2024-05-08
+V027,Beaumont Riviere S.E.N.C.R.L.,Legal,6310,"5930 Harbour Rd, Montreal QC G9H 4E5",QC,CA,941999763RT0001,2770904484TQ0001,30,,EFT,no,003,37295,486747687,,ar@beaumontriviere.example,no,active,2022-08-02
+V028,Ledgerline Chartered Professional Accountants,Accounting & Audit,6320,"6080 Industrial Pkwy, Mississauga ON K1B 6G3",ON,CA,337016076RT0001,,30,,EFT,no,001,14618,735895496,,ar@ledgerlinechartered.example,no,active,2019-12-22
+V029,Orion Strategy Partners,Consulting,6330,"470 Rue Sainte-Catherine, Hamilton ON L1B 6B6",ON,CA,483236076RT0001,,30,,EFT,no,001,51498,740226188,2026-01-25,ar@orionstrategy.example,no,active,2024-01-03
+V030,Brightmore Consulting Group,Consulting,6330,"6419 Portage Ave, Edmonton AB T2K 8T3",AB,CA,791894147RT0001,,30,,EFT,no,003,58042,704309249,,ar@brightmoreconsulting.example,no,active,2019-01-15
+V031,Signal & Sparrow Creative,Marketing & Advertising,6410,"6333 Commerce Dr, Vancouver BC V1K 8J2",BC,CA,559384775RT0001,,30,,EFT,no,006,69425,886069428,,ar@signal.example,no,active,2023-02-12
+V032,Northstar Media Buying,Marketing & Advertising,6410,"7965 Commerce Dr, Hamilton ON M9C 6A6",ON,CA,757486412RT0001,,30,,EFT,no,004,16163,765318587,2026-06-16,ar@northstarmedia.example,no,active,2019-06-16
+V033,Lumen Print & Signage,Printing & Signage,6420,"202 Industrial Pkwy, Mississauga ON M7T 2V3",ON,CA,579505145RT0001,,30,2/10 net 30,EFT,no,004,20628,642160921,2026-04-26,ar@lumenprint.example,no,active,2023-07-06
+V034,Guardian Peak Insurance Brokers,Insurance,6510,"6245 Maple Ave, Toronto ON K3B 7H9",ON,CA,470676530RT0001,,0,,EFT,no,016,42224,414302623,,ar@guardianpeak.example,no,active,2022-04-27
+V035,Fleetsure Commercial Insurance,Insurance,6510,"8117 Granville St, Edmonton AB T3L 7K5",AB,CA,275439035RT0001,,0,,EFT,no,001,82892,230361873,,ar@fleetsurecommercial.example,no,active,2019-02-28
+V036,Queen Street Properties Inc.,Rent & Property,6610,"9154 King St W, Hamilton ON K9P 1X2",ON,CA,452214103RT0001,,0,,EFT,no,003,14713,710061421,,ar@queenstreet.example,no,active,2022-10-21
+V037,Granville Commercial Realty,Rent & Property,6610,"7936 Harbour Rd, Vancouver BC V3E 4S4",BC,CA,630877871RT0001,,0,,EFT,no,004,99117,185684730,2026-04-12,ar@granvillecommercial.example,no,active,2021-12-17
+V038,Stampede Trail Industrial Parks,Rent & Property,6610,"5246 Granville St, Calgary AB T5A 5T2",AB,CA,504497385RT0001,,0,,EFT,no,004,30422,688708251,,ar@stampedetrail.example,no,active,2019-05-12
+V039,Place Mont-Royal Immobilier,Rent & Property,6610,"8767 Harbour Rd, Montreal QC G7R 8P4",QC,CA,157763705RT0001,8775870781TQ0001,0,,CHEQUE,no,010,79257,81820788,,ar@placemontroyal.example,no,active,2020-12-21
+V040,Lakeshore Hydro Services,Utilities,6620,"4029 Portage Ave, Toronto ON P8A 1A7",ON,CA,511235570RT0001,,21,,EFT,no,002,86503,57551807,2026-05-15,ar@lakeshorehydro.example,no,active,2025-10-18
+V041,Evergreen Energy Utility,Utilities,6620,"4432 Rue Sainte-Catherine, Vancouver BC V4A 4R4",BC,CA,879234965RT0001,,21,,EFT,no,002,20338,331792955,,ar@evergreenenergy.example,no,active,2019-09-02
+V042,Prairie Natural Gas Utility,Utilities,6620,"4251 Granville St, Calgary AB T9K 7B4",AB,CA,862863208RT0001,,21,,EFT,no,006,55541,704593075,,ar@prairienatural.example,no,active,2024-08-03
+V043,Fixwell Facility Services,Repairs & Maintenance,6630,"3315 Granville St, Toronto ON P4R 6V4",ON,CA,880851885RT0001,,30,,EFT,no,016,96555,937345964,2026-01-14,ar@fixwellfacility.example,yes,active,2022-02-28
+V044,Torque Industrial Maintenance,Repairs & Maintenance,6630,"8822 Harbour Rd, Calgary AB T1T 9V8",AB,CA,283027511RT0001,,30,,EFT,no,001,36533,350265306,,ar@torqueindustrial.example,yes,active,2020-07-05
+V045,ClearView Janitorial,Janitorial,6640,"5412 King St W, Mississauga ON L5R 1M4",ON,CA,139262707RT0001,,30,,EFT,no,010,92672,890195688,,ar@clearviewjanitorial.example,no,active,2023-02-13
+V046,Voyageur Corporate Travel,Travel,6710,"1548 King St W, Toronto ON P8Y 9M2",ON,CA,338192319RT0001,,15,,CARD,yes,,,,,ar@voyageurcorporate.example,no,active,2024-12-20
+V047,Alpenglow Events & Catering,Events & Catering,6720,"9412 Industrial Pkwy, Vancouver BC V8K 5Y3",BC,CA,238900291RT0001,,30,,EFT,yes,001,90104,967079384,,ar@alpenglowevents.example,yes,active,2021-09-22
+V048,Talentbridge Recruiting,Recruiting,6810,"208 King St W, Hamilton ON N3C 7K2",ON,CA,786719974RT0001,,30,,EFT,no,016,63205,660106829,,ar@talentbridgerecruiting.example,no,active,2019-08-16
+V049,Benefitwise Group Benefits Admin,Benefits Admin,6820,"2104 Granville St, Mississauga ON M1C 1X2",ON,CA,927363514RT0001,,15,,EFT,no,004,54042,142487811,,ar@benefitwisegroup.example,no,active,2019-09-17
+V050,Beacon Compliance Training Inc.,Training & Compliance,6910,"4762 Rue Sainte-Catherine, Denver CO 57287",CO,US,,,30,,CARD,yes,,,,,ar@beaconcompliance.example,no,active,2020-04-06
+V051,Polar Freight Lines Limited,Freight & Carriers,5010,"5379 Industrial Pkwy, Hamilton ON K6S 2G2",ON,CA,420074708RT0001,,30,,EFT,no,004,95688,410652201,,ar@polarfreight.example,no,active,2024-09-05
+V052,Harlow and Stern LLP,Legal,6310,"1422 Granville St, Toronto ON M8E 7A1",ON,CA,503486760RT0001,,30,,EFT,no,010,40238,593014216,,billing@harlowandstern-llp.example,no,active,2020-08-22
+V053,Great Lakes Carriers Incorporated,Freight & Carriers,5010,"8624 Industrial Pkwy, Mississauga ON M1G 7L2",ON,CA,845849856RT0001,,30,,EFT,no,010,66160,234408577,,ar@greatlakes.example,no,on_hold,2021-09-23
+V054,Riverbend Catering Co.,Events & Catering,6720,"5962 Industrial Pkwy, Vancouver BC V1P 7L6",BC,CA,,,30,,EFT,no,003,87673,718563779,,ar@riverbendcatering.example,yes,pending_review,2019-07-26
+V055,Kestrel Safety Consulting,Consulting,6330,"6217 Rue Sainte-Catherine, Mississauga ON L9X 4L3",ON,CA,519354966RT0001,,30,,EFT,no,016,22834,11441924,,ar@kestrelsafety.example,no,pending_review,2022-02-06
+V056,Vantage Print Brokers,Printing & Signage,6420,"6855 King St W, Hamilton ON K7S 9K2",ON,CA,926439252RT0001,,30,,EFT,no,006,81074,536470392,,ar@vantageprint.example,no,pending_review,2019-02-13
