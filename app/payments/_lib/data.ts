@@ -1,30 +1,40 @@
 import "server-only";
 
-// The one place the dashboard reads payment data. Pages call getPayments(); nothing else
-// imports the sample file. TEMP: reads sample data shaped like docs/payment-data.md; when we merge
-// Katie this calls listPayments() / getPaymentDetail() from "@/server/features/payments".
+// The one place the dashboard reads payment data: the real payments service, for the signed-in
+// person (it filters by role on the server). Shapes come from @/contracts/payment.
 
-import { SAMPLE_FLAGS, SAMPLE_INVOICES, SAMPLE_PAYMENTS } from "./sample-data";
-import type { InvoiceRecord, PaymentFlag, PaymentRecord, PaymentRow, PaymentsView, Urgency } from "./types";
+import type { FlagUrgency, InvoiceRecord, PaymentFlag, PaymentRow, PaymentsView } from "@/contracts/payment";
+import { getPaymentDetail, listPayments } from "@/server/features/payments";
+import { getCurrentUser } from "@/server/session/current-user";
 
-export type { PaymentRow, PaymentsView } from "./types";
+export type { PaymentRow, PaymentsView } from "@/contracts/payment";
 
-export async function getPayments(): Promise<PaymentsView> {
-  return buildView(SAMPLE_INVOICES, SAMPLE_PAYMENTS, SAMPLE_FLAGS);
+async function viewerId(): Promise<string | null> {
+  return (await getCurrentUser())?.id ?? null;
 }
 
-/** An invoice the dashboard knows about (paid, scheduled or approved), or null. */
+export async function getPayments(): Promise<PaymentsView> {
+  const view = await listPayments(await viewerId());
+  // Dashboard order: newest scheduled date first.
+  return { ...view, payments: [...view.payments].sort((a, b) => b.current.scheduledDate.localeCompare(a.current.scheduledDate)) };
+}
+
+/** An invoice the signed-in person may see (with a payment, or approved and waiting), or null. */
 export async function getInvoice(invoiceId: string): Promise<InvoiceRecord | null> {
-  return SAMPLE_INVOICES.find((i) => i.invoiceId === invoiceId) ?? null;
+  const view = await listPayments(await viewerId());
+  return (
+    view.payments.find((p) => p.invoice.invoiceId === invoiceId)?.invoice ??
+    view.awaitingPayment.find((i) => i.invoiceId === invoiceId) ??
+    null
+  );
 }
 
 /** One invoice's payment with all its attempts, or null if the invoice has no payment. */
 export async function getPaymentRow(invoiceId: string): Promise<PaymentRow | null> {
-  const { payments } = await getPayments();
-  return payments.find((p) => p.invoice.invoiceId === invoiceId) ?? null;
+  return getPaymentDetail(await viewerId(), invoiceId);
 }
 
-export const URGENCY_ORDER: Urgency[] = ["critical", "high", "low"];
+export const URGENCY_ORDER: FlagUrgency[] = ["critical", "high", "low"];
 
 export function isOpen(flag: PaymentFlag): boolean {
   return flag.clearedAt === null;
@@ -41,43 +51,15 @@ export function needsAttention(row: PaymentRow): boolean {
 }
 
 /** Open flags by urgency, each flag counted once even when it applies to several payments. */
-export function openFlagCounts(rows: PaymentRow[]): Record<Urgency, number> {
+export function openFlagCounts(rows: PaymentRow[]): Record<FlagUrgency, number> {
   const unique = new Map(rows.flatMap((r) => r.flags.filter(isOpen)).map((f) => [f.flagId, f]));
-  const counts: Record<Urgency, number> = { critical: 0, high: 0, low: 0 };
+  const counts: Record<FlagUrgency, number> = { critical: 0, high: 0, low: 0 };
   for (const f of unique.values()) counts[f.urgency]++;
   return counts;
 }
 
-function buildView(invoices: InvoiceRecord[], payments: PaymentRecord[], flags: PaymentFlag[]): PaymentsView {
-  // A flag applies to its own payment, and (supplier scope) to every payment to that vendor.
-  const flagsFor = (p: PaymentRecord, vendorId: string) =>
-    flags.filter((f) => (f.scope === "payment" ? f.paymentId === p.paymentId : f.vendorId === vendorId));
-  const newestFirst = (a: PaymentFlag, b: PaymentFlag) => b.createdAt.localeCompare(a.createdAt);
-
-  const attemptsByInvoice = new Map<string, PaymentRecord[]>();
-  for (const p of payments) {
-    const list = attemptsByInvoice.get(p.invoiceId) ?? [];
-    list.push(p);
-    attemptsByInvoice.set(p.invoiceId, list);
-  }
-
-  const rows: PaymentRow[] = [];
-  const awaitingPayment: InvoiceRecord[] = [];
-  for (const invoice of invoices) {
-    const attempts = (attemptsByInvoice.get(invoice.invoiceId) ?? [])
-      .sort((a, b) => a.attemptNo - b.attemptNo)
-      .map((a) => ({ ...a, flags: flagsFor(a, invoice.vendorId).sort(newestFirst) }));
-    const current = attempts.at(-1);
-    if (!current) {
-      if (invoice.status === "Approved") awaitingPayment.push(invoice);
-      continue;
-    }
-    const rowFlags = [...new Map(attempts.flatMap((a) => a.flags).map((f) => [f.flagId, f])).values()].sort(newestFirst);
-    rows.push({ invoice, current, attempts, flags: rowFlags });
-  }
-
-  // Newest scheduled date first.
-  rows.sort((a, b) => b.current.scheduledDate.localeCompare(a.current.scheduledDate));
-  awaitingPayment.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
-  return { payments: rows, awaitingPayment };
+/** A failed attempt can be retried unless it's a fraud hold the Controller hasn't cleared yet. */
+export function canRetry(row: PaymentRow): boolean {
+  if (row.current.failure?.retryRule !== "ESCALATE") return true;
+  return !openFlags(row).some((f) => f.urgency === "critical");
 }

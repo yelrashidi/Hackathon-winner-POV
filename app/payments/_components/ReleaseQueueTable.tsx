@@ -1,20 +1,27 @@
 import Link from "next/link";
-import type { DirectoryUser } from "@/server/session/users";
 import type { PaymentRow } from "../_lib/data";
 import { formatDate, formatMoney, formatMoneyWithCode } from "../_lib/format";
-import type { Blocker, BlockerCode } from "../_lib/release-check";
-import { ActionsSpot } from "./ActionsSpot";
+import type { Person, ReleaseCheck } from "@/contracts/payment";
+import { PaymentAction } from "./ActionsSpot";
 
-export type ReleaseItem = { row: PaymentRow; blockers: Blocker[]; releasers: DirectoryUser[] };
+type Blocker = ReleaseCheck["reasons"][number];
+export type ReleaseItem = { row: PaymentRow; blockers: Blocker[]; releasers: Person[] };
 
-const CHIP: Record<Exclude<BlockerCode, "NOT_A_RELEASER">, { label: string; className: string }> = {
-  NEEDS_CONTROLLER: { label: "Needs Controller", className: "bg-amber-50 text-amber-800 ring-amber-200" },
+// Short chips for the release-check codes the payments rules return (docs/payment-data.md).
+// Any other code gets a plain chip; its full message is always shown underneath.
+const CHIP: Record<string, { label: string; className: string }> = {
+  OVER_RELEASE_LIMIT: { label: "Needs Controller", className: "bg-amber-50 text-amber-800 ring-amber-200" },
   APPROVED_IT: { label: "You approved it", className: "bg-rose-50 text-rose-700 ring-rose-200" },
   REQUESTED_IT: { label: "You requested it", className: "bg-rose-50 text-rose-700 ring-rose-200" },
   SCHEDULED_IT: { label: "You scheduled it", className: "bg-rose-50 text-rose-700 ring-rose-200" },
-  FRAUD_HOLD: { label: "Fraud hold", className: "bg-red-600 text-white ring-red-600" },
-  BANK_NOT_PAYABLE: { label: "Bank account failed", className: "bg-amber-100 text-amber-900 ring-amber-300" },
+  SUPPLIER_FRAUD_HOLD: { label: "Fraud hold", className: "bg-red-600 text-white ring-red-600" },
+  BANK_ACCOUNT_CLOSED: { label: "Bank account failed", className: "bg-amber-100 text-amber-900 ring-amber-300" },
+  BANK_CHANGE_PENDING: { label: "Bank change not verified", className: "bg-amber-100 text-amber-900 ring-amber-300" },
+  NOT_ACTIVE: { label: "Not active", className: "bg-slate-100 text-slate-700 ring-slate-300" },
 };
+const NO_CHIP = new Set(["ROLE_CANNOT_RELEASE", "NOT_SIGNED_IN"]);
+const chipFor = (code: string) =>
+  CHIP[code] ?? { label: code.charAt(0) + code.slice(1).toLowerCase().replace(/_/g, " "), className: "bg-slate-100 text-slate-700 ring-slate-300" };
 
 export function ReleaseQueueTable({
   items,
@@ -91,18 +98,18 @@ export function ReleaseQueueTable({
                           <div className="space-y-1.5">
                             <div className="flex flex-wrap gap-1">
                               {blockers.map((b) =>
-                                b.code === "NOT_A_RELEASER" ? null : (
+                                NO_CHIP.has(b.code) ? null : (
                                   <span
-                                    key={b.code}
-                                    className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${CHIP[b.code].className}`}
+                                    key={b.code + b.message}
+                                    className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${chipFor(b.code).className}`}
                                   >
-                                    {CHIP[b.code].label}
+                                    {chipFor(b.code).label}
                                   </span>
                                 ),
                               )}
                             </div>
                             {blockers.map((b) => (
-                              <p key={b.code} className="text-xs text-slate-600">
+                              <p key={b.code + b.message} className="text-xs text-slate-600">
                                 {b.message}
                               </p>
                             ))}
@@ -112,14 +119,18 @@ export function ReleaseQueueTable({
                     )}
                     <td className="px-5 py-3.5 text-xs">
                       {releasers.length ? (
-                        <span className="text-slate-700">{releasers.map((u) => u.fullName).join(", ")}</span>
+                        <span className="text-slate-700">{releasers.map((u) => u.name).join(", ")}</span>
                       ) : (
                         <span className="font-medium text-red-700">Nobody available</span>
                       )}
                     </td>
                     {showActions && (
                       <td className="px-5 py-3.5 text-right">
-                        {ok ? <ActionsSpot label="Release" /> : <span className="text-slate-300">—</span>}
+                        {ok ? (
+                          <PaymentAction label="Release" invoiceId={invoice.invoiceId} paymentId={current.paymentId} align="end" />
+                        ) : (
+                          <span className="text-slate-300">—</span>
+                        )}
                       </td>
                     )}
                   </tr>

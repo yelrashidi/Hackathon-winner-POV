@@ -30,6 +30,7 @@ import {
   listAudit,
   listBankAccounts,
   listInvoices,
+  listUsers,
   nextId,
   paymentRows,
 } from "./deps";
@@ -224,6 +225,29 @@ export async function getPaymentDetail(viewerId: string | null, invoiceId: strin
   if (!invoice || !canSee(viewer, invoice)) return null;
   const attempts = attemptsFor(invoiceId);
   return attempts.length ? await toRow(viewer, invoice, attempts) : null;
+}
+
+/** Everyone who could release this invoice's current payment right now, by the same rules release uses. */
+export async function eligibleReleasers(invoiceId: string): Promise<Person[]> {
+  const invoice = getInvoice(invoiceId);
+  const current = attemptsFor(invoiceId).at(-1);
+  if (!invoice || !current) return [];
+  const out: Person[] = [];
+  for (const u of listUsers()) {
+    if (u.role !== "finance_manager" && u.role !== "controller_admin") continue;
+    if (checkRelease(await releaseInputFor(u, current, invoice)).allowed) out.push(person(u.id));
+  }
+  return out;
+}
+
+/** Whether this person may clear this flag, by the same rule clearFlag() enforces. */
+export function canClearFlag(viewerId: string | null, flagId: string): boolean {
+  const f = flags().find((x) => x.flagId === flagId);
+  if (!f) return false;
+  const actor = viewerId ? getUser(viewerId) : undefined;
+  const raisedBy = payments().find((x) => x.paymentId === f.paymentId);
+  // The note is typed when clearing; check everything else.
+  return checkClearFlag(actor, f, raisedBy?.preparedBy ?? null, "note").length === 0;
 }
 
 /** The invoice's payment audit trail (who, when, what), oldest first. */

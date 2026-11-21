@@ -1,18 +1,19 @@
 import type { DirectoryUser } from "@/server/session/users";
 import type { PaymentRow } from "../_lib/data";
 import { formatDate } from "../_lib/format";
-import { canClearFlag } from "../_lib/release-check";
-import type { PaymentFlag, Urgency } from "../_lib/types";
-import { ActionsSpot } from "./ActionsSpot";
+import { canClearFlag } from "@/server/features/payments";
+import { clearFlagAction } from "../actions";
+import { ActionForm, inputClass } from "./ActionForm";
+import type { PaymentFlag, FlagUrgency } from "@/contracts/payment";
 
-// Urgency colours per docs/payment-data.md: critical red, high amber, low grey.
-const URGENCY: Record<Urgency, { label: string; className: string }> = {
+// FlagUrgency colours per docs/payment-data.md: critical red, high amber, low grey.
+const URGENCY: Record<FlagUrgency, { label: string; className: string }> = {
   critical: { label: "Critical", className: "bg-red-600 text-white ring-red-600" },
   high: { label: "High", className: "bg-amber-100 text-amber-900 ring-amber-300" },
   low: { label: "Low", className: "bg-slate-100 text-slate-700 ring-slate-300" },
 };
 
-export function FlagBadge({ urgency }: { urgency: Urgency }) {
+export function FlagBadge({ urgency }: { urgency: FlagUrgency }) {
   const u = URGENCY[urgency];
   return (
     <span
@@ -27,7 +28,7 @@ export function FlagBadge({ urgency }: { urgency: Urgency }) {
 }
 
 /** "1 critical · 3 high · 0 low" — open flags only. */
-export function FlagCounts({ counts }: { counts: Record<Urgency, number> }) {
+export function FlagCounts({ counts }: { counts: Record<FlagUrgency, number> }) {
   return (
     <span className="text-sm text-slate-600">
       <span className={counts.critical ? "font-semibold text-red-700" : ""}>{counts.critical} critical</span> ·{" "}
@@ -40,11 +41,11 @@ export function FlagCounts({ counts }: { counts: Record<Urgency, number> }) {
 /** Every flag on a payment, open first then cleared; cleared ones greyed with who, when and the note. */
 export function FlagList({
   flags,
-  row,
   user,
 }: {
   flags: PaymentFlag[];
-  row: PaymentRow;
+  /** The payment the flags are shown on (kept for callers; clearing rules come from the server). */
+  row?: PaymentRow;
   user: DirectoryUser | null;
 }) {
   if (flags.length === 0) return <p className="text-sm text-slate-500">No flags.</p>;
@@ -67,7 +68,16 @@ export function FlagList({
                     : ` · Cleared by ${f.clearedBy?.name ?? "—"}, ${formatDate(f.clearedAt)}${f.clearNote ? `: ${f.clearNote}` : ""}`)}
               </p>
             </div>
-            {canClearFlag(user, f, row) && <ActionsSpot label="Clear flag" />}
+            {canClearFlag(user?.id ?? null, f.flagId) && (
+              <ActionForm action={clearFlagAction} label="Clear flag" hidden={{ flagId: f.flagId }} tone="quiet">
+                <input
+                  name="note"
+                  aria-label="Note"
+                  placeholder={f.urgency === "low" ? "Note (optional)" : "Note (required)"}
+                  className={`w-56 ${inputClass}`}
+                />
+              </ActionForm>
+            )}
           </li>
         );
       })}

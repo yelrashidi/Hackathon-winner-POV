@@ -3,15 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { getCurrentUser } from "@/server/session/current-user";
-import { actionFor, ActionsSpot } from "../_components/ActionsSpot";
+import { cancelAction, rejectBankAction, requestBankAction, verifyBankAction } from "../actions";
+import { ActionForm, inputClass } from "../_components/ActionForm";
+import { actionFor, PaymentAction, type ActionLabel } from "../_components/ActionsSpot";
 import { describeAttempt } from "../_components/PaymentsTable";
 import { FlagList } from "../_components/Flags";
 import { StatusBadge } from "../_components/StatusBadge";
 import { canAct, dashboardRole } from "../_lib/access";
-import { getInvoice, getPaymentRow } from "../_lib/data";
+import { canRetry, getInvoice, getPaymentRow } from "../_lib/data";
 import { formatDate, formatMoney, formatMoneyWithCode } from "../_lib/format";
-import { releaseBlockers, whoCanRelease } from "../_lib/release-check";
-import type { InvoiceRecord, PaymentFlag, PaymentRecord } from "../_lib/types";
+import { eligibleReleasers, getPaymentAudit, getSupplierBank, type AuditEvent as PaymentAuditEvent } from "@/server/features/payments";
+import type { InvoiceRecord, PaymentRecord } from "@/contracts/payment";
 
 export const metadata: Metadata = { title: "Payment details" };
 
@@ -27,6 +29,12 @@ export default async function PaymentDetailsPage({ params }: PageProps<"/payment
   const current = row?.current ?? null;
   const status = current?.status ?? "awaiting";
   const action = canAct(role) ? actionFor(role, status) : null;
+  const releasers = row ? (await eligibleReleasers(id)).map((p) => p.name) : [];
+  const bank = getSupplierBank(user?.id ?? null, invoice.vendorId);
+  const audit = getPaymentAudit(user?.id ?? null, id);
+  const names = new Map([invoice.requestedBy, ...invoice.approvedBy, ...(row?.attempts ?? []).flatMap((a) => [a.preparedBy, a.releasedBy, a.cancelledBy])]
+    .filter((p): p is NonNullable<typeof p> => p !== null)
+    .map((p) => [p.userId, p.name]));
 
   return (
     <>
@@ -58,16 +66,26 @@ export default async function PaymentDetailsPage({ params }: PageProps<"/payment
         </div>
       </section>
 
-      <StatusPanel invoice={invoice} current={current} action={action}>
+      <StatusPanel invoice={invoice} current={current} action={action} retryOk={row ? canRetry(row) : true}>
         {row && current?.status === "scheduled" && (
           <ReleasePanel
-            blockers={releaseBlockers(user, row)}
+            blockers={row.releaseCheck.reasons}
             isReleaser={role === "finance_manager" || role === "controller"}
-            releasers={whoCanRelease(row).map((u) => u.fullName)}
+            releasers={releasers}
             showAction={action === "Release"}
+            invoiceId={invoice.invoiceId}
+            paymentId={current.paymentId}
           />
         )}
       </StatusPanel>
+
+      {current && canAct(role) && (current.status === "scheduled" || current.status === "on_hold") && (
+        <Card title="Cancel this payment" note="Only before release. The invoice goes back to approved, and this attempt stays in the history.">
+          <ActionForm action={cancelAction} label="Cancel payment" hidden={{ paymentId: current.paymentId }} tone="danger">
+            <input name="reason" aria-label="Reason" placeholder="Reason (required)" className={`w-72 ${inputClass}`} />
+          </ActionForm>
+        </Card>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Payment">
@@ -132,11 +150,13 @@ export default async function PaymentDetailsPage({ params }: PageProps<"/payment
         </Card>
       )}
 
+      <BankCard bank={bank} vendorId={invoice.vendorId} canAct={canAct(role)} needsNewDetails={current?.failure?.retryRule === "FIX_BANK_DETAILS"} />
+
       <Card
         title="Audit trail"
-        note="Sample, built from the payment records. The real one comes from the audit log (feature 8), with exact times."
+        note="Every payment action, from the payments audit log (kept in memory until the shared audit log, feature 8, exists)."
       >
-        <AuditTrail invoice={invoice} attempts={row?.attempts ?? []} flags={row?.flags ?? []} />
+        <AuditTrail invoice={invoice} events={audit} names={names} />
       </Card>
     </>
   );
@@ -147,11 +167,14 @@ function StatusPanel({
   invoice,
   current,
   action,
+  retryOk,
   children,
 }: {
   invoice: InvoiceRecord;
   current: PaymentRecord | null;
-  action: string | null;
+  action: ActionLabel | null;
+  /** False while a fraud hold the Controller hasn't cleared blocks the retry. */
+  retryOk: boolean;
   children?: ReactNode;
 }) {
   if (!current) {
@@ -161,7 +184,7 @@ function StatusPanel({
           Approved by {invoice.approvedBy.map((p) => p.name).join(", ")}. An AP Clerk or Controller schedules the
           payment next.
         </p>
-        {action && <ActionsSpot label={action} />}
+        {action && <PaymentAction label={action} invoiceId={invoice.invoiceId} />}
       </Panel>
     );
   }
@@ -177,7 +200,8 @@ function StatusPanel({
               <span className="font-medium">Next step:</span> {reason.nextStep}
             </p>
           )}
-          {action && reason?.retryRule !== "ESCALATE" && <ActionsSpot label={action} />}
+          {action && retryOk && <PaymentAction label={action} invoiceId={invoice.invoiceId} />}
+          {reason?.retryRule === "ESCALATE" && !retryOk && <p className="font-medium">No retry until the Controller clears the fraud hold.</p>}
         </Panel>
       );
     }
@@ -190,7 +214,11 @@ function StatusPanel({
     case "cancelled":
       return (
         <Panel tone="slate" title="Cancelled">
-          <p>{current.cancelReason}</p>
+          <p>
+            {current.cancelReason}
+            {current.cancelledBy ? ` (${current.cancelledBy.name})` : ""}
+          </p>
+          {action && <PaymentAction label={action} invoiceId={invoice.invoiceId} />}
         </Panel>
       );
     case "released":
@@ -218,11 +246,15 @@ function ReleasePanel({
   isReleaser,
   releasers,
   showAction,
+  invoiceId,
+  paymentId,
 }: {
   blockers: { code: string; message: string }[];
   isReleaser: boolean;
   releasers: string[];
   showAction: boolean;
+  invoiceId: string;
+  paymentId: string;
 }) {
   const ok = blockers.length === 0;
   const whoLine = (
@@ -243,13 +275,13 @@ function ReleasePanel({
   return ok ? (
     <Panel tone="emerald" title="You can release this payment">
       {whoLine}
-      {showAction && <ActionsSpot label="Release" />}
+      {showAction && <PaymentAction label="Release" invoiceId={invoiceId} paymentId={paymentId} />}
     </Panel>
   ) : (
     <Panel tone="rose" title="You can't release this payment">
       <ul className="list-disc space-y-0.5 pl-5">
         {blockers.map((b) => (
-          <li key={b.code}>{b.message}</li>
+          <li key={b.code + b.message}>{b.message}</li>
         ))}
       </ul>
       {whoLine}
@@ -297,69 +329,103 @@ function Item({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-type AuditEvent = { when: string | null; who: string; what: string; tone: "default" | "good" | "bad" | "warn" };
+type TrailEvent = { when: string | null; who: string; what: string; tone: "default" | "good" | "bad" | "warn" };
 
-function auditEvents(invoice: InvoiceRecord, attempts: PaymentRecord[], flags: PaymentFlag[]): AuditEvent[] {
-  const events: AuditEvent[] = [
+const ACTION_TEXT: Record<string, { what: string; tone: TrailEvent["tone"] }> = {
+  "invoice.schedule": { what: "Invoice moved to payment scheduled", tone: "default" },
+  "invoice.paymentSettled": { what: "Invoice marked paid", tone: "good" },
+  "invoice.paymentFailed": { what: "Invoice back to approved: payment failed", tone: "bad" },
+  "invoice.paymentCancelled": { what: "Invoice back to approved: payment cancelled", tone: "default" },
+  "payment.scheduled": { what: "Scheduled the payment", tone: "default" },
+  "payment.retried": { what: "Scheduled a retry (new attempt)", tone: "default" },
+  "payment.released": { what: "Released the payment, EFT sent", tone: "default" },
+  "payment.settled": { what: "Bank: settled", tone: "good" },
+  "payment.failed": { what: "Bank: failed", tone: "bad" },
+  "payment.cancelled": { what: "Cancelled the payment", tone: "default" },
+  "payment.on_hold": { what: "Payment put on hold", tone: "warn" },
+  "payment.hold_released": { what: "Hold released", tone: "good" },
+  "payment_flag.created": { what: "Flag raised", tone: "bad" },
+  "payment_flag.cleared": { what: "Cleared a flag", tone: "good" },
+  "payment_flag.cleared_automatically": { what: "Flag cleared automatically", tone: "good" },
+  "bank_account.closed": { what: "Bank account marked unpayable", tone: "bad" },
+  "bank_account.change_requested": { what: "Entered new bank details", tone: "warn" },
+  "bank_account.verified": { what: "Verified the new bank details", tone: "good" },
+  "bank_account.rejected": { what: "Rejected the bank change", tone: "default" },
+};
+
+function trailEvents(invoice: InvoiceRecord, audit: PaymentAuditEvent[], names: Map<string, string>): TrailEvent[] {
+  const events: TrailEvent[] = [
     { when: null, who: invoice.requestedBy.name, what: "Requested the invoice", tone: "default" },
     ...invoice.approvedBy.map((p) => ({ when: null, who: p.name, what: "Approved the invoice", tone: "default" as const })),
   ];
-  for (const a of attempts) {
-    const n = attempts.length > 1 ? ` (attempt ${a.attemptNo})` : "";
-    events.push({ when: null, who: a.preparedBy.name, what: `Scheduled the payment for ${formatDate(a.scheduledDate)}${n}`, tone: "default" });
-    if (a.releasedAt && a.releasedBy) {
-      events.push({ when: a.releasedAt, who: a.releasedBy.name, what: `Released the payment, EFT sent${n}`, tone: "default" });
-    }
-    if (a.status === "settled") {
-      events.push({ when: a.settledAt, who: "Bank", what: `Settled: the supplier received the money${n}`, tone: "good" });
-    }
-    if (a.status === "failed" && a.failure) {
-      events.push({ when: a.failedAt, who: "Bank", what: `Failed: ${a.failure.message}${n}`, tone: "bad" });
-    }
-    if (a.status === "on_hold") {
-      events.push({ when: null, who: "System", what: `Put on hold: ${a.holdReason ?? ""}`, tone: "warn" });
-    }
-    if (a.status === "cancelled") {
-      events.push({ when: null, who: "AP", what: `Cancelled: ${a.cancelReason ?? ""}`, tone: "default" });
-    }
-  }
-  for (const f of flags) {
-    const level = f.urgency.charAt(0).toUpperCase() + f.urgency.slice(1);
-    events.push({ when: f.createdAt, who: "System", what: `${level} flag raised: ${f.message}`, tone: f.urgency === "low" ? "warn" : "bad" });
-    if (f.clearedAt) {
-      events.push({
-        when: f.clearedAt,
-        who: f.clearedAutomatically ? "System" : (f.clearedBy?.name ?? "—"),
-        what: `Cleared the ${f.urgency} flag${f.clearedAutomatically ? " automatically" : ""}${f.clearNote ? `: ${f.clearNote}` : ""}`,
-        tone: "good",
-      });
-    }
+  for (const e of audit) {
+    const known = ACTION_TEXT[e.action] ?? { what: e.action, tone: "default" as const };
+    const code = (e.after as { code?: string; urgency?: string } | null)?.code ?? (e.after as { urgency?: string } | null)?.urgency;
+    events.push({
+      when: e.occurredAt,
+      who: names.get(e.actorId) ?? e.actorId,
+      what: `${known.what}${code ? ` (${code.toLowerCase().replace(/_/g, " ")})` : ""}${e.reason ? `: ${e.reason}` : ""}`,
+      tone: known.tone,
+    });
   }
   return events;
 }
 
 const DOT = { default: "bg-slate-300", good: "bg-emerald-500", bad: "bg-red-500", warn: "bg-amber-500" };
 
-function AuditTrail({
-  invoice,
-  attempts,
-  flags,
-}: {
-  invoice: InvoiceRecord;
-  attempts: PaymentRecord[];
-  flags: PaymentFlag[];
-}) {
+function AuditTrail({ invoice, events, names }: { invoice: InvoiceRecord; events: PaymentAuditEvent[]; names: Map<string, string> }) {
   return (
     <ol className="relative space-y-4 border-l border-slate-200 pl-5">
-      {auditEvents(invoice, attempts, flags).map((e, i) => (
+      {trailEvents(invoice, events, names).map((e, i) => (
         <li key={i} className="relative text-sm">
           <span className={`absolute -left-[1.6rem] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-white ${DOT[e.tone]}`} />
           <p className="text-slate-900">
             <span className="font-medium">{e.who}</span> · {e.what}
           </p>
-          <p className="text-xs text-slate-500">{e.when ? formatDate(e.when) : "Date not in sample data"}</p>
+          <p className="text-xs text-slate-500">{e.when ? `${formatDate(e.when)} ${e.when.slice(11, 16)} UTC` : "Before payments (approval history)"}</p>
         </li>
       ))}
     </ol>
+  );
+}
+
+type BankVersion = ReturnType<typeof getSupplierBank>[number];
+
+/** The supplier's bank account versions (last 4 digits only), and the controlled change: enter, then a second person verifies. */
+function BankCard({ bank, vendorId, canAct, needsNewDetails }: { bank: BankVersion[]; vendorId: string; canAct: boolean; needsNewDetails: boolean }) {
+  const pending = bank.find((b) => b.status === "pending");
+  const hasVerified = bank.some((b) => b.status === "verified");
+  return (
+    <Card title="Supplier bank details" note="Only the last 4 digits are ever shown. A change is entered by one person and verified by another.">
+      <ul className="space-y-1 text-sm">
+        {bank.map((b) => (
+          <li key={b.version} className="text-slate-700">
+            v{b.version} ••{b.last4} {b.currency} · <span className="font-medium">{b.status}</span>
+            {b.changedAt ? ` · changed ${formatDate(b.changedAt)}` : ""}
+            {b.channel ? ` by ${b.channel.replace(/_/g, " ")}` : ""}
+            {b.requestedBy ? ` · entered by ${b.requestedBy.name}` : ""}
+            {b.verifiedBy ? ` · verified by ${b.verifiedBy.name}` : ""}
+          </li>
+        ))}
+        {bank.length === 0 && <li className="text-slate-500">No bank account on file.</li>}
+      </ul>
+      {canAct && pending && (
+        <div className="mt-4 flex flex-wrap gap-4">
+          <ActionForm action={verifyBankAction} label={`Verify ••${pending.last4}`} hidden={{ vendorId }} />
+          <ActionForm action={rejectBankAction} label={`Reject ••${pending.last4}`} hidden={{ vendorId }} tone="danger">
+            <input name="reason" aria-label="Reason" placeholder="Reason" className={`w-48 ${inputClass}`} />
+          </ActionForm>
+        </div>
+      )}
+      {canAct && !pending && (needsNewDetails || !hasVerified) && (
+        <div className="mt-4">
+          <ActionForm action={requestBankAction} label="Save new bank details" hidden={{ vendorId }}>
+            <input name="institution" aria-label="Institution" placeholder="Institution (3)" className={`w-28 ${inputClass}`} />
+            <input name="transit" aria-label="Transit" placeholder="Transit (5)" className={`w-28 ${inputClass}`} />
+            <input name="account" aria-label="Account" placeholder="Account (7–12)" className={`w-36 ${inputClass}`} />
+          </ActionForm>
+        </div>
+      )}
+    </Card>
   );
 }

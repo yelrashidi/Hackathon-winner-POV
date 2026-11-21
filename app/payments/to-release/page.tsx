@@ -6,7 +6,7 @@ import { PageHeader } from "../_components/PageHeader";
 import { ReleaseQueueTable, type ReleaseItem } from "../_components/ReleaseQueueTable";
 import { canSeePage, dashboardRole, pageByKey } from "../_lib/access";
 import { getPayments } from "../_lib/data";
-import { releaseBlockers, whoCanRelease } from "../_lib/release-check";
+import { eligibleReleasers } from "@/server/features/payments";
 
 export const metadata: Metadata = { title: "Release queue" };
 
@@ -24,9 +24,10 @@ export default async function ToReleasePage() {
   if (!canSeePage(role, "to-release")) return <NotForYourRole page={pageByKey("to-release")} user={user} />;
 
   const isReleaser = role === "finance_manager" || role === "controller";
-  const items: ReleaseItem[] = view.payments
-    .filter((p) => p.current.status === "scheduled")
-    .map((row) => ({ row, blockers: releaseBlockers(user, row), releasers: whoCanRelease(row) }))
+  const scheduled = view.payments.filter((p) => p.current.status === "scheduled");
+  const releasers = await Promise.all(scheduled.map((row) => eligibleReleasers(row.invoice.invoiceId)));
+  const items: ReleaseItem[] = scheduled
+    .map((row, i) => ({ row, blockers: row.releaseCheck.reasons, releasers: releasers[i] ?? [] }))
     // Releasers see what they can release first; then by pay date.
     .sort(
       (a, b) =>
@@ -37,7 +38,7 @@ export default async function ToReleasePage() {
 
   const escalations = view.payments.filter(
     (p) =>
-      p.current.status === "failed" && p.current.failure?.retryRule === "ESCALATE",
+      p.current.status === "failed" && p.current.failure?.retryRule === "ESCALATE" && p.flags.some((f) => f.urgency === "critical" && f.clearedAt === null),
   );
 
   return (

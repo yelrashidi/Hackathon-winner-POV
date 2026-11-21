@@ -2,8 +2,8 @@ import Link from "next/link";
 import type { DashboardRole } from "../_lib/access";
 import { canAct } from "../_lib/access";
 import { formatDate, formatMoneyWithCode } from "../_lib/format";
-import type { InvoiceRecord } from "../_lib/types";
-import { actionFor, ActionsSpot } from "./ActionsSpot";
+import type { InvoiceRecord } from "@/contracts/payment";
+import { actionFor, PaymentAction } from "./ActionsSpot";
 import { StatusBadge } from "./StatusBadge";
 
 /** Approved invoices with no payment yet, ready to schedule. */
@@ -37,7 +37,7 @@ export function AwaitingPayment({ invoices, role }: { invoices: InvoiceRecord[];
               <p className="w-32 text-right font-medium tabular-nums text-slate-900">
                 {formatMoneyWithCode(inv.totalCents, inv.currency)}
               </p>
-              {action && <ActionsSpot label={action} />}
+              {action && <PaymentAction label={action} invoiceId={inv.invoiceId} />}
             </li>
           ))}
         </ul>

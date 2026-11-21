@@ -1,9 +1,9 @@
 "use server";
 
-// Server actions for the payments console. The acting person ALWAYS comes from the server-side
-// cookie, never from the form: a form field saying "I am the Controller" is ignored.
+// Every payment button (dashboard pages and the simulated-bank console) calls one of these.
+// The acting person ALWAYS comes from the server session (getCurrentUser), never from the form:
+// a form field saying "I am the Controller" is ignored. The payments service then runs the rules.
 
-import { cookies } from "next/headers";
 import { refresh } from "next/cache";
 import type { FailureCode } from "@/contracts/payment";
 import {
@@ -18,15 +18,12 @@ import {
   verifyBankChange,
   type ActionResult,
 } from "@/server/features/payments";
-
-// TEMP: session — the same cookie the dashboard's "Viewing as" switcher sets
-// (src/server/session/current-user.ts on the dashboard branch). Swap for getCurrentUser() at merge.
-const VIEWING_AS_COOKIE = "hl_viewing_as";
+import { getCurrentUser } from "@/server/session/current-user";
 
 export type FormState = { ok: boolean; messages: string[] } | null;
 
 async function actorId(): Promise<string | null> {
-  return (await cookies()).get(VIEWING_AS_COOKIE)?.value ?? null;
+  return (await getCurrentUser())?.id ?? null;
 }
 
 async function toState(pending: Promise<ActionResult<unknown>>, done: string): Promise<FormState> {
@@ -38,16 +35,13 @@ async function toState(pending: Promise<ActionResult<unknown>>, done: string): P
 
 const text = (form: FormData, key: string) => String(form.get(key) ?? "");
 
-export async function setViewer(form: FormData): Promise<void> {
-  const id = text(form, "userId");
-  const store = await cookies();
-  if (id) store.set(VIEWING_AS_COOKIE, id, { httpOnly: true, sameSite: "lax", path: "/" });
-  else store.delete(VIEWING_AS_COOKIE);
-  refresh();
-}
-
+/** Schedule an approved invoice, or retry after a failed or cancelled attempt (a new attempt). */
 export async function scheduleAction(_: FormState, form: FormData): Promise<FormState> {
-  return toState(schedulePayment(await actorId(), { invoiceId: text(form, "invoiceId"), payDate: text(form, "payDate") || undefined }), "Payment scheduled.");
+  const retry = text(form, "retry") === "1";
+  return toState(
+    schedulePayment(await actorId(), { invoiceId: text(form, "invoiceId"), payDate: text(form, "payDate") || undefined }),
+    retry ? "Retry scheduled as a new attempt." : "Payment scheduled.",
+  );
 }
 
 export async function releaseAction(_: FormState, form: FormData): Promise<FormState> {
@@ -60,7 +54,10 @@ export async function cancelAction(_: FormState, form: FormData): Promise<FormSt
 
 export async function settleAction(_: FormState, form: FormData): Promise<FormState> {
   const outcome = text(form, "outcome") as "SETTLED" | FailureCode;
-  return toState(simulateSettlement(await actorId(), { paymentId: text(form, "paymentId"), outcome }), outcome === "SETTLED" ? "Bank says: settled." : `Bank says: failed (${outcome}).`);
+  return toState(
+    simulateSettlement(await actorId(), { paymentId: text(form, "paymentId"), outcome }),
+    outcome === "SETTLED" ? "Bank says: settled." : `Bank says: failed (${outcome}).`,
+  );
 }
 
 export async function clearFlagAction(_: FormState, form: FormData): Promise<FormState> {

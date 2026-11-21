@@ -30,7 +30,11 @@ exists, the teammate's actual code.
 | Audit events | `deps.ts` `emitAudit` (in memory) | `core/audit.ts` + `audit_events` table | 8 Audit: no owner |
 | Money helpers | `money.ts` (`formatMoney`, `cadMatches`) | `core/money.ts` (Andrew has money helpers inside validation, not exported) | foundation: no owner |
 | Vendors + bank accounts, bank change/verify | `deps.ts` bank adapters, data in `fake-data/` | feature 9 | 9 Vendors: no owner |
-| Login / signed-in person | cookie `hl_viewing_as` (`src/server/session/`, `app/payments-console/actions.ts`) | real session + role switcher | foundation: no owner |
+| Login / signed-in person | `getCurrentUser()` in `src/server/session/` (cookie `hl_viewing_as`), used by `app/payments/actions.ts` and the pages | real session + role switcher | foundation: no owner |
+| Upload: extraction call | `app/payments/_lib/extraction-adapter.ts` | 2 Extraction | no owner |
+| Upload: confirmed uploads | `app/payments/_lib/upload-store.ts` (in memory) | database | schema owner: not named |
+| Departments / tax codes for the upload form | `app/payments/_lib/reference-data.ts` (CSV) | seeded tables | schema owner: not named |
+| Dashboard money and date formatting | `app/payments/_lib/format.ts` | `core/money.ts` | foundation: no owner |
 
 ## Summary
 

@@ -5,6 +5,8 @@ export {
   getPaymentDetail,
   getPaymentAudit,
   getSupplierBank,
+  eligibleReleasers,
+  canClearFlag,
   schedulePayment,
   releasePayment,
   cancelPayment,

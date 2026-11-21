@@ -74,8 +74,24 @@ export function historicalPlans(): ApprovalPlan[] {
   return plans;
 }
 
-/** A fresh approval store holding the dataset's history. Called on first use and on demo reset. */
-export async function seedApprovalStore(): Promise<void> {
+/** A fresh approval store holding the dataset's history. */
+async function seedApprovalStore(): Promise<void> {
   setDefaultApprovalStore(new InMemoryApprovalStore());
   for (const plan of historicalPlans()) await importApprovalPlan(plan);
+}
+
+// Kept per module copy, NOT on globalThis: Next can load the approvals store more than once (one
+// copy per server bundle), each with its own default store, and every copy needs the seed.
+// Payments never writes approvals, so a copy seeded once stays correct.
+let seeded: Promise<void> | null = null;
+
+export function ensureApprovalsSeeded(): Promise<void> {
+  seeded ??= seedApprovalStore();
+  return seeded;
+}
+
+/** Start the approval store again from the dataset (tests, demo reset). */
+export function reseedApprovals(): Promise<void> {
+  seeded = seedApprovalStore();
+  return seeded;
 }

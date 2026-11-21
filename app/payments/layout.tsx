@@ -32,10 +32,13 @@ export default function PaymentsLayout({ children }: LayoutProps<"/payments">) {
           <span className="hidden border-l border-white/15 pl-4 text-sm text-(--brim-on-frame-muted) sm:inline">
             Harborline Logistics
           </span>
-          {/* TEMP: remove when getPayments() reads real data. */}
-          <span className="hidden rounded-full bg-amber-400/15 px-2.5 py-0.5 text-xs font-medium text-amber-200 ring-1 ring-inset ring-amber-300/30 md:inline">
-            Sample data, not real payments
-          </span>
+          {/* Demo control: the simulated bank's answer and a reset live on their own page. */}
+          <Link
+            href="/payments-console"
+            className="hidden rounded-full bg-amber-400/15 px-2.5 py-0.5 text-xs font-medium text-amber-200 ring-1 ring-inset ring-amber-300/30 hover:bg-amber-400/25 md:inline"
+          >
+            Simulated bank (demo)
+          </Link>
           <div className="ml-auto">
             <Suspense fallback={<SwitcherFallback />}>
               <UserSwitcher />

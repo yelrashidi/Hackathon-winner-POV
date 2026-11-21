@@ -1,7 +1,7 @@
 // TEMP: local formatters until the shared money helper (src/server/core/money) exists.
 // Amounts stay integer cents; this only turns them into display strings, without floats.
 
-import type { Currency } from "./types";
+import type { Currency } from "@/contracts/payment";
 
 /** 245719 → "$2,457.19". Negative amounts (credit notes) → "−$2,457.19". */
 export function formatMoney(cents: number): string {

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { DashboardRole } from "../_lib/access";
 import { canAct } from "../_lib/access";
-import { openFlags, type PaymentRow } from "../_lib/data";
+import { canRetry, openFlags, type PaymentRow } from "../_lib/data";
 import { formatDate, formatMoney, formatMoneyWithCode } from "../_lib/format";
-import type { PaymentRecord } from "../_lib/types";
-import { actionFor, ActionsSpot } from "./ActionsSpot";
+import type { PaymentRecord } from "@/contracts/payment";
+import { actionFor, PaymentAction } from "./ActionsSpot";
 import { FlagBadge } from "./Flags";
 import { StatusBadge } from "./StatusBadge";
 
@@ -61,7 +61,7 @@ export function PaymentsTable({
 function Row({ row, role, showActions }: { row: PaymentRow; role: DashboardRole; showActions: boolean }) {
   const { invoice, current, attempts } = row;
   const isUsd = current.currency !== "CAD";
-  const action = actionFor(role, current.status);
+  const action = current.status === "failed" && !canRetry(row) ? null : actionFor(role, current.status);
   const topFlag = openFlags(row)[0];
 
   return (
@@ -105,7 +105,11 @@ function Row({ row, role, showActions }: { row: PaymentRow; role: DashboardRole;
       </td>
       {showActions && (
         <td className="px-5 py-3.5 text-right">
-          {action ? <ActionsSpot label={action} /> : <span className="text-slate-300">—</span>}
+          {action ? (
+            <PaymentAction label={action} invoiceId={invoice.invoiceId} paymentId={current.paymentId} align="end" />
+          ) : (
+            <span className="text-slate-300">—</span>
+          )}
         </td>
       )}
     </tr>

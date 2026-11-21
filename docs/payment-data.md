@@ -1,6 +1,6 @@
 # Payment data — what the dashboard can use
 
-**Owner:** Katie (payment session, branch `Katie`) · **Last updated:** 2026-11-21, steps 1–8 built
+**Owner:** Katie (payment session, branch `Katie`) · **Last updated:** 2026-11-21, dashboard connected
 **Source of truth:** [`src/contracts/payment.ts`](../src/contracts/payment.ts). Import types from
 `@/contracts/payment`, and never redefine them. If this doc and the file disagree, the file wins; tell the payment session.
 
@@ -15,6 +15,8 @@ Everything is exported from `@/server/features/payments` (server only).
 | The invoice's audit trail | `getPaymentAudit(viewerId, invoiceId)` | `AuditEvent[]`: `{ id, occurredAt, actorId, onBehalfOf, action, entityType, entityId, invoiceId, before, after, reason }`, oldest first |
 | A supplier's bank account versions (last 4 only) | `getSupplierBank(viewerId, vendorId)` | `{ version, status, last4, currency, changedAt, channel, requestedBy, verifiedBy }[]` |
 | Failure reasons | `FAILURE_REASONS` from `@/contracts/payment` | message, next step, retry rule, urgency per code |
+| Who could release the current payment now | `eligibleReleasers(invoiceId)` | `Person[]` (same rules as release) |
+| May this person clear this flag? | `canClearFlag(viewerId, flagId)` | `boolean` (same rule as `clearFlag`) |
 
 **`viewerId` is the signed-in person's user id from the server session**, for example
 `(await getCurrentUser())?.id ?? null`, never a value from the browser. `null` returns nothing.
@@ -32,8 +34,9 @@ Everything is exported from `@/server/features/payments` (server only).
 | `requestBankChange` | `{ vendorId, institution, transit, account }` | AP Clerk, Finance Manager, Controller |
 | `verifyBankChange` / `rejectBankChange` | `{ vendorId }` / `{ vendorId, reason }` | Finance Manager, Controller; never whoever entered it (verify) |
 
-Working buttons for all of these are on the payment session's page **`/payments-console`**
-(`app/payments-console/`), and the dashboard can copy or reuse its server actions in `app/payments-console/actions.ts`.
+**The buttons** are on the dashboard pages and call the server actions in `app/payments/actions.ts`
+(the acting person comes from `getCurrentUser()`). `/payments-console` has only the simulated bank's
+answer and "Reset demo data". The dashboard reads through `app/payments/_lib/data.ts`, which calls `listPayments` / `getPaymentDetail`.
 
 ## Payment statuses and allowed moves
 

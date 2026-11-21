@@ -1,6 +1,6 @@
 # Payments — decisions (Katie)
 
-**Last updated — payment session (branch `Katie`):** 2026-11-21 (steps 1–8 built)
+**Last updated — payment session (branch `Katie`):** 2026-11-21 (dashboard connected to real payments)
 **Last updated — dashboard session (branch `dashboard`):** —
 
 What we decided for payments and the payments dashboard, and **why**, in sentences you can say
@@ -194,6 +194,22 @@ and the code follows.
 - **Wording I wrote:** every refusal message in `rules.ts`, and three "next step" texts (account
   closed, account frozen, fraud hold).
 
+### Dashboard connected to the real payments code (decided 2026-11-21)
+
+- **One place for buttons.** Schedule, Release, Retry, Clear flag, Cancel and the bank change
+  (enter, verify, reject) sit on the dashboard pages. `/payments-console` keeps only the demo
+  controls: "Simulated bank" (the bank's answer for a released payment) and "Reset demo data", linked
+  from the dashboard header. *Why:* one screen per role, and an action taken anywhere shows up everywhere,
+  because every page reads the same payments code.
+- **No copies of rules or data on the dashboard.** The dashboard's copied types, sample data, failure
+  reasons and release rules are deleted. It shows the server's own release check (every reason), the
+  server's list of who can release, and the server's clear-flag rule. *Why:* two copies of a rule drift
+  apart, and a judge will find the one that's wrong.
+- **Defaults while building (Katie to review):** Cancel and the bank change are on the payment's detail
+  page (they need a typed reason or numbers). The Finance Manager still doesn't see a Schedule button,
+  which keeps the dashboard's rule. A cancelled payment shows Retry. The audit trail on the detail page is
+  the real payments audit log. The header's "Sample data" badge became the "Simulated bank (demo)" link.
+
 ## Dashboard decisions
 
 _(filled in by the dashboard session)_
@@ -210,6 +226,8 @@ _(filled in by the dashboard session)_
 
 | Date | Topic | Decision | By |
 |---|---|---|---|
+| 2026-11-21 | Dashboard on real data | Dashboard reads and acts through the payments code; copies deleted; console keeps only the simulated bank + reset | Katie |
+| 2026-11-21 | STATUS Payments owner | "Katie (building), Youssef (listed on main), to confirm" | Katie |
 | 2026-11-21 | Connected to approvals | Who approved and the approved payee/amount now come from Youssef's store; a payments seed loads the dataset history until his flow fills it | Katie |
 | 2026-11-21 | Merged main + dashboard | main's tooling kept, Next on tsconfig.next.json; strict index checks fixed in our files | Katie |
 | 2026-11-21 | Built steps 2–8 (defaults) | See "Decided by default while building": dataset CSVs, EFT only, BC-009 pending blocks release, `closed` bank status, `/payments-console`, shared session cookie | Katie |

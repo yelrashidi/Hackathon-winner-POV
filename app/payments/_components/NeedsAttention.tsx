@@ -2,10 +2,10 @@ import Link from "next/link";
 import type { DirectoryUser } from "@/server/session/users";
 import type { DashboardRole } from "../_lib/access";
 import { canAct } from "../_lib/access";
-import { openFlags, type PaymentRow } from "../_lib/data";
+import { canRetry, openFlags, type PaymentRow } from "../_lib/data";
 import { formatDate, formatMoneyWithCode } from "../_lib/format";
-import type { RetryRule } from "../_lib/types";
-import { actionFor, ActionsSpot } from "./ActionsSpot";
+import type { RetryRule } from "@/contracts/payment";
+import { actionFor, PaymentAction } from "./ActionsSpot";
 import { FlagList } from "./Flags";
 
 const TAGS: Record<RetryRule | "hold", { label: string; className: string }> = {
@@ -58,7 +58,7 @@ export function NeedsAttention({
                 : current.status === "on_hold"
                   ? "on hold"
                   : `${current.status} for ${formatDate(current.scheduledDate)}`;
-            const action = failure && failure.retryRule !== "ESCALATE" ? actionFor(role, current.status) : null;
+            const action = failure && canRetry(row) ? actionFor(role, current.status) : null;
             const flags = openFlags(row);
 
             return (
@@ -92,7 +92,9 @@ export function NeedsAttention({
                   <p className="text-sm font-semibold tabular-nums text-slate-900">
                     {formatMoneyWithCode(current.amountCents, current.currency)}
                   </p>
-                  {showActions && action && <ActionsSpot label={action} />}
+                  {showActions && action && (
+                    <PaymentAction label={action} invoiceId={invoice.invoiceId} paymentId={current.paymentId} align="end" />
+                  )}
                 </div>
               </li>
             );

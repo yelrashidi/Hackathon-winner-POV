@@ -1,4 +1,4 @@
-import type { PaymentStatus } from "../_lib/types";
+import type { PaymentStatus } from "@/contracts/payment";
 
 type BadgeStatus = PaymentStatus | "awaiting";
 

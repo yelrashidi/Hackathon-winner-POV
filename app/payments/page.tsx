@@ -9,7 +9,7 @@ import { SummaryCards } from "./_components/SummaryCards";
 import { canSeePage, dashboardRole } from "./_lib/access";
 import { getPayments } from "./_lib/data";
 import { todayIso } from "./_lib/format";
-import type { PaymentStatus } from "./_lib/types";
+import type { PaymentStatus } from "@/contracts/payment";
 
 export const metadata: Metadata = { title: "Overview" };
 

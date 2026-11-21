@@ -4,7 +4,7 @@ import "server-only";
 // Each record carries the invoice in the shape of Andrew's ValidationInput
 // (src/contracts/validation.ts on his branch), so validation can read it directly later.
 
-import type { Person } from "./types";
+import type { Person } from "@/contracts/payment";
 
 export type UploadedInvoiceInput = {
   invoiceId: string;

@@ -1,30 +1,46 @@
-// TEMP: placeholder where the payment session's Schedule / Release / Retry button goes after we
-// merge Katie. Those buttons carry the real rules; the dashboard never builds its own.
+// The real Schedule / Release / Retry buttons. Which one a row shows is UX (actionFor); whether it
+// is allowed is decided on the server by the payments rules when the button is pressed.
 
+import type { PaymentStatus } from "@/contracts/payment";
 import type { DashboardRole } from "../_lib/access";
-import type { PaymentStatus } from "../_lib/types";
+import { releaseAction, scheduleAction } from "../actions";
+import { ActionForm } from "./ActionForm";
 
-export function ActionsSpot({ label }: { label: string }) {
-  return (
-    <span
-      title="The payment session's button goes here after merging"
-      className="inline-flex items-center rounded-md border border-dashed border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-400"
-    >
-      {label}
-    </span>
-  );
+export type ActionLabel = "Schedule" | "Release" | "Retry";
+
+export function PaymentAction({
+  label,
+  invoiceId,
+  paymentId,
+  align = "start",
+}: {
+  label: ActionLabel;
+  invoiceId: string;
+  paymentId?: string;
+  align?: "start" | "end";
+}) {
+  if (label === "Release" && paymentId) {
+    return <ActionForm action={releaseAction} label="Release" hidden={{ paymentId }} align={align} />;
+  }
+  if (label === "Retry") {
+    return <ActionForm action={scheduleAction} label="Retry" hidden={{ invoiceId, retry: "1" }} align={align} />;
+  }
+  return <ActionForm action={scheduleAction} label="Schedule" hidden={{ invoiceId }} align={align} />;
 }
 
 /** Which button belongs in a row for this role, or null for none. */
-export function actionFor(role: DashboardRole, status: PaymentStatus | "awaiting"): string | null {
+export function actionFor(role: DashboardRole, status: PaymentStatus | "awaiting"): ActionLabel | null {
   const releaser = role === "finance_manager" || role === "controller";
+  const finance = role === "clerk" || releaser;
   switch (status) {
     case "awaiting":
+      // The Finance Manager doesn't schedule: whoever schedules can't release, and they release.
       return role === "clerk" || role === "controller" ? "Schedule" : null;
     case "scheduled":
       return releaser ? "Release" : null;
     case "failed":
-      return role === "clerk" || releaser ? "Retry" : null;
+    case "cancelled":
+      return finance ? "Retry" : null;
     default:
       return null;
   }

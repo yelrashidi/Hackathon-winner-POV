@@ -13,7 +13,7 @@ the top block is updated by whoever finishes a shared piece.
 | Arpan | _features to fill_ | |
 | Youssef | 6 Approvals, 7 Payments | |
 | Andrew | 4 Validation | |
-| Katie | 7 Payments (Youssef also listed: confirming), payments dashboard | |
+| Katie | 7 Payments: Katie (building), Youssef (listed on main), to confirm; payments dashboard | |
 | shared | foundation (`core/`) | schema merges: _name_ |
 
 ## Now (shared, in order)
@@ -62,7 +62,7 @@ Not started.
 **Next:** approvals API route + approver queue screen once the foundation lands; then 7 Payments.
 **Waiting on:** foundation (schema — `approval_plans` proposal in `6-approvals.md`, `fire`, `authorize`, session); validation (`PO_OVER_BALANCE`, `SPLIT_INVOICE_SUSPECTED.combinedCadCents`); vendors (`conflicts`). Contract change in `src/contracts/` — see [`6-approvals-edge-cases.md`](architecture/6-approvals-edge-cases.md) §13.
 
-### 7 Payments — Katie (Youssef is also listed above: ownership being confirmed)
+### 7 Payments — Katie (building), Youssef (listed on main), to confirm
 **Works (in memory, on the dataset):** schedule / release / cancel / retry, release rules (P09–P11, scheduler and requester
 can't release, active staff, verified bank, pending bank change, payee and amount = approved, FX re-check, blocking flags),
 simulated EFT with settle or 9 failure reasons, urgency flags (critical / high / low) with clearing rules, bank change +
