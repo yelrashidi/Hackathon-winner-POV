@@ -1,0 +1,59 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/greatlakescarrie-inv-025.pdf",
+  "emailId": "EM-025",
+  "input": {
+    "invoiceId": "IN-greatlakescarrie-inv-025",
+    "documentType": "credit_note",
+    "vendor": {
+      "nameRaw": "Great Lakes Carriers Inc.",
+      "gstHstNumber": "367912731RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@greatlakes.example",
+    "invoiceNumber": "CN-GR26-2274",
+    "invoiceDate": "2026-10-27",
+    "dueDate": "2026-11-26",
+    "receivedDate": "2026-10-28",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": "GR26-2262",
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1055 W Hastings St, Suite 900, Vancouver BC V6E 2E9",
+      "province": "BC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Credit - damaged shipment claim",
+        "quantity": 1,
+        "unitPriceCents": -64000,
+        "amountCents": -64000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": -3200
+      }
+    ],
+    "subtotalCents": -64000,
+    "totalCents": -67200,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "010",
+      "transit": "66160",
+      "account": "234408577"
+    }
+  },
+  "expectedCodes": [],
+  "why": "Clean credit note: references GR26-2262, which we hold."
+}

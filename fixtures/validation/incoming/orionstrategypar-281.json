@@ -1,0 +1,61 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/orionstrategypar_281.pdf",
+  "emailId": "EM-029",
+  "input": {
+    "invoiceId": "IN-orionstrategypar-281",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Orion Strategy Partners",
+      "gstHstNumber": "483236076RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@orionstrategy.example",
+    "invoiceNumber": "281",
+    "invoiceDate": "2026-10-28",
+    "dueDate": "2026-11-27",
+    "receivedDate": "2026-10-29",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Consulting hours - Network audit phase 2",
+        "quantity": 18,
+        "unitPriceCents": 24000,
+        "amountCents": 432000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": 56160
+      }
+    ],
+    "subtotalCents": 432000,
+    "totalCents": 488160,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "001",
+      "transit": "51498",
+      "account": "740226188"
+    }
+  },
+  "expectedCodes": [
+    "SPLIT_INVOICE_SUSPECTED"
+  ],
+  "why": "Part of the 3-invoice Orion split."
+}

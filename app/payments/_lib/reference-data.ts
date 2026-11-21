@@ -10,16 +10,16 @@ import { parseCsv } from "@/server/session/users";
 const DATA_DIR = path.join(process.cwd(), "brim_ap_dataset/brim_ap_dataset/data");
 
 function readCsv(file: string): Record<string, string>[] {
-  const [header, ...rows] = parseCsv(readFileSync(path.join(DATA_DIR, file), "utf8"));
+  const [header = [], ...rows] = parseCsv(readFileSync(path.join(DATA_DIR, file), "utf8"));
   return rows.map((r) => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ""])));
 }
 
 export type Option = { value: string; label: string };
 
 export function listDepartments(): Option[] {
-  return readCsv("departments.csv").map((d) => ({ value: d.department_id, label: d.name }));
+  return readCsv("departments.csv").map((d) => ({ value: d.department_id ?? "", label: d.name ?? "" }));
 }
 
 export function listTaxCodes(): Option[] {
-  return readCsv("tax_codes.csv").map((t) => ({ value: t.code, label: t.description }));
+  return readCsv("tax_codes.csv").map((t) => ({ value: t.code ?? "", label: t.description ?? "" }));
 }

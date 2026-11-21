@@ -1,0 +1,212 @@
+{
+  "description": "Facilities rent $18,758: the manager is on leave, so his delegate signs on his behalf; the delegate is also the finance manager, so the finance step escalates to the Controller.",
+  "asOf": "2026-11-02T00:00:00.000Z",
+  "decidedAt": "2026-11-03T15:00:00.000Z",
+  "input": {
+    "invoiceVersion": 1,
+    "submittedBy": "U004",
+    "poId": null,
+    "poRequesterId": null,
+    "conflicts": [],
+    "lineDepartmentIds": [
+      "D07"
+    ],
+    "departmentSpendYtdCadCents": null,
+    "flags": [],
+    "invoiceId": "FX-APPR-001",
+    "vendorId": "V036",
+    "vendorNameRaw": "Queen Street Properties Inc.",
+    "departmentId": "D07",
+    "requesterId": "U037",
+    "currency": "CAD",
+    "totalCents": 1875800,
+    "fxRateToCad": 1,
+    "totalCadCents": 1875800
+  },
+  "plan": {
+    "invoiceId": "FX-APPR-001",
+    "invoiceVersion": 1,
+    "departmentId": "D07",
+    "routedAt": "2026-11-02T00:00:00.000Z",
+    "outcome": "route",
+    "routingCadCents": 1875800,
+    "basis": {
+      "vendorId": "V036",
+      "currency": "CAD",
+      "totalCents": 1875800,
+      "totalCadCents": 1875800,
+      "requesterId": "U037",
+      "poId": null
+    },
+    "steps": [
+      {
+        "seq": 1,
+        "role": "dept_manager",
+        "alsoCovers": [],
+        "policyId": "P02",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P02",
+            "message": "$18,758.00 CAD: Invoice total over $10,000 CAD — Adds the finance manager"
+          }
+        ],
+        "routedTo": "U012",
+        "assignedTo": "U003",
+        "onBehalfOf": "U012",
+        "resolution": [
+          {
+            "policyId": "P08",
+            "message": "Liam O'Connor (U012) is on leave since 2026-10-20; routed to their delegate Elise Tremblay (U003)."
+          }
+        ],
+        "decision": "pending",
+        "actedBy": null,
+        "actedAs": null,
+        "acknowledgedFlags": [],
+        "comment": null,
+        "decidedAt": null
+      },
+      {
+        "seq": 2,
+        "role": "finance_manager",
+        "alsoCovers": [],
+        "policyId": "P02",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P02",
+            "message": "$18,758.00 CAD: Invoice total over $10,000 CAD — Adds the finance manager"
+          }
+        ],
+        "routedTo": "U003",
+        "assignedTo": "U002",
+        "onBehalfOf": null,
+        "resolution": [
+          {
+            "policyId": null,
+            "message": "Elise Tremblay (U003) already signs another step on this invoice; escalated to their manager Marcus Webb (U002)."
+          }
+        ],
+        "decision": "pending",
+        "actedBy": null,
+        "actedAs": null,
+        "acknowledgedFlags": [],
+        "comment": null,
+        "decidedAt": null
+      }
+    ],
+    "excludedApprovers": [
+      {
+        "userId": "U037",
+        "reason": "requested this invoice",
+        "kind": "self"
+      },
+      {
+        "userId": "U004",
+        "reason": "submitted this invoice",
+        "kind": "self"
+      }
+    ],
+    "attention": [],
+    "holdReasons": [],
+    "notes": []
+  },
+  "approved": {
+    "invoiceId": "FX-APPR-001",
+    "invoiceVersion": 1,
+    "departmentId": "D07",
+    "routedAt": "2026-11-02T00:00:00.000Z",
+    "outcome": "route",
+    "routingCadCents": 1875800,
+    "basis": {
+      "vendorId": "V036",
+      "currency": "CAD",
+      "totalCents": 1875800,
+      "totalCadCents": 1875800,
+      "requesterId": "U037",
+      "poId": null
+    },
+    "steps": [
+      {
+        "seq": 1,
+        "role": "dept_manager",
+        "alsoCovers": [],
+        "policyId": "P02",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P02",
+            "message": "$18,758.00 CAD: Invoice total over $10,000 CAD — Adds the finance manager"
+          }
+        ],
+        "routedTo": "U012",
+        "assignedTo": "U003",
+        "onBehalfOf": "U012",
+        "resolution": [
+          {
+            "policyId": "P08",
+            "message": "Liam O'Connor (U012) is on leave since 2026-10-20; routed to their delegate Elise Tremblay (U003)."
+          }
+        ],
+        "decision": "approved",
+        "actedBy": "U003",
+        "actedAs": {
+          "fullName": "Elise Tremblay",
+          "role": "finance_manager",
+          "approvalLimitCents": 5000000
+        },
+        "acknowledgedFlags": [],
+        "comment": null,
+        "decidedAt": "2026-11-03T15:00:00.000Z"
+      },
+      {
+        "seq": 2,
+        "role": "finance_manager",
+        "alsoCovers": [],
+        "policyId": "P02",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P02",
+            "message": "$18,758.00 CAD: Invoice total over $10,000 CAD — Adds the finance manager"
+          }
+        ],
+        "routedTo": "U003",
+        "assignedTo": "U002",
+        "onBehalfOf": null,
+        "resolution": [
+          {
+            "policyId": null,
+            "message": "Elise Tremblay (U003) already signs another step on this invoice; escalated to their manager Marcus Webb (U002)."
+          }
+        ],
+        "decision": "approved",
+        "actedBy": "U002",
+        "actedAs": {
+          "fullName": "Marcus Webb",
+          "role": "controller_admin",
+          "approvalLimitCents": 25000000
+        },
+        "acknowledgedFlags": [],
+        "comment": null,
+        "decidedAt": "2026-11-03T15:00:00.000Z"
+      }
+    ],
+    "excludedApprovers": [
+      {
+        "userId": "U037",
+        "reason": "requested this invoice",
+        "kind": "self"
+      },
+      {
+        "userId": "U004",
+        "reason": "submitted this invoice",
+        "kind": "self"
+      }
+    ],
+    "attention": [],
+    "holdReasons": [],
+    "notes": []
+  }
+}

@@ -34,3 +34,15 @@ Then open http://localhost:3000.
 ## Status
 
 Early setup: the Next.js app is scaffolded (default starter page). See `docs/STATUS.md` for current progress.
+
+## Checks
+
+Use Node.js 22 or 24. Run `npm ci`, then `npm run check` to check TypeScript,
+load every production TypeScript module, run unit and contract tests, and replay
+the incoming batch and historical invoices. `npm run test:contracts` runs just the
+shared schema checks. Batch expectation mismatches exit with a failure status;
+the history CLI prints diagnostics, while the history tests enforce expectations.
+
+The `CI` workflow runs these checks on every pull request and push to `main`, on
+Linux with both Node versions. Configure `Node 22 checks` and `Node 24 checks` as
+required checks in GitHub branch protection to prevent merging a failing PR.

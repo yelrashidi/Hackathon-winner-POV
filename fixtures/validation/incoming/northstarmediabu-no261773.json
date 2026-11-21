@@ -1,0 +1,61 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/northstarmediabu_NO261773.pdf",
+  "emailId": "EM-034",
+  "input": {
+    "invoiceId": "IN-northstarmediabu-no261773",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Northstar Media Buying",
+      "gstHstNumber": "757486412RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@northstarmedia.example",
+    "invoiceNumber": "NO26-1773",
+    "invoiceDate": "2026-10-27",
+    "dueDate": "2026-11-26",
+    "receivedDate": "2026-10-29",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "88 Queens Quay W, Suite 1400, Toronto ON M5J 0B8",
+      "province": "ON"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Creative design services",
+        "quantity": 24,
+        "unitPriceCents": 15000,
+        "amountCents": 380000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "HST13",
+        "label": "HST (13%)",
+        "ratePct": 13.0,
+        "amountCents": 49400
+      }
+    ],
+    "subtotalCents": 380000,
+    "totalCents": 429400,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "004",
+      "transit": "16163",
+      "account": "765318587"
+    }
+  },
+  "expectedCodes": [
+    "ARITH_LINE_MISMATCH"
+  ],
+  "why": "24 × $150.00 = $3,600.00, line shows $3,800.00."
+}

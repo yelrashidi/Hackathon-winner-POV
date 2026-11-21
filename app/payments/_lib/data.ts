@@ -67,12 +67,13 @@ function buildView(invoices: InvoiceRecord[], payments: PaymentRecord[], flags: 
     const attempts = (attemptsByInvoice.get(invoice.invoiceId) ?? [])
       .sort((a, b) => a.attemptNo - b.attemptNo)
       .map((a) => ({ ...a, flags: flagsFor(a, invoice.vendorId).sort(newestFirst) }));
-    if (attempts.length === 0) {
+    const current = attempts.at(-1);
+    if (!current) {
       if (invoice.status === "Approved") awaitingPayment.push(invoice);
       continue;
     }
     const rowFlags = [...new Map(attempts.flatMap((a) => a.flags).map((f) => [f.flagId, f])).values()].sort(newestFirst);
-    rows.push({ invoice, current: attempts[attempts.length - 1], attempts, flags: rowFlags });
+    rows.push({ invoice, current, attempts, flags: rowFlags });
   }
 
   // Newest scheduled date first.

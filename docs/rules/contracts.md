@@ -20,3 +20,4 @@ paths:
   Validation and duplicates both emit it; the UI renders it without knowing which feature raised it.
 - **The golden set** (`fixtures/golden/`) is real incoming invoices with the flags and route we
   expect. `npm run eval` runs the pipeline over it and diffs. Add a case for every mess pattern you handle.
+- **Blank means missing, and a date must be a real day.** Producers emit `""` for unreadable fields: contracts turn it into `null`, never reject it (BUG-Andrew-01). `Date.UTC` silently rolls `2026-02-30` to March 2 — check the calendar day, then flag it, don't compute with it (BUG-Andrew-02).

@@ -21,8 +21,9 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 /** "2026-11-24" → "Nov 24". Parsed by hand so the time zone can't shift the day. */
 export function formatDate(isoDate: string | null): string {
   if (!isoDate) return "—";
-  const [, month, day] = isoDate.slice(0, 10).split("-").map(Number);
-  return `${MONTHS[month - 1]} ${day}`;
+  const [, month = 0, day = 0] = isoDate.slice(0, 10).split("-").map(Number);
+  const name = MONTHS[month - 1];
+  return name ? `${name} ${day}` : isoDate;
 }
 
 /** Today as YYYY-MM-DD in Toronto time (Harborline's head office). */

@@ -1,0 +1,59 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/scan_8749.png",
+  "emailId": "EM-011",
+  "input": {
+    "invoiceId": "IN-scan-8749",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Prairie Natural Gas Utility",
+      "gstHstNumber": "862863208RT0001",
+      "qstNumber": null,
+      "province": "AB",
+      "country": "CA"
+    },
+    "senderEmail": "ar@prairienatural.example",
+    "invoiceNumber": "PR26-1012",
+    "invoiceDate": "2026-10-22",
+    "dueDate": "2026-11-12",
+    "receivedDate": "2026-10-23",
+    "currency": "CAD",
+    "paymentTermsDays": 21,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "250 6 Ave SW, Suite 700, Calgary AB T2P 3H7",
+      "province": "AB"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Energy - October",
+        "quantity": 1,
+        "unitPriceCents": 449455,
+        "amountCents": 449455,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 22473
+      }
+    ],
+    "subtotalCents": 449455,
+    "totalCents": 471928,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "006",
+      "transit": "55541",
+      "account": "704593075"
+    }
+  },
+  "expectedCodes": [],
+  "why": "Clean scanned utility invoice."
+}

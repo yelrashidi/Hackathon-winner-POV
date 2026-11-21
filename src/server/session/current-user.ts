@@ -1,5 +1,3 @@
-import "server-only";
-
 // TEMP: demo sign-in. The "Viewing as" switcher stores only a user id in a cookie; the role is
 // always looked up here, on the server, from the employee record. No password, because this is a
 // demo — replace with real auth when the team builds it. The payment session reads the signed-in
