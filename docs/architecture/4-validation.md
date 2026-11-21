@@ -1,6 +1,6 @@
 # 4 — Validation and matching
 
-**Owner:** Andrew · **Code as of:** `bb44a67` + uncommitted work on `andrew` (2026-11-21)
+**Owner:** Andrew · **Code as of:** `96bffe4` + uncommitted work on `andrew-audit-db` (2026-11-21)
 Design history, every decision and the Q&A prep: [`4-validation-plan.md`](4-validation-plan.md).
 
 ## What it does
@@ -13,7 +13,8 @@ add steps or hold. Deterministic code only — no LLM.
 ## Contract
 - Input: `src/contracts/validation.ts` → `ValidationInput` (our assumed extraction output; a mapper replaces it when extraction's contract lands)
 - Output: `ValidationResult` = `flags` in the shared `src/contracts/flag.ts` shape + `vendorId`, `totalCadCents`, `deliveryProvince`, `contractId`, `blocking`
-- Reference data: `ValidationContext` (`context.ts`), built today from the CSVs (`dataset/load-context.ts`)
+- Reference data: `ValidationContext` (`context.ts`), built from Postgres by `db/load-context.ts` (`loadDbContext`). The CSV loader `dataset/load-context.ts` stays for the batch and history scripts and the tests. Both give the same flags on all 56 incoming invoices.
+- Persisted to `invoice_flags` (`source = 'validation'`) by `db/persist.ts`. Run inside a transaction with `validateWithin`, or as `system` with `validateAndPersist`. The pipeline (`src/server/pipeline/ingest.ts`) calls it on every new or edited invoice, before coding (coding takes validation's vendor).
 - Fixtures: `fixtures/validation/incoming/*.json` — the 56 incoming invoices with hand-written `expectedCodes`
 
 ## How it decides
@@ -60,7 +61,16 @@ POs and contracts (indexes on `invoices (vendor_id, invoice_date)`, `invoices (p
 and monthly contract spend become per-invoice aggregates — keep a running total if they get slow.
 Lookalike scans all vendors (O(vendors)); at 5,000 vendors use a `pg_trgm` index on `legal_name`.
 
+## On the database
+- **Flags survive re-runs.** `syncFlags` matches a flag across runs by `flagKey()` (code|field|line):
+  - a new key is inserted, audited as `flag.raised`
+  - a resolved flag raised again is reopened (`flag.reopened`)
+  - an overridden flag stays overridden
+  - an open flag no longer raised is resolved by `system` (`flag.auto_resolved`)
+- **What each verdict was based on is kept.** Each run writes `invoice.validated`, a snapshot of the vendor match, contract, FX rate and CAD total the verdict used, so it can still be explained after the reference data changes. For new invoices the run also fills in `vendor_id`, `total_cad_cents`, `fx_rate` and `contract_id`, audited as `invoice.edited`.
+- **People close flags with a note.** `overrideFlag` / `resolveFlag` (`db/override.ts`) authorize, require a note (also a DB CHECK), are audited, and log a refusal as `authz.denied`.
+
 ## Known gaps
-- Not wired to the DB yet: context from CSVs, flags not persisted, no override endpoint.
+- No HTTP route yet over `overrideFlag` / `resolveFlag` (the services are done).
 - No quantity matching against PO lines (the dataset has no PO lines).
 - Hourly/fuel lines are recognised by generic wording (hours, consulting, fuel surcharge); an unusual label is not capped.

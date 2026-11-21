@@ -13,6 +13,8 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Andrew-01 | High | Andrew | 2026-11-21 | Empty string in an extracted field crashed validation |
 | BUG-Andrew-02 | High | Andrew | 2026-11-21 | Impossible dates (2026-02-30) rolled over and raised false date flags |
 | BUG-Andrew-03 | High | Andrew | 2026-11-21 | Unmapped tax line produced a false blocking TAX_MISSING |
+| BUG-Andrew-04 | Medium | Andrew | 2026-11-21 | A refused coding attempt hung the request instead of returning 403 |
+| BUG-Andrew-05 | Low | Andrew | 2026-11-21 | Seeded history showed a payment "scheduled" after it was released |
 | BUG-Katie-01 | High | Katie | 2026-11-21 | Release said "No approval record was found" in the app while tests passed |
 | BUG-Katie-02 | Medium | Katie | 2026-11-21 | `import "server-only"` made `npm run check` fail |
 
@@ -110,3 +112,19 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 **Fix.** Removed the import from `src/server/session/` (`d87deef`). The browser still never reaches it: only server components and server actions import it.
 **Why it happened.** `server-only` is a Next-only guard; our checks run outside Next.
 **Rule added.** docs/rules/backend.md.
+
+---
+
+### BUG-Andrew-04
+**A refused coding attempt hung the request instead of returning 403** · Medium · FIXED · found 2026-11-21 by Andrew (pipeline test)
+
+**Symptom.** The auditor calling `codeInvoiceLine` never returned. Every later test on that database timed out.
+**Cause.** `authorize()` ran *inside* `withAction`, and on refusal `recordDenied()` opened a second transaction while the first still held the connection. On PGlite (one connection) it waits forever; on Postgres it uses up a second pooled connection per refusal.
+**Fix.** Authorize, and log refusals, **before** the transaction opens, as every other service does (`src/server/pipeline/coding.ts`, `authorizeCoding`).
+
+### BUG-Andrew-05
+**Seeded history showed a payment "scheduled" after it was released** · Low · FIXED · found 2026-11-21 by Andrew (audit fixture review)
+
+**Symptom.** In AP-00098's timeline, "released" (03-28) came before "scheduled" (03-29).
+**Cause.** `payments.csv` `scheduled_date` is the *planned* pay date and can fall after the actual `paid_date`. The CSV doesn't record when the payment was scheduled.
+**Fix.** The seed places `payment.scheduled` at the earlier of the two dates, keeps `plannedDate` in `after`, and marks `metadata.timeApproximate` (`src/server/db/seed/seed.ts`).
