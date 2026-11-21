@@ -1,0 +1,105 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/laurentianlogist_FA002399.pdf",
+  "emailId": "EM-022",
+  "input": {
+    "invoiceId": "IN-laurentianlogist-fa002399",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Laurentian Logistics Inc.",
+      "gstHstNumber": "790628686RT0001",
+      "qstNumber": "1745206219TQ0001",
+      "province": "QC",
+      "country": "CA"
+    },
+    "senderEmail": "ar@laurentianlogistics.example",
+    "invoiceNumber": "FA-002399",
+    "invoiceDate": "2026-10-25",
+    "dueDate": "2026-11-24",
+    "receivedDate": "2026-10-27",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+      "province": "QC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "LTL shipment Ottawa-Regina",
+        "quantity": 1,
+        "unitPriceCents": 101418,
+        "amountCents": 101418,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "LTL shipment Ottawa-Toronto",
+        "quantity": 1,
+        "unitPriceCents": 54417,
+        "amountCents": 54417,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 3,
+        "description": "LTL shipment Regina-Montreal",
+        "quantity": 1,
+        "unitPriceCents": 49543,
+        "amountCents": 49543,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 4,
+        "description": "LTL shipment Calgary-Edmonton",
+        "quantity": 1,
+        "unitPriceCents": 131406,
+        "amountCents": 131406,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 5,
+        "description": "LTL shipment Montreal-Hamilton",
+        "quantity": 1,
+        "unitPriceCents": 54066,
+        "amountCents": 54066,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 6,
+        "description": "Fuel surcharge (11.62%)",
+        "quantity": 1,
+        "unitPriceCents": 45417,
+        "amountCents": 45417,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "TPS (5 %)",
+        "ratePct": 5.0,
+        "amountCents": 21813
+      },
+      {
+        "code": "QST9975",
+        "label": "TVQ (9,975 %)",
+        "ratePct": 9.975,
+        "amountCents": 43518
+      }
+    ],
+    "subtotalCents": 436267,
+    "totalCents": 501598,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "001",
+      "transit": "85308",
+      "account": "177982930"
+    }
+  },
+  "expectedCodes": [],
+  "why": "Clean French invoice: TPS/TVQ correct, fuel 11.62% under 12%."
+}

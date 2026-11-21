@@ -1,0 +1,75 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/signalsparrowcre_000970.pdf",
+  "emailId": "EM-035",
+  "input": {
+    "invoiceId": "IN-signalsparrowcre-000970",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Signal & Sparrow Creative",
+      "gstHstNumber": "559384775RT0001",
+      "qstNumber": null,
+      "province": "BC",
+      "country": "CA"
+    },
+    "senderEmail": "ar@signal.example",
+    "invoiceNumber": "000970",
+    "invoiceDate": "2026-10-28",
+    "dueDate": "2026-11-27",
+    "receivedDate": "2026-10-30",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1055 W Hastings St, Suite 900, Vancouver BC V6E 2E9",
+      "province": "BC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Creative design services",
+        "quantity": 30,
+        "unitPriceCents": 14000,
+        "amountCents": 420000,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "Digital ad campaign - Winter promo",
+        "quantity": 1,
+        "unitPriceCents": 420000,
+        "amountCents": 420000,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 42000
+      },
+      {
+        "code": "PST7_BC",
+        "label": "PST (7%)",
+        "ratePct": 7.0,
+        "amountCents": 58800
+      }
+    ],
+    "subtotalCents": 840000,
+    "totalCents": 940800,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "006",
+      "transit": "69425",
+      "account": "886069428"
+    }
+  },
+  "expectedCodes": [
+    "TAX_PST_ON_SERVICES"
+  ],
+  "why": "BC PST $588 charged on services only."
+}
