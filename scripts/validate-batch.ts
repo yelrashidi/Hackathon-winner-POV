@@ -26,3 +26,5 @@ all.forEach(({ file, fixture }, i) => {
 });
 console.log(`\n${all.length} invoices · ${all.length - mismatches} match expectations · ${mismatches} differ`);
 console.log([...counts.entries()].sort((a, b) => b[1] - a[1]).map(([c, n]) => `${c}=${n}`).join("  "));
+// A mismatch must fail CI as well as appear in the diagnostic output.
+if (mismatches > 0) process.exitCode = 1;
