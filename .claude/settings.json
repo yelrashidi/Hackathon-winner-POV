@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && cat docs/STATUS.md && echo && echo '--- last commits ---' && git --no-pager log --oneline -8 && echo '--- working tree ---' && git status --short"
+          }
+        ]
+      }
+    ]
+  }
+}
