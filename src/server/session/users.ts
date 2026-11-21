@@ -58,7 +58,7 @@ export function findUser(id: string): DirectoryUser | null {
 }
 
 /** Minimal CSV parser: commas, quoted fields with "" escapes, CRLF or LF line endings. */
-function parseCsv(text: string): string[][] {
+export function parseCsv(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";

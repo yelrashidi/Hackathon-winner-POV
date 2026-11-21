@@ -28,6 +28,8 @@ Payment statuses (data model): `scheduled`, `released`, `settled`, `failed`, `ca
 ## After the checkpoint
 
 - [x] H1. Brim-inspired theme: blue frame, turquoise accent, display font; colours in `app/payments/brim-theme.css`. (45 min)
+- [x] H2. Urgency flags (critical/high/low): badges, open-flag counts, Needs attention sorted most urgent first, flags card on details, Clear flag spot for allowed people. TEMP types and sample data now match `docs/payment-data.md`. (45 min)
+- [x] H3. Upload screen `/payments/upload` (AP Clerk + Controller): drop zone, one-by-one reading, original beside the form, Confirm → In review (TEMP memory store). Extraction stays behind `extraction-adapter.ts`, which answers "unavailable" until extraction exists, so every file is manual entry. (2 h)
 - [ ] H. UI polish — UI is 20% of the score: spacing, hierarchy, empty states, narrow screens. (~2 h)
 - [ ] I. Connect, as soon as `docs/payment-data.md` is ready (interrupts polish): `git merge Katie`, switch `getPayments()` to the real format, swap the TEMP release rules for the payment session's, put its Schedule/Release/Retry buttons in the Actions spots. (45 min)
 - [ ] J. Run the demo flow (release → fail → fix bank → retry → settled) on the merged app; fix what breaks. (30 min)
@@ -53,7 +55,12 @@ That file isn't on this branch yet. When Katie says Katie has it, `git merge Kat
 - New: the sidebar shows only the current role's pages; "Other employee" is read-only with no actions. *Why:* each role sees only what it can act on; pages also check on the server, since hiding a link isn't security.
 - Unchanged: action buttons come from the payment session; the dashboard keeps TEMP "Actions" spots.
 - Login and roles section → replace "Sign in as… page" with the switcher above.
+- Flags display → where: tables (top open flag), Needs attention (sorted critical first), details (all flags, cleared ones greyed with who/when/note). Counts "1 critical · 3 high · 0 low" of open flags on Needs attention and the Overview card. Colours per payment-data.md: critical red, high amber, low grey. "Clear flag" spot only for people the clear rule allows (TEMP copy of the payment session's rule). Labels "Critical / High / Low", "Clear flag". *Why:* Katie's spec in payment-data.md plus the recommended defaults.
+- Upload screen → built by the dashboard session on `dashboard`; page "Upload invoices" at `/payments/upload` for AP Clerk and Controller only; PDF/PNG/JPG up to 4 MB, several at once, read one at a time; original beside the form; fields: vendor, invoice number, invoice and due date, currency, PO number, ship-to province, line items, taxes, subtotal, total; unsure fields (confidence < 0.8) marked "Check this"; every field editable; vendor, invoice number, invoice date, currency, total, requester and department required; uploader picks requester and department; Confirm saves as In review (TEMP memory store, IDs UP-0001…) in Andrew's ValidationInput shape; then "Saved. {Vendor} invoice {number} is now in review." and the next file opens; until extraction exists every file is manual entry. *Why:* the recommended defaults Katie approved with "go".
+- Open: how judges hand over the hidden invoices (ask the organizers).
 - Dashboard log lines (newest first):
+  - `Nov 21 | Upload screen | Drop zone + check-and-confirm page for Clerk/Controller; manual entry until extraction exists; saves In review | Katie`
+  - `Nov 21 | Flags display | Critical/High/Low badges, open counts, most urgent first, Clear flag per payment rule | Katie`
   - `Nov 21 | Colour details | Keep eyeballed blue/turquoise; deeper turquoise for links and focus rings on white; tokens stay in the dashboard's theme file | Katie`
   - `Nov 21 | UI style | Brim-inspired blue/turquoise theme, one tokens file; status colours unchanged | Katie`
   - `Nov 21 | Switcher details | Grouped by type, pick a person; nobody = view only; Auditor sees all read-only; details URL = invoice ID | Katie`

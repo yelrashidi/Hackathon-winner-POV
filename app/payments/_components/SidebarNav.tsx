@@ -9,6 +9,7 @@ export type NavItem = { key: PageKey; href: string; label: string; count?: numbe
 const ICONS: Record<PageKey, string> = {
   // Simple 20×20 outline paths.
   overview: "M3 10.5 10 4l7 6.5M5 9v7h4v-4h2v4h4V9",
+  upload: "M10 13V3m0 0L6 7m4-4 4 4M4 13v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2",
   "to-schedule": "M6 3v2m8-2v2M4 7h12M5 5h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm3 6h4m-2-2v4",
   "to-release": "M3 10h11m-4-4 4 4-4 4M17 4v12",
   "needs-attention": "M10 7v4m0 3h.01M8.6 3.8 2.9 14a1.6 1.6 0 0 0 1.4 2.4h11.4a1.6 1.6 0 0 0 1.4-2.4L11.4 3.8a1.6 1.6 0 0 0-2.8 0Z",

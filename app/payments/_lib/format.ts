@@ -36,3 +36,31 @@ export function addDays(isoDate: string, days: number): string {
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
+
+/**
+ * Typed amount → integer cents, or null if it isn't a valid amount. Accepts "2,457.19",
+ * "2457.19", "$2,457.19" and the French "2 457,19 $". Never goes through a float.
+ */
+export function parseMoneyToCents(input: string): number | null {
+  let s = input.replace(/[\s $]|CAD|USD/gi, "");
+  if (!s) return null;
+  const negative = /^[-−]/.test(s);
+  s = s.replace(/^[-−]/, "");
+  const lastComma = s.lastIndexOf(",");
+  const lastDot = s.lastIndexOf(".");
+  let decimalSep = "";
+  if (lastComma > -1 && lastDot > -1) decimalSep = lastComma > lastDot ? "," : ".";
+  else if (lastComma > -1 && /,\d{1,2}$/.test(s)) decimalSep = ",";
+  else if (lastDot > -1 && /\.\d{1,2}$/.test(s)) decimalSep = ".";
+  let whole = s;
+  let fraction = "";
+  if (decimalSep) {
+    const i = s.lastIndexOf(decimalSep);
+    whole = s.slice(0, i);
+    fraction = s.slice(i + 1);
+  }
+  whole = whole.replace(/[.,]/g, "");
+  if (!/^\d*$/.test(whole) || !/^\d{0,2}$/.test(fraction) || (whole === "" && fraction === "")) return null;
+  const cents = Number(whole || "0") * 100 + Number(fraction.padEnd(2, "0"));
+  return negative ? -cents : cents;
+}

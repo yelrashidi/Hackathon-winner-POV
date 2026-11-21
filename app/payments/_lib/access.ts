@@ -36,7 +36,7 @@ export function canAct(role: DashboardRole): boolean {
   return role === "clerk" || role === "finance_manager" || role === "controller";
 }
 
-export type PageKey = "overview" | "to-schedule" | "to-release" | "needs-attention";
+export type PageKey = "overview" | "upload" | "to-schedule" | "to-release" | "needs-attention";
 
 export type PaymentsPage = {
   key: PageKey;
@@ -54,6 +54,13 @@ export const PAGES: PaymentsPage[] = [
     label: "Overview",
     roles: ["clerk", "finance_manager", "controller", "auditor", "viewer"],
     forWhom: "everyone",
+  },
+  {
+    key: "upload",
+    href: "/payments/upload",
+    label: "Upload invoices",
+    roles: ["clerk", "controller"],
+    forWhom: "AP Clerks and Controllers",
   },
   {
     key: "to-schedule",
