@@ -67,7 +67,6 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P2 Optional LLM fallback for lines with no evidence, once the provider is decided; output must pass the expense-account check. [Youssef]
 
 ## 4 Validation — owner: Andrew
-- [ ] P1 Mapper from extraction's contract → `ValidationInput` once it exists (needs `lineType` goods/services per line). `src/contracts/extraction.ts` is on Arpan's unmerged branch. [Andrew]
 - [ ] P1 HTTP route handlers / server actions over `overrideFlag` / `resolveFlag` (services done; map `FlagActionError.status` / `Forbidden` to the response). [Andrew]
 - [ ] P2 `validateBankForRelease(vendorId, bankAccountId)` for payments (7) at release time. [Andrew]
 - [ ] P2 Add the incoming fixtures' expected flags to the shared `fixtures/golden/` + `npm run eval`. [Andrew]

@@ -11,7 +11,7 @@ the `submit` guard refuses while an open `block` flag exists, and approvals read
 add steps or hold. Deterministic code only — no LLM.
 
 ## Contract
-- Input: `src/contracts/validation.ts` → `ValidationInput` (our assumed extraction output; a mapper replaces it when extraction's contract lands)
+- Input: `src/contracts/validation.ts` → `ValidationInput`. Extraction's `ExtractedDocument` (`src/contracts/extraction.ts`) uses the same field names; `readingToValidationInput` (`src/server/pipeline/intake.ts`) adds the intake facts
 - Output: `ValidationResult` = `flags` in the shared `src/contracts/flag.ts` shape + `vendorId`, `totalCadCents`, `deliveryProvince`, `contractId`, `blocking`
 - Reference data: `ValidationContext` (`context.ts`), built from Postgres by `db/load-context.ts` (`loadDbContext`). The CSV loader `dataset/load-context.ts` stays for the batch and history scripts and the tests. Both give the same flags on all 56 incoming invoices.
 - Persisted to `invoice_flags` (`source = 'validation'`) by `db/persist.ts`. Run inside a transaction with `validateWithin`, or as `system` with `validateAndPersist`. The pipeline (`src/server/pipeline/ingest.ts`) calls it on every new or edited invoice, before coding (coding takes validation's vendor).

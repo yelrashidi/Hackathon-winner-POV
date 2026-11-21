@@ -59,8 +59,8 @@ the top block is updated by whoever finishes a shared piece.
 ### 4 Validation — Andrew
 **Works (merged engine; DB layer uncommitted on `andrew-audit-db`):** every check in `src/server/features/validation/`. **On Postgres:** `loadDbContext`, `validateWithin`, and flags saved to `invoice_flags` via `syncFlags` (one row per `flagKey`, so human decisions survive re-runs). `overrideFlag` / `resolveFlag` need a note (also a DB CHECK) and are audited. The DB path reproduces the CSV run on all 56 incoming invoices.
 **Stubbed:** input is still our assumed extraction shape (`src/contracts/validation.ts`).
-**Next:** mapper from extraction's real contract (`src/contracts/extraction.ts` on Arpan's branch); `validateBankForRelease` for payments.
-**Waiting on:** Arpan (extraction contract merged); Katie (payments reading stored flags instead of `deps.ts`).
+**Next:** `validateBankForRelease` for payments. (Intake → pipeline adapter done: `ingestFromIntake`.)
+**Waiting on:** Katie (payments reading stored flags instead of `deps.ts`).
 
 ### 5 Duplicates — _Arpan / Youssef / Andrew / Katie_
 Not started.

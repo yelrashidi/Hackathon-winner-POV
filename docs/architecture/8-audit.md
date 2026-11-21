@@ -57,7 +57,8 @@ await withAction(actor /* from the session, never the browser */, async (ctx) =>
 
 | Step | Call | What happens |
 |---|---|---|
-| in (from 2) | `ingestInvoice(extracted, { source })` | saves the invoice, its lines and taxes → `extractionSucceeded` → **validation** (4: vendor, CAD total, flags) → **coding** (3: account and department per line, journal) |
+| in (from 1–2) | `ingestFromIntake(message, { classification, readings })` | intake + extraction hand-off. A readable bill → `ingestInvoice`; an unreadable bill → `ManualEntry` (`extractionFailed`); not a bill → kept on `inbox_messages` with its reason. Idempotent per (email, attachment) |
+| in | `ingestInvoice(validationInput, { source })` | saves the invoice, its lines and taxes → `extractionSucceeded` → **validation** (4: vendor, CAD total, flags) → **coding** (3: account and department per line, journal) |
 | review | `codeInvoiceLine(actor, id, lineNo, { glAccount, departmentId, note })` / `acceptConfidentLines(actor, id)` | Youssef's `codeLine` / `acceptConfident` checks run, then `invoice.line_coded` is written |
 | review | `editInvoice(actor, id, patch)` | the clerk corrects fields (for example the **requester**, which approvals needs) → `fieldsEdited` → analysis re-runs |
 | review | `overrideFlag` / `resolveFlag` | a note is required, and the decision is audited |
