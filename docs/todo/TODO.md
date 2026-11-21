@@ -55,6 +55,7 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 ## 5 Duplicates — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Exact (sha256, vendor + normalized number), near (amount + date window), reformatted numbers. [_name_]
 - [ ] P1 Already paid by card (card_transactions by vendor, amount, date). [_name_]
+- [ ] P1 Dataset has a live duplicate: AP-00394 and AP-00407 (Summit Packaging, invoice `000804`, same date, lines, PO and $2,457.19) both have a scheduled payment. Duplicates must flag it before release; payments blocks on an open `block` flag once `getOpenInvoiceFlags` reads stored flags. [_name_]
 
 ## 6 Approvals — owner: Youssef
 - [ ] P1 Postgres `ApprovalStore` (the 4 queries in `store.ts`) once the schema lands; schema owner to sequence the `approval_plans` proposal in `6-approvals.md`. [Youssef]
@@ -64,6 +65,7 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 - [ ] P1 On invoice edit call `reapprovalReasons`; non-empty → bump `invoices.version`. [Youssef]
 - [ ] P2 Daily `approvalAging` job: reminders and escalation notices. [Youssef]
 
+## 7 Payments — owner: Youssef
 ## 7 Payments — owner: Katie
 - [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [Katie]
 - [ ] P1 Release checks against approvals: P11 via `approversOf(...allPlans)`; amount ≤ `plan.basis.totalCents`, payee = `plan.basis.vendorId`. [Katie]

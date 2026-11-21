@@ -13,6 +13,8 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Andrew-01 | High | Andrew | 2026-11-21 | Empty string in an extracted field crashed validation |
 | BUG-Andrew-02 | High | Andrew | 2026-11-21 | Impossible dates (2026-02-30) rolled over and raised false date flags |
 | BUG-Andrew-03 | High | Andrew | 2026-11-21 | Unmapped tax line produced a false blocking TAX_MISSING |
+| BUG-Katie-01 | High | Katie | 2026-11-21 | Release said "No approval record was found" in the app while tests passed |
+| BUG-Katie-02 | Medium | Katie | 2026-11-21 | `import "server-only"` made `npm run check` fail |
 
 ---
 
@@ -90,3 +92,21 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 **Fix.** `tax-expectations.ts` `inferTaxCode()`: code inferred only when label family AND printed rate match exactly one `tax_codes` row; `rules/tax.ts`: while any line stays unmapped, nothing is reported missing (wrong mapped codes still are). Uncommitted on `bb44a67`.
 **Why it happened.** "Not mapped" was treated as "not charged".
 **Rule added.** docs/rules/money-and-tax.md.
+
+### BUG-Katie-01
+**Release said "No approval record was found" in the app while tests passed** · High · FIXED · found 2026-11-21 by Katie
+
+**Symptom.** On `npm run dev`, every release on `/payments` was refused with "No approval record was found"; `flow.test.ts` passed.
+**Cause.** Next.js loads server code more than once (one module copy per server bundle), so each copy of `features/approvals` has its own default store. The seed flag sat on `globalThis`, so only the first copy got the approval history.
+**Fix.** The seed is memoized per module copy, not on `globalThis` (`src/server/features/payments/fake-data/approval-seed.ts:86`, `0fa1e56`).
+**Why it happened.** Assumed one module instance per process, which is true under vitest and tsx but not under Next.
+**Rule added.** docs/rules/backend.md.
+
+### BUG-Katie-02
+**`import "server-only"` made `npm run check` fail** · Medium · FIXED · found 2026-11-21 by Katie
+
+**Symptom.** `npm run check:imports` threw on `src/server/session/*.ts`.
+**Cause.** `scripts/check-imports.ts` imports every module under `src/` with tsx; `server-only` throws outside Next's server build.
+**Fix.** Removed the import from `src/server/session/` (`d87deef`). The browser still never reaches it: only server components and server actions import it.
+**Why it happened.** `server-only` is a Next-only guard; our checks run outside Next.
+**Rule added.** docs/rules/backend.md.

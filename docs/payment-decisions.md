@@ -1,7 +1,7 @@
 # Payments — decisions (Katie)
 
-**Last updated — payment session (branch `Katie`):** 2026-11-21 (dashboard connected to real payments)
-**Last updated — dashboard session (branch `dashboard`):** —
+**Last updated — payment session (branch `Katie`):** 2026-11-21 (Schedule again confirmation text)
+**Last updated — dashboard session (branch `dashboard`):** 2026-11-21 (moved in from dashboard-todo.md by the payment session, one-time exception)
 
 What we decided for payments and the payments dashboard, and **why**, in sentences you can say
 out loud to a judge. Likely judge questions are near the bottom.
@@ -210,12 +210,85 @@ and the code follows.
   which keeps the dashboard's rule. The audit trail on the detail page is the real payments audit log.
   The header's "Sample data" badge became the "Simulated bank (demo)" link.
 - **A cancelled payment shows "Schedule again", a failed one shows "Retry"** (decided 2026-11-21).
-  Both make a new attempt that goes through every check. *Why:* a cancelled payment didn't fail, so
-  "Retry" would make a judge read it as a failure.
+  Both make a new attempt that goes through every check. After "Schedule again" the confirmation reads
+  "Payment scheduled again (new attempt)". *Why:* a cancelled payment didn't fail, so "Retry" would make
+  a judge read it as a failure.
 
 ## Dashboard decisions
 
-_(filled in by the dashboard session)_
+_(Moved here from `docs/dashboard-todo.md` on 2026-11-21, a one-time exception by the payment session.)_
+
+### Sign-in and page layout (decided 2026-11-21)
+
+- **No login page. A "Viewing as: name (role)" switcher sits top-right on every page.** It picks a
+  person from the dataset and stores only their id in a cookie. The role is always looked up on the
+  server from the employee record (`getCurrentUser()` in `src/server/session/`, TEMP, so the payment
+  session can import it directly). This replaces the earlier "one view, role filter nice-to-have" and the
+  "Sign in as… page" idea; the role filter is dropped. *Why:* separation of duties depends on who approved
+  or scheduled, so the demo must switch people, not roles.
+- **The menu is grouped by type** (Controller, Finance Manager, Clerk, Other employee) **and you pick a
+  person within the type.** *Why:* the type gives the options; the person decides which payments you're
+  blocked from (you can't release what you approved).
+- **Nobody picked means view only**, and the switcher says "Choose who you are". *Why:* no identity means
+  no actions.
+- **Pages with a sidebar:** Overview, To schedule (Clerk), Release queue (Finance Manager up to $100k CAD,
+  larger ones show "Needs Controller"; the Controller sees all plus escalations), Needs attention (failed
+  and on hold), and Details per payment (attempt history, audit trail, blocked reasons). *Why:* each role
+  gets its own screen (UI is 20% of the score), and switching people visibly changes the app.
+- **The sidebar shows only the current role's pages, and each page checks the same list on the
+  server.** "Other employee" is read-only with no actions. *Why:* each role sees only what it can act on,
+  and hiding a link isn't security.
+- **Auditor sees every page, read-only;** other employees see Overview and Details only. *Why:*
+  product.md gives the Auditor "read-only everything".
+- **Details page URL is the invoice ID** (`/payments/AP-00401`). *Why:* one page shows every attempt, and
+  a retry gets a new payment ID.
+- **Action buttons come from the payment session.** The dashboard first had TEMP "Actions" spots; since
+  2026-11-21 they hold the real buttons (see "Dashboard connected to the real payments code" above).
+
+### Flags display (decided 2026-11-21)
+
+- **Where:** tables show the top open flag; Needs attention is sorted critical first; Details shows all
+  flags, with cleared ones greyed and who cleared them, when, and the note.
+- **Counts** of open flags, "1 critical · 3 high · 0 low", on Needs attention and the Overview card.
+- **Colours** per payment-data.md: critical red, high amber, low grey. Labels "Critical / High / Low",
+  "Clear flag".
+- **"Clear flag" only for the people the clear rule allows.** At first a TEMP copy of the payment
+  session's rule; since 2026-11-21 the server's own rule.
+- *Why:* Katie's spec in payment-data.md plus the recommended defaults.
+
+### Upload screen (decided 2026-11-21)
+
+- Built by the dashboard session. Page "Upload invoices" at `/payments/upload`, for AP Clerk and
+  Controller only.
+- PDF/PNG/JPG up to 4 MB, several at once, read one at a time; the original sits beside the form.
+- Fields: vendor, invoice number, invoice and due date, currency, PO number, ship-to province, line items,
+  taxes, subtotal, total. Unsure fields (confidence < 0.8) are marked "Check this"; every field is editable.
+- Required: vendor, invoice number, invoice date, currency, total, requester and department. The uploader
+  picks the requester and department.
+- Confirm saves the invoice as In review (TEMP memory store, IDs UP-0001…) in Andrew's ValidationInput
+  shape, then shows "Saved. {Vendor} invoice {number} is now in review." and opens the next file.
+- Until extraction exists, every file is manual entry.
+- *Why:* the recommended defaults Katie approved with "go".
+- **Open:** how judges hand over the hidden invoices (ask the organizers).
+
+### Look and feel (decided 2026-11-21)
+
+- **Brim-inspired look, feel only, no Brim logo or artwork.** This replaces "minimal, like Stripe or Ramp"
+  and the earlier navy/teal/cyan hexes. Blue frame (top bar and sidebar, ~#2E5A76) and turquoise accent
+  (~#54B8D0), eyeballed from a brimfinancial.com screenshot; light grey content (#F5F7FA) with white cards;
+  a bold rounded display font (Nunito, via next/font) for page titles and summary numbers; plain-text
+  "Brim AP" title top-left. Status badges keep their meaning colours (settled green, failed red, on hold
+  amber, scheduled blue, released purple, cancelled grey). *Why:* UI is 20% of the score and Brim staff
+  judge; status colours carry meaning.
+- **Colour details:** keep the eyeballed blue (#2E5A76) and turquoise (#54B8D0); exact brand values don't
+  matter much. Links and focus rings on white use a deeper turquoise (#1E7A90); buttons, the active page
+  marker and focus rings on the blue frame use the bright turquoise. *Why:* bright turquoise on white is
+  too faint to read (2.3:1); the deeper shade is 4.9:1.
+- **Colour tokens stay in `app/payments/brim-theme.css`** (dashboard-owned) for now. *Why:* no shared file
+  touched, no merge conflicts. **Open for the team:** move them into a `@theme` block in `app/globals.css`
+  so everyone gets classes like `bg-brim-frame`.
+- **Brief check:** `docs/brief.md` has no branding rules (no logo, colour or name rules); the team docs
+  have none either.
 
 ## Likely judge questions
 
@@ -229,6 +302,8 @@ _(filled in by the dashboard session)_
 
 | Date | Topic | Decision | By |
 |---|---|---|---|
+| 2026-11-21 | Wrap-up docs | STATUS section, TODO moved to completed (Katie), duplicate pair as a Duplicates TODO, BUG-Katie-01/02 + 2 backend rules, `7-payments.md` | Katie |
+| 2026-11-21 | Schedule again confirmation | After "Schedule again" the message reads "Payment scheduled again (new attempt)" | Katie |
 | 2026-11-21 | Cancelled payment button | "Schedule again" instead of "Retry"; failed payments keep "Retry" | Katie |
 | 2026-11-21 | Dashboard on real data | Dashboard reads and acts through the payments code; copies deleted; console keeps only the simulated bank + reset | Katie |
 | 2026-11-21 | STATUS Payments owner | "Katie (building), Youssef (listed on main), to confirm" | Katie |
@@ -260,3 +335,9 @@ _(filled in by the dashboard session)_
 
 | Date | Topic | Decision | By |
 |---|---|---|---|
+| 2026-11-21 | Upload screen | Drop zone + check-and-confirm page for Clerk/Controller; manual entry until extraction exists; saves In review | Katie |
+| 2026-11-21 | Flags display | Critical/High/Low badges, open counts, most urgent first, Clear flag per payment rule | Katie |
+| 2026-11-21 | Colour details | Keep eyeballed blue/turquoise; deeper turquoise for links and focus rings on white; tokens stay in the dashboard's theme file | Katie |
+| 2026-11-21 | UI style | Brim-inspired blue/turquoise theme, one tokens file; status colours unchanged | Katie |
+| 2026-11-21 | Switcher details | Grouped by type, pick a person; nobody = view only; Auditor sees all read-only; details URL = invoice ID | Katie |
+| 2026-11-21 | Sign-in and page layout | Switcher instead of login page; split into role-specific pages with a sidebar | Katie |
