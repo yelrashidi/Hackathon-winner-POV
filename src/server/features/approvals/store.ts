@@ -127,9 +127,9 @@ export class ApprovalStoreError extends Error {
 // --- rows <-> plans -----------------------------------------------------------------------------
 
 function toRows(plan: ApprovalPlan, planId: string, attempt: number): { planRow: ApprovalPlanRow; stepRows: ApprovalStepRow[] } {
-  const { steps, planId: _unsaved, ...rest } = plan;
+  const { steps, ...rest } = plan;
   return {
-    planRow: { ...rest, planId, attempt },
+    planRow: { ...rest, planId, attempt }, // the store's id replaces any id the caller set
     stepRows: steps.map((s) => ({ ...s, planId, invoiceId: plan.invoiceId, invoiceVersion: plan.invoiceVersion })),
   };
 }

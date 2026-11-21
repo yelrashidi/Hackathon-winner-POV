@@ -78,7 +78,11 @@ const errorCode = async (p: Promise<unknown>) => {
     return e instanceof ApprovalStoreError ? e.code : `unexpected: ${String(e)}`;
   }
 };
-const withoutId = ({ planId: _id, ...rest }: ApprovalPlan) => rest;
+const withoutId = (plan: ApprovalPlan) => {
+  const copy = { ...plan };
+  delete copy.planId;
+  return copy;
+};
 
 describe("approval store — plans", () => {
   it("round-trips a plan exactly, and gives it an id", async () => {
