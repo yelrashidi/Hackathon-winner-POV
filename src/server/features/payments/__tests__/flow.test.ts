@@ -84,7 +84,7 @@ describe("payments on the dataset", () => {
     ok(verifyBankChange("U003", { vendorId: "V006" }, opts));
 
     row = getPaymentDetail("U003", "AP-00425")!;
-    expect(row.flags[0].clearedAutomatically).toBe(true); // High cleared by verified details
+    expect(row.flags[0]!.clearedAutomatically).toBe(true); // High cleared by verified details
 
     const second = ok(schedulePayment("U005", { invoiceId: "AP-00425" }, opts));
     expect(second.attemptNo).toBe(2);
@@ -105,7 +105,7 @@ describe("payments on the dataset", () => {
     ok(releasePayment("U003", { paymentId: current("AP-00419").paymentId }, opts));
     ok(simulateSettlement("U004", { paymentId: current("AP-00419").paymentId, outcome: "ACCOUNT_CLOSED" }, opts));
     expect(refusedCodes(releasePayment("U002", { paymentId: current("AP-00422").paymentId }, opts))).toEqual(["BANK_ACCOUNT_CLOSED"]);
-    expect(getPaymentDetail("U003", "AP-00422")!.flags[0].message).toBe("Review: a payment to this supplier failed (Account closed) on 2026-11-21.");
+    expect(getPaymentDetail("U003", "AP-00422")!.flags[0]!.message).toBe("Review: a payment to this supplier failed (Account closed) on 2026-11-21.");
   });
 
   it("Critical: a fraud hold stops every payment to the supplier until the Controller clears it", () => {
@@ -119,7 +119,7 @@ describe("payments on the dataset", () => {
     const refused = releasePayment("U003", { paymentId: b.paymentId }, opts);
     expect(!refused.ok && refused.reasons.map((r) => r.message)).toContain("Stopped: fraud hold on this supplier. Controller must review.");
 
-    const flagId = getPaymentDetail("U003", "AP-00394")!.flags[0].flagId;
+    const flagId = getPaymentDetail("U003", "AP-00394")!.flags[0]!.flagId;
     expect(refusedCodes(clearFlag("U003", { flagId, note: "looks fine" }, opts))).toEqual(["CONTROLLER_ONLY"]);
     expect(refusedCodes(clearFlag("U002", { flagId, note: "" }, opts))).toEqual(["NOTE_REQUIRED"]);
     ok(clearFlag("U002", { flagId, note: "Called Summit on the number in the master file; transfer was genuine." }, opts));
@@ -134,14 +134,14 @@ describe("payments on the dataset", () => {
     const row = getPaymentDetail("U003", "AP-00425")!;
     expect(row.flags.map((f) => [f.urgency, f.scope, f.paymentId])).toEqual([["low", "payment", p.paymentId]]);
     ok(schedulePayment("U004", { invoiceId: "AP-00425" }, opts));
-    expect(getPaymentDetail("U003", "AP-00425")!.flags[0].clearedAutomatically).toBe(true);
+    expect(getPaymentDetail("U003", "AP-00425")!.flags[0]!.clearedAutomatically).toBe(true);
   });
 
   it("view-only people can't clear flags; the server refuses", () => {
     const p = ok(schedulePayment("U004", { invoiceId: "AP-00425" }, opts));
     ok(releasePayment("U003", { paymentId: p.paymentId }, opts));
     ok(simulateSettlement("U004", { paymentId: p.paymentId, outcome: "BANK_ERROR" }, opts));
-    const flagId = getPaymentDetail("U003", "AP-00425")!.flags[0].flagId;
+    const flagId = getPaymentDetail("U003", "AP-00425")!.flags[0]!.flagId;
     expect(refusedCodes(clearFlag("U006", { flagId, note: "" }, opts))).toEqual(["VIEW_ONLY"]); // auditor
     expect(refusedCodes(clearFlag("U007", { flagId, note: "" }, opts))).toEqual(["VIEW_ONLY"]); // approver
   });

@@ -69,7 +69,7 @@ describe("release rules", () => {
     const approval = { approverIds: [], basis: { vendorId: "V1", currency: "CAD" as const, totalCents: 10_000_001 } };
     const r = checkRelease(base({ payment: big, approval }));
     expect(r.reasons.map((x) => x.code)).toEqual(["OVER_RELEASE_LIMIT"]);
-    expect(r.reasons[0].message).toContain("$100,000.00");
+    expect(r.reasons[0]!.message).toContain("$100,000.00");
     expect(checkRelease(base({ actor: CTRL, payment: big, approval })).allowed).toBe(true);
     // exactly at the limit is fine
     const atLimit = { ...payment, amountCents: 10_000_000, amountCadCents: 10_000_000 };

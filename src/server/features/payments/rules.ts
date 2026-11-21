@@ -383,14 +383,19 @@ export function checkBankDecision(actor: DirectoryUser | undefined, pending: Ban
 // Pay date (Q2, Q3)
 // ---------------------------------------------------------------------------------------------
 
+function utcDate(isoDate: string, plusDays = 0): Date {
+  const y = Number(isoDate.slice(0, 4));
+  const m = Number(isoDate.slice(5, 7));
+  const d = Number(isoDate.slice(8, 10));
+  return new Date(Date.UTC(y, m - 1, d + plusDays));
+}
+
 function dayOfWeek(isoDate: string): number {
-  const [y, m, d] = isoDate.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  return utcDate(isoDate).getUTCDay();
 }
 
 function addDays(isoDate: string, days: number): string {
-  const [y, m, d] = isoDate.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+  return utcDate(isoDate, days).toISOString().slice(0, 10);
 }
 
 export function isWeekend(isoDate: string): boolean {
@@ -399,7 +404,7 @@ export function isWeekend(isoDate: string): boolean {
 }
 
 function weekdayName(isoDate: string): string {
-  return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dayOfWeek(isoDate)];
+  return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dayOfWeek(isoDate)] ?? isoDate;
 }
 
 /**

@@ -1,4 +1,4 @@
-import "server-only";
+// Server only: reads cookies / the filesystem. No `import "server-only"`: it throws outside Next, which breaks main's check:imports (CI).
 
 // TEMP: reads the employee directory straight from the dataset CSV until the foundation's
 // `users` table exists. Field names match DirectoryUser in features/approvals/directory.ts so

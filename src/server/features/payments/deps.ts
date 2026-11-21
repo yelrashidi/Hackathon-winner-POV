@@ -72,14 +72,14 @@ export function listAudit(): readonly AuditEvent[] {
 }
 
 // TEMP: core/fire (foundation) — A7. The transitions payments fires, from brim-ap-diagrams.md.
-const INVOICE_TRANSITIONS: Record<string, { from: InvoiceStatus; to: InvoiceStatus }> = {
+export type InvoiceEvent = "schedule" | "paymentSettled" | "paymentFailed" | "paymentCancelled";
+
+const INVOICE_TRANSITIONS: Record<InvoiceEvent, { from: InvoiceStatus; to: InvoiceStatus }> = {
   schedule: { from: "Approved", to: "PaymentScheduled" },
   paymentSettled: { from: "PaymentScheduled", to: "Paid" },
   paymentFailed: { from: "PaymentScheduled", to: "Approved" },
   paymentCancelled: { from: "PaymentScheduled", to: "Approved" },
 };
-
-export type InvoiceEvent = keyof typeof INVOICE_TRANSITIONS;
 
 export function fireInvoiceEvent(invoiceId: string, event: InvoiceEvent, actorId: string, now: Date): void {
   const invoice = getInvoice(invoiceId);

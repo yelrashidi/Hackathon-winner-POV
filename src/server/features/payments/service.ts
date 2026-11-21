@@ -182,7 +182,7 @@ function releaseInputFor(actor: DirectoryUser | undefined, p: PaymentRec, invoic
 }
 
 function toRow(viewer: DirectoryUser | undefined, invoice: InvoiceRec, attempts: PaymentRec[]): PaymentRow {
-  const current = attempts[attempts.length - 1];
+  const current = attempts[attempts.length - 1]!; // callers only pass invoices with an attempt
   const records = attempts.map(toRecord);
   const seen = new Set<string>();
   const rowFlags = records
@@ -191,7 +191,7 @@ function toRow(viewer: DirectoryUser | undefined, invoice: InvoiceRec, attempts:
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return {
     invoice: toInvoiceRecord(invoice),
-    current: records[records.length - 1],
+    current: records[records.length - 1]!,
     attempts: records,
     flags: rowFlags,
     releaseCheck: checkRelease(releaseInputFor(viewer, current, invoice)),

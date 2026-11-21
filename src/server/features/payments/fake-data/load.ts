@@ -6,11 +6,16 @@ import { policiesFromCsv, type DirectoryUser, type PolicyCsvRow, type UserRole }
 import type { BankAccountVersion, InvoiceRec, PaymentRec, PaymentsState, VendorRec } from "../types";
 import { dollarsToCents, readCsv } from "./csv";
 
-const OPEN_INVOICE_STATUS: Record<string, string> = { approved: "Approved", scheduled: "PaymentScheduled" };
+const OPEN_INVOICE_STATUS: Partial<Record<string, string>> = { approved: "Approved", scheduled: "PaymentScheduled" };
+const INVOICE_COLUMNS = [
+  "invoice_id", "status", "vendor_id", "vendor_invoice_number", "invoice_date", "due_date", "currency",
+  "total", "total_cad", "fx_rate_to_cad", "department_id", "requester_user_id",
+] as const;
+type Row<K extends string> = Record<K, string>;
 
 export function loadDatasetState(): PaymentsState {
   const users = new Map<string, DirectoryUser>();
-  for (const u of readCsv("users.csv")) {
+  for (const u of readCsv("users.csv", ["user_id", "full_name", "role", "department_id", "manager_id", "approval_limit_cad", "status", "status_since", "delegate_user_id"])) {
     users.set(u.user_id, {
       id: u.user_id,
       fullName: u.full_name,
@@ -24,19 +29,22 @@ export function loadDatasetState(): PaymentsState {
     });
   }
 
-  const vendorRows = readCsv("vendors.csv");
+  const vendorRows = readCsv("vendors.csv", ["vendor_id", "legal_name", "status", "bank_institution", "bank_transit", "bank_account"]);
   const vendors = new Map<string, VendorRec>();
   for (const v of vendorRows) vendors.set(v.vendor_id, { id: v.vendor_id, legalName: v.legal_name, status: v.status });
 
-  const bankAccounts = buildBankAccounts(vendorRows, readCsv("bank_change_history.csv"));
+  const bankAccounts = buildBankAccounts(
+    vendorRows,
+    readCsv("bank_change_history.csv", ["vendor_id", "changed_at", "changed_by_user_id", "request_channel", "verified_by_callback", "old_account_last4", "new_account_last4"]),
+  );
 
-  const payRows = readCsv("payments.csv");
-  const approvalRows = readCsv("approvals.csv");
+  const payRows = readCsv("payments.csv", ["payment_id", "invoice_id", "method", "status", "currency", "amount", "amount_cad", "fx_rate_to_cad", "scheduled_date", "prepared_by"]);
+  const approvalRows = readCsv("approvals.csv", ["invoice_id", "action", "approver_user_id"]);
   const invoices = new Map<string, InvoiceRec>();
   const payments: PaymentRec[] = [];
   const approvals: PaymentsState["approvals"] = new Map();
 
-  for (const r of readCsv("invoices.csv")) {
+  for (const r of readCsv("invoices.csv", INVOICE_COLUMNS)) {
     const status = OPEN_INVOICE_STATUS[r.status];
     if (!status) continue;
     const scheduled = payRows.find((p) => p.invoice_id === r.invoice_id && p.status === "scheduled");
@@ -103,7 +111,7 @@ export function loadDatasetState(): PaymentsState {
     vendors,
     invoices,
     approvals,
-    policies: policiesFromCsv(readCsv("approval_policies.csv") as unknown as PolicyCsvRow[]),
+    policies: policiesFromCsv(readCsv("approval_policies.csv", ["rule_id", "rule_type", "condition", "required", "notes"]) satisfies PolicyCsvRow[]),
     bankAccounts,
     payments,
     flags: [],
@@ -118,7 +126,10 @@ export function loadDatasetState(): PaymentsState {
  * Each change is a new version. A change not verified by callback stays `pending`, and the last
  * verified version stays payable. Older versions only have their last 4 digits.
  */
-function buildBankAccounts(vendorRows: Record<string, string>[], changeRows: Record<string, string>[]): BankAccountVersion[] {
+function buildBankAccounts(
+  vendorRows: Row<"vendor_id" | "bank_institution" | "bank_transit" | "bank_account">[],
+  changeRows: Row<"vendor_id" | "changed_at" | "changed_by_user_id" | "request_channel" | "verified_by_callback" | "old_account_last4" | "new_account_last4">[],
+): BankAccountVersion[] {
   const out: BankAccountVersion[] = [];
   for (const v of vendorRows) {
     if (!v.bank_account) continue;
@@ -133,7 +144,7 @@ function buildBankAccounts(vendorRows: Record<string, string>[], changeRows: Rec
     } else {
       versions.push({
         ...base, version: 1, status: "verified", institution: null, transit: null, account: null,
-        last4: changes[0].old_account_last4, changedAt: null, channel: null, requestedBy: null,
+        last4: changes[0]!.old_account_last4, changedAt: null, channel: null, requestedBy: null,
       });
       changes.forEach((c, i) => {
         const isCurrent = i === changes.length - 1;
