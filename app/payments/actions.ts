@@ -12,7 +12,6 @@ import {
   rejectBankChange,
   releasePayment,
   requestBankChange,
-  resetState,
   schedulePayment,
   simulateSettlement,
   verifyBankChange,
@@ -83,10 +82,4 @@ export async function verifyBankAction(_: FormState, form: FormData): Promise<Fo
 
 export async function rejectBankAction(_: FormState, form: FormData): Promise<FormState> {
   return toState(rejectBankChange(await actorId(), { vendorId: text(form, "vendorId"), reason: text(form, "reason") }), "Bank change rejected.");
-}
-
-/** Demo only: start again from the dataset. */
-export async function resetDemo(): Promise<void> {
-  await resetState();
-  refresh();
 }

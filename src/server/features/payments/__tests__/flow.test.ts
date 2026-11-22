@@ -1,5 +1,10 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import type { PGlite } from "@electric-sql/pglite";
+import { drizzle } from "drizzle-orm/pglite";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { PaymentsView } from "@/contracts/payment";
+import { createSeededDb } from "@/server/db/__tests__/helpers";
+import { setDb, type Db } from "@/server/db/client";
+import * as schema from "@/server/db/schema";
 import {
   cancelPayment,
   clearFlag,
@@ -9,14 +14,13 @@ import {
   rejectBankChange,
   releasePayment,
   requestBankChange,
-  resetState,
   schedulePayment,
   simulateSettlement,
   verifyBankChange,
   type ActionResult,
 } from "..";
 
-// End to end on the real dataset (the in-memory store loads the CSVs). People:
+// End to end on the real dataset, in the seeded database (PGlite), as the app's restricted role. People:
 // U003 Elise Tremblay (Finance Manager) · U002 Marcus Webb (Controller) · U004 Jordan Okafor and
 // U005 Sam Patel (AP clerks) · U006 Hannah Lindqvist (auditor) · U007 Dev Malhotra (approver, D01).
 
@@ -35,8 +39,25 @@ const refusedCodes = async (p: Promise<ActionResult<unknown>>) => {
 const detail = async (invoiceId: string) => (await getPaymentDetail("U003", invoiceId))!;
 const current = async (invoiceId: string) => (await detail(invoiceId)).current;
 
+// Seeded once; every test gets its own copy, so each starts from the dataset.
+let seeded: PGlite;
+let client: PGlite | null = null;
+
+beforeAll(async () => {
+  seeded = (await createSeededDb()).client;
+}, 120_000);
+
 beforeEach(async () => {
-  await resetState();
+  await client?.close();
+  client = (await seeded.clone()) as PGlite;
+  await client.exec("SET ROLE ap_app");
+  setDb(drizzle(client, { schema }) as unknown as Db);
+}, 60_000);
+
+afterAll(async () => {
+  setDb(null);
+  await client?.close();
+  await seeded.close();
 });
 
 describe("payments on the dataset", async () => {
@@ -161,7 +182,7 @@ describe("payments on the dataset", async () => {
   it("every action is in the audit trail with who and when", async () => {
     const p = await ok(schedulePayment("U004", { invoiceId: "AP-00425" }, opts));
     await ok(releasePayment("U003", { paymentId: p.paymentId }, opts));
-    const trail = getPaymentAudit("U006", "AP-00425").map((e) => [e.action, e.actorId]);
+    const trail = (await getPaymentAudit("U006", "AP-00425")).map((e) => [e.action, e.actorId]);
     expect(trail).toEqual([
       ["invoice.schedule", "U004"],
       ["payment.scheduled", "U004"],

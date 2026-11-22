@@ -7,9 +7,8 @@ committed yet). **Re-checked 2026-11-21 13:30:** `origin/Youssef` @ `5f1a907`, `
 
 Payments is built before its dependencies exist. Each dependency sits behind **one adapter
 function** in `src/server/features/payments/deps.ts` (built 2026-11-21); payment logic calls only the adapter.
-Today the adapters read fake data from **`src/server/features/payments/fake-data/`** (the only
-place fake data lives). Every temporary piece is marked `// TEMP: <feature>` — find them with
-`grep -rn "TEMP:" src/`. Step 11 of [`payment-todo.md`](payment-todo.md) swaps each adapter to the real thing.
+Since 2026-11-21 the adapters read the database (`fake-data/` is deleted). Every temporary piece
+left is marked `// TEMP: <feature>`; find them with `grep -rn "TEMP:" src/`. Step 11 of [`payment-todo.md`](payment-todo.md) swaps each adapter to the real thing.
 
 Shapes below come from [`architecture/data-model.md`](architecture/data-model.md),
 [`architecture/roles-and-permissions.md`](architecture/roles-and-permissions.md) and, where it
@@ -17,19 +16,15 @@ exists, the teammate's actual code.
 
 ## Still TEMP — and who each is waiting on (2026-11-21)
 
-`grep -rn "TEMP:" src/ app/` finds every one in code.
+`grep -rn "TEMP:" src/ app/` finds every one in code. **Done 2026-11-21 (payments on the database):** approvals through
+`PostgresApprovalStore` (seed deleted), database + transactions, `fire()`, `authorize()`, audit through `withAction`.
 
 | TEMP piece | Where in our code | Waiting on | Owner |
 |---|---|---|---|
-| Approval history seed (the only approvals TEMP left) | `fake-data/approval-seed.ts` | **Switched 2026-11-21:** `deps.ts` `getApprovalFacts` now calls Youssef's real `getApprovalPlans` + `approversOf` and `getCurrentApprovalPlan().basis`. The seed loads the dataset's approval history into his store with his `importApprovalPlan`, and **stays until his approval flow fills the store itself** | Youssef |
-| Stored validation / duplicate flags | `deps.ts` `getOpenInvoiceFlags` (always empty) | validation persisting flags to `invoice_flags`; duplicates has no owner | Andrew; duplicates: no owner |
+| Stored validation / duplicate flags | `deps.ts` `loadOpenInvoiceFlags` reads open `invoice_flags` rows directly | an exported reader from validation; duplicates storing flags (no owner) | Andrew; duplicates: no owner |
 | Release-time bank check | release rules check our own bank versions | Andrew's planned `validateBankForRelease` (not on main yet) | Andrew |
-| Database + transactions | `fake-data/` in-memory store, CSV loader | schema + seed | schema owner: not named |
-| Invoice status changes | `deps.ts` `fireInvoiceEvent` | `core/fire.ts` | foundation: no owner |
-| Permission checks | role checks inside `rules.ts` | `core/authorize.ts` (proposal R2: it calls our rules) | foundation: no owner |
-| Audit events | `deps.ts` `emitAudit` (in memory) | `core/audit.ts` + `audit_events` table | 8 Audit: no owner |
 | Money helpers | `money.ts` (`formatMoney`, `cadMatches`) | `core/money.ts` (Andrew has money helpers inside validation, not exported) | foundation: no owner |
-| Vendors + bank accounts, bank change/verify | `deps.ts` bank adapters, data in `fake-data/` | feature 9 | 9 Vendors: no owner |
+| Vendors + bank accounts, bank change/verify | `deps.ts` reads and writes `vendor_bank_accounts` | feature 9 | 9 Vendors: no owner |
 | Login / signed-in person | `getCurrentUser()` in `src/server/session/` (cookie `hl_viewing_as`), used by `app/payments/actions.ts` and the pages | real session + role switcher | foundation: no owner |
 | Upload: extraction call | `app/payments/_lib/extraction-adapter.ts` | 2 Extraction | no owner |
 | Upload: confirmed uploads | `app/payments/_lib/upload-store.ts` (in memory) | database | schema owner: not named |
@@ -37,6 +32,9 @@ exists, the teammate's actual code.
 | Dashboard money and date formatting | `app/payments/_lib/format.ts` | `core/money.ts` | foundation: no owner |
 
 ## Summary
+
+**Updated 2026-11-21:** A1–A4, A7–A9 and A11 are real (database, `fire()`, `authorize()`, `withAction`), and A5 reads
+stored `invoice_flags`. The rows below record what we assumed before they existed.
 
 | # | Dependency | Feature · owner | Exists today? | Adapter | Risk |
 |---|---|---|---|---|---|
@@ -60,8 +58,8 @@ exists, the teammate's actual code.
 - `deps.ts` `getApprovalFacts(invoiceId)` calls his `getApprovalPlans(invoiceId)` (every plan, oldest first)
   → `approversOf(...plans)` for P11, and `getCurrentApprovalPlan(invoiceId, { invoiceVersion }).basis` for R7.
   No current plan for the invoice's version → release refuses `NOT_APPROVED`.
-- **TEMP seed:** `fake-data/approval-seed.ts` rebuilds one plan per open invoice from `approvals.csv` and loads it
-  with his `importApprovalPlan`. It exists only until the approval flow fills his store. His files are unchanged.
+- **Since 2026-11-21:** read through `PostgresApprovalStore`; the database seed loads `approvals.csv` into `approval_plans`.
+  Payments' own seed (`fake-data/approval-seed.ts`) is deleted. His files are unchanged.
 
 ### A2 Users (Youssef's `DirectoryUser`, `src/server/features/approvals/directory.ts:20`) — type real
 `{ id, fullName, role: "employee"|"ap_clerk"|"approver"|"finance_manager"|"controller_admin"|"auditor", departmentId, managerId, approvalLimitCents, status: "active"|"on_leave"|"terminated"|string, statusSince, delegateId }`

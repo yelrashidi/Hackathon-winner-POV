@@ -30,8 +30,8 @@ export default async function PaymentDetailsPage({ params }: PageProps<"/payment
   const status = current?.status ?? "awaiting";
   const action = canAct(role) ? actionFor(role, status) : null;
   const releasers = row ? (await eligibleReleasers(id)).map((p) => p.name) : [];
-  const bank = getSupplierBank(user?.id ?? null, invoice.vendorId);
-  const audit = getPaymentAudit(user?.id ?? null, id);
+  const bank = await getSupplierBank(user?.id ?? null, invoice.vendorId);
+  const audit = await getPaymentAudit(user?.id ?? null, id);
   const names = new Map([invoice.requestedBy, ...invoice.approvedBy, ...(row?.attempts ?? []).flatMap((a) => [a.preparedBy, a.releasedBy, a.cancelledBy])]
     .filter((p): p is NonNullable<typeof p> => p !== null)
     .map((p) => [p.userId, p.name]));
@@ -389,7 +389,7 @@ function AuditTrail({ invoice, events, names }: { invoice: InvoiceRecord; events
   );
 }
 
-type BankVersion = ReturnType<typeof getSupplierBank>[number];
+type BankVersion = Awaited<ReturnType<typeof getSupplierBank>>[number];
 
 /** The supplier's bank account versions (last 4 digits only), and the controlled change: enter, then a second person verifies. */
 function BankCard({ bank, vendorId, canAct, needsNewDetails }: { bank: BankVersion[]; vendorId: string; canAct: boolean; needsNewDetails: boolean }) {

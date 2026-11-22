@@ -21,6 +21,4 @@ export {
 } from "./service";
 export { checkRelease, checkSchedule, checkClearFlag, defaultPayDate, isWeekend, type Reason } from "./rules";
 export { setEftRail, SimulatedEft, type EftRail, type EftTransfer } from "./bank";
-export { listUsers } from "./deps";
-export { resetState } from "./fake-data/store";
 export type { AuditEvent } from "./types";
