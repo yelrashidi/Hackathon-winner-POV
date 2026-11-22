@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { getCurrentUser } from "@/server/session/current-user";
 import { dashboardRole, pagesFor, ROLE_ABILITIES, type PageKey } from "../_lib/access";
 import { getPayments, needsAttention } from "../_lib/data";
@@ -6,6 +7,7 @@ import { SidebarNav, type NavItem } from "./SidebarNav";
 
 /** Only the pages the signed-in person's role includes, with a count on each queue. */
 export async function Sidebar() {
+  await connection(); // request time: the counts read the database
   const [user, view, duplicates] = await Promise.all([getCurrentUser(), getPayments(), openDuplicateCount()]);
   const role = dashboardRole(user);
 

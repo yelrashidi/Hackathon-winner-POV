@@ -3,6 +3,7 @@ import "server-only";
 // The one place the dashboard reads payment data: the real payments service, for the signed-in
 // person (it filters by role on the server). Shapes come from @/contracts/payment.
 
+import { connection } from "next/server";
 import type { FlagUrgency, InvoiceRecord, PaymentFlag, PaymentRow, PaymentsView } from "@/contracts/payment";
 import { getPaymentDetail, listPayments } from "@/server/features/payments";
 import { getCurrentUser } from "@/server/session/current-user";
@@ -10,6 +11,8 @@ import { getCurrentUser } from "@/server/session/current-user";
 export type { PaymentRow, PaymentsView } from "@/contracts/payment";
 
 async function viewerId(): Promise<string | null> {
+  // Request time from here on: the database reads that follow must not run while Next.js prerenders.
+  await connection();
   return (await getCurrentUser())?.id ?? null;
 }
 

@@ -1,6 +1,6 @@
 # Payments — decisions (Katie)
 
-**Last updated — payment session (branch `Katie`):** 2026-11-21 (Payments on the database)
+**Last updated — payment session (branch `Katie`):** 2026-11-21 (`await connection()` on the payments pages)
 **Last updated — dashboard session (branch `dashboard`):** 2026-11-21 (moved in from dashboard-todo.md by the payment session, one-time exception)
 
 What we decided for payments and the payments dashboard, and **why**, in sentences you can say
@@ -244,6 +244,10 @@ and the code follows.
 - **The payment session added the `await`s on the dashboard pages** for the three payment functions that now
   wait for the database (`canClearFlag`, `getPaymentAudit`, `getSupplierBank`). One-time exception, nothing else
   on those pages changed. *Why:* without them the build breaks.
+- **`await connection()` before the payments pages read the database** (decided 2026-11-21): one line each in the
+  dashboard's `_lib/data.ts` and `Sidebar.tsx` and in the simulated-bank page. *Why:* with the built-in database
+  (`npm run demo`) Next.js logged an error on every payments page, shown in the red error overlay in dev. Checked in the
+  real app: 8 pages, 0 errors.
 - **Tests run on the seeded in-process database (PGlite)**, with the same scenarios and the same expected results.
   The in-memory `fake-data/` folder is deleted.
 
@@ -335,6 +339,7 @@ _(Moved here from `docs/dashboard-todo.md` on 2026-11-21, a one-time exception b
 
 | Date | Topic | Decision | By |
 |---|---|---|---|
+| 2026-11-21 | `await connection()` | Payments pages read the database at request time; no Next.js prerender errors with `npm run demo` | Katie |
 | 2026-11-21 | Payments on the database | Postgres through the shared core (`fire`, `withAction`, `authorize`); open work only; closed reason from the flag; dashboard `await`s; tests on PGlite; `fake-data/` deleted | Katie |
 | 2026-11-21 | Reset demo data | Button removed; reset with `npm run db:reset` (audit rows can't be deleted) | Katie |
 | 2026-11-21 | New payment IDs | Continue the dataset's numbering: PAY-00416, … | Katie |

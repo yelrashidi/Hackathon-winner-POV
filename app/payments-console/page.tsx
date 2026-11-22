@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { Suspense } from "react";
 import Link from "next/link";
 import { FailureCode } from "@/contracts/payment";
@@ -34,6 +35,7 @@ export default function Page() {
 const label = (code: string) => code.charAt(0) + code.slice(1).toLowerCase().replace(/_/g, " ");
 
 async function Bank() {
+  await connection(); // request time: the list reads the database
   const user = await getCurrentUser();
   const view = await listPayments(user?.id ?? null);
   const released = view.payments.filter((r) => r.current.status === "released");
