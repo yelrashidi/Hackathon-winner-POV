@@ -19,6 +19,7 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Andrew-05 | Low | Andrew | 2026-11-21 | Seeded history showed a payment "scheduled" after it was released |
 | BUG-Andrew-06 | High | Andrew | 2026-11-21 | Intake scripts never saved anything: the DB adapter existed but nothing called it |
 | BUG-Andrew-07 | Low | Andrew | 2026-11-21 | Intake scripts' shutdown crashed on the embedded demo database |
+| BUG-Andrew-08 | Medium | Andrew | 2026-11-21 | Any signed-in role could open any invoice PDF by its id |
 | BUG-Arpan-01 | High | Arpan | 2026-11-21 | Any PDF in an email that said "invoice" became a draft bill |
 | BUG-Arpan-02 | High | Arpan | 2026-11-21 | Gmail advanced its cursor past messages excluded by the delivery cap |
 | BUG-Arpan-03 | High | Arpan | 2026-11-21 | Credit notes kept positive amounts when their total was missing or already negative |
@@ -221,3 +222,9 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 **Cause.** With no saved cursor, `pollGmail` records the current history id and returns nothing (deliberate: never read a personal inbox by accident). The `gmail-poller` container started about six hours after the test mail arrived, so that mail was behind the baseline forever. Nothing in the dashboard path was wrong: later mail was saved and shown.
 **Fix.** `GMAIL_BACKFILL` (env): on the first run only (no cursor), backfill that window before going incremental (`scripts/gmail-poll.ts:34`); `docker-compose.yml` defaults it to `1d`. Saving is idempotent, so overlap is harmless. The missed mail was recovered with `--backfill 1d`. Rule: backend.md.
 
+### BUG-Andrew-08
+**Any signed-in role could open any invoice PDF by its id** · Medium · FIXED · found 2026-11-21 by Andrew (scoping invoice records)
+
+**Symptom.** `/documents/[id]` checked only that someone was signed in, so a manager could open another department's invoice file.
+**Cause.** It was written when every dashboard role read the whole audit trail; once invoices were scoped by role, the file route kept the old, wider rule.
+**Fix.** The route finds the invoice the document belongs to and applies the same scope (`features/invoices` `inScope`); a file with no invoice yet (inbox attachment) is for inbox triage and audit-log roles only.

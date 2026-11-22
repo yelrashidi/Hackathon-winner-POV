@@ -93,11 +93,13 @@ the top block is updated by whoever finishes a shared piece.
 - **Append-only `audit_events`:** a trigger blocks edits for every role, and the `ap_app` role has no UPDATE/DELETE and cannot backdate.
 - **Intake → DB:** `gmail:poll` and `intake:dataset` save every email through `ingestFromIntake`: bills validated, coded, audited, linked to a `documents` row (sha256); unreadable → `ManualEntry`; idempotent.
 - **Pipeline:** `src/server/pipeline/` runs ingest → validation + coding → review → `submitForApproval` / `decideApproval` (Postgres `ApprovalStore`), each step audited in the same transaction.
-- **Auditor dashboard services:** `listAuditInvoices`, `getInvoiceAuditDetail` (incl. control checks) and `exportAuditCsv`, auditor-only, with fixtures in `fixtures/audit/`.
+- **Audit log** (`/audit`, `features/audit`): every event with before/after, control checks, export — **Auditor and Controller/Admin only** (product.md); the Auditor sees every invoice, in progress too.
+- **Invoice records** (`/invoices`, `features/invoices`): read-only, scoped per the matrix's "View invoices" row (employee own, manager own dept, everyone else all); invoice PDFs follow the same scope.
+- **Who did what** (`whoDidWhat`): requested → checked → approved → scheduled → released, on the audit page, the invoice record, and live on Checks / Approvals / Payments.
 
-**Stubbed:** no `app/audit` pages yet; uncertain scans make no invoice yet (Arpan's TODO). Payments (7) is on the DB since PR #15 (Katie).
-**Next:** the auditor pages (dashboard owner); Supabase deploy.
-**Waiting on:** team decisions: Controller audit access, historical `rejected` → `Voided`, schema-merge owner (`docs/architecture/8-audit.md`).
+**Stubbed:** uncertain scans make no invoice yet (Arpan's TODO); the demo DB has history only, so live chains show once invoices go through Checks.
+**Next:** Supabase deploy.
+**Waiting on:** team decisions: historical `rejected` → `Voided`, schema-merge owner (`docs/architecture/8-audit.md`).
 **Contract + core + schema change:** new `src/contracts/{actor,audit,audit-view}.ts`, `src/server/core/`, `src/server/db/`. Affects Youssef (coding and approvals on the DB through his public API) and Katie (payments tables, audit names).
 
 ### 9 Vendors — Andrew (server side)
