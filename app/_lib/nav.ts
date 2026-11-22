@@ -31,7 +31,7 @@ export interface Section {
   roles: AppRole[];
   /** Who it is for, in words, for the "not for your role" page. */
   forWhom: string;
-  /** A different label for some roles (the Admin's narrow release queue, the employee's "My bills"). */
+  /** A different label for some roles (the employee's "My bills"). */
   labelFor?: Partial<Record<AppRole, string>>;
 }
 
@@ -60,8 +60,7 @@ export const SECTIONS: Section[] = [
     label: "To release",
     group: "Payments",
     roles: ["finance", "admin"],
-    forWhom: "the Finance Manager (and the Admin, for what the Finance Manager can't release)",
-    labelFor: { admin: "Admin releases" },
+    forWhom: "the Finance Manager (up to $100,000 CAD) and the Admin (any amount)",
   },
   { key: "needs-attention", href: "/payments/needs-attention", label: "Needs attention", group: "Payments", roles: ["clerk", "finance"], forWhom: "AP Clerks and the Finance Manager" },
   { key: "vendors", href: "/vendors", label: "Vendors", group: "Records", roles: ["clerk", "finance", "admin", "auditor"], forWhom: "AP Clerks, the Finance Manager, the Admin and the Auditor (read-only)" },

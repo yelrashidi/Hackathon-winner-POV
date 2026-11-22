@@ -198,6 +198,8 @@ export const PaymentRecord = z.object({
   fxRateToCad: DecimalRate,
   /** The pay date the clerk picked (defaults to the due date, weekends moved to the Friday before). */
   scheduledDate: IsoDate,
+  /** When this attempt was scheduled (it became ready to release). Optional: added 2026-11-22 for the release queue's order. */
+  scheduledAt: IsoDateTime.optional(),
   bankAccount: BankAccountRef,
   releasedAt: IsoDateTime.nullable(),
   settledAt: IsoDateTime.nullable(),

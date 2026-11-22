@@ -12,7 +12,7 @@ service that runs `authorize()` → one transaction → audit rows → `fire()`.
 
 Access widens with seniority. Approval *routing* follows `approval_policies.csv` (the brief's rules);
 the brief also decides payments: AP clerks prepare, the Finance Manager releases ≤ $100k, the
-Controller (our Admin) releases > $100k and whatever the Finance Manager approved (P09–P11).
+Controller (our Admin) releases any amount, and only they release > $100k (P09–P11).
 
 | Screen | Employee³ | AP Clerk | Ops Manager¹ | Finance Mgr | Admin | Auditor |
 |---|---|---|---|---|---|---|
@@ -21,7 +21,7 @@ Controller (our Admin) releases > $100k and whatever the Finance Manager approve
 | Approvals (routed to me by policy) | — | — | ✓ ≤ $10k, own dept | ✓ | ✓ > $50k | — |
 | Payments: overview, needs attention, payment details | — | ✓ | details only | ✓ | details, releases | details |
 | Payments: to schedule | — | ✓ | — | — | — | — |
-| Payments: to release | — | — | — | ✓ | only what the FM can't² | — |
+| Payments: to release | — | — | — | ✓ | ✓ any amount² | — |
 | Vendors (bank change: enter / verify) | — | enter | — | verify | verify | read-only |
 | Invoices (read-only records + who did what) | **My bills**: the ones they requested | all | own department | all | all | all |
 | Audit trail (full audit log) | — | — | — | — | ✓ + export | every invoice + export |
@@ -34,7 +34,7 @@ they can sign in. The **requester** on Checks is anyone who can order (active em
 managers of every department, grouped by department, the bill's own first —
 `dashboard/checks.ts` `reviewOptions`), because the clerk records who asked for the bill; it is
 rarely the clerk. Demo walkthrough: [`../demo-script.md`](../demo-script.md).
-² `pipeline/payments.ts` `adminReleaseGuard`: refused with the Finance Manager's name when she may release it.
+² The Controller (Admin) releases any amount, the Finance Manager up to $100,000 CAD; neither releases what they approved (P11, `features/payments/rules.ts` `checkRelease`). Changed 2026-11-22: the Admin was limited to what the FM couldn't release.
 ³ **Employee (2026-11-22):** read-only — Home + My bills, every other URL "not for your role", every
 action refused on the server (`invoice.submit` included). The cast's employee is the first active
 employee reporting to the cast's manager, so the bills the clerk records them on route to Dev. Each

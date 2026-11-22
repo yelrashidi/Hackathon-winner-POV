@@ -7,7 +7,6 @@ import { ReleaseQueueTable, type ReleaseItem } from "../_components/ReleaseQueue
 import { canSeePage, dashboardRole, pageByKey } from "../_lib/access";
 import { getPayments } from "../_lib/data";
 import { paymentsDb } from "@/server/pipeline";
-import { listSwitchableUsers } from "@/server/session/current-user";
 
 export const metadata: Metadata = { title: "Release queue" };
 
@@ -26,18 +25,17 @@ export default async function ToReleasePage() {
 
   const isReleaser = role === "finance_manager" || role === "controller";
   const all = view.payments.filter((p) => p.current.status === "scheduled");
-  const [allReleasers, people] = await Promise.all([paymentsDb.eligibleReleasers(all.map((row) => row.invoice.invoiceId)), listSwitchableUsers()]);
-  const fm = new Set(people.filter((u) => u.role === "finance_manager").map((u) => u.id));
-  // The Admin sees only what no Finance Manager may release (the list already leaves the Admin out otherwise).
-  const keep = all.map((_, i) => role !== "controller" || !(allReleasers[i] ?? []).some((p) => fm.has(p.userId)));
-  const scheduled = all.filter((_, i) => keep[i]);
-  const releasers = allReleasers.filter((_, i) => keep[i]);
+  // The Controller (Admin) releases any amount, so both releasers see every scheduled payment.
+  const scheduled = all;
+  const releasers = await paymentsDb.eligibleReleasers(all.map((row) => row.invoice.invoiceId));
   const items: ReleaseItem[] = scheduled
     .map((row, i) => ({ row, blockers: row.releaseCheck.reasons, releasers: releasers[i] ?? [] }))
-    // Releasers see what they can release first; then by pay date.
+    // Releasers see what they can release first; then the one that became ready to release most
+    // recently (scheduled latest) on top; ties (e.g. seeded together) by pay date.
     .sort(
       (a, b) =>
         (isReleaser ? Number(a.blockers.length > 0) - Number(b.blockers.length > 0) : 0) ||
+        (b.row.current.scheduledAt ?? "").localeCompare(a.row.current.scheduledAt ?? "") ||
         a.row.current.scheduledDate.localeCompare(b.row.current.scheduledDate),
     );
   const releasable = items.filter((i) => i.blockers.length === 0).length;

@@ -80,7 +80,7 @@ describe("payments on the database", () => {
     expect(trail.map((e) => e.action)).toContain("invoice.paymentSettled");
   });
 
-  it("the Admin does not schedule, and releases only what the Finance Manager can't (brief P09–P11)", async () => {
+  it("the Admin does not schedule, and releases any amount, but never what they approved (brief P09–P11)", async () => {
     const view = await paymentsDb.list(ADMIN.userId, { db });
     const awaiting = view.awaitingPayment[0];
     if (awaiting) {
@@ -89,10 +89,11 @@ describe("payments on the database", () => {
     }
     const scheduled = view.payments.filter((p) => p.current.status === "scheduled");
     const releasers = await paymentsDb.eligibleReleasers(scheduled.map((p) => p.invoice.invoiceId), { db });
-    const fmCan = scheduled.findIndex((_, i) => releasers[i]!.some((p) => p.userId === FM.userId));
+    // One the Finance Manager could release (≤ $100k) → the Admin may release it too.
+    const fmCan = scheduled.findIndex((_, i) => releasers[i]!.some((p) => p.userId === FM.userId) && releasers[i]!.some((p) => p.userId === ADMIN.userId));
     expect(fmCan).toBeGreaterThanOrEqual(0);
-    const refused = await paymentsDb.release(ADMIN, { paymentId: scheduled[fmCan]!.current.paymentId }, { db });
-    expect(refused).toMatchObject({ ok: false, status: 403, reasons: [{ code: "FINANCE_MANAGER_RELEASES" }] });
+    const released = await paymentsDb.release(ADMIN, { paymentId: scheduled[fmCan]!.current.paymentId }, { db });
+    expect(released.ok, JSON.stringify(released)).toBe(true);
 
     // One the Finance Manager approved (separation of duties) → the Admin is the one who releases it.
     const fmBlocked = scheduled.findIndex((p, i) => p.invoice.approvedBy.some((a) => a.userId === FM.userId) && releasers[i]!.some((x) => x.userId === ADMIN.userId));

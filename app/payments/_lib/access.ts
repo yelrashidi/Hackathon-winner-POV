@@ -77,7 +77,7 @@ export const ROLE_ABILITIES: Record<DashboardRole, string[]> = {
     "Not ones you approved, requested or scheduled",
   ],
   controller: [
-    "Release only what the Finance Manager can't (over $100,000 CAD, or one they approved)",
+    "Release payments of any amount (over $100,000 CAD only you can)",
     "Review fraud-hold escalations",
     "Not ones you approved, requested or scheduled",
   ],

@@ -58,7 +58,7 @@ export const APP_ROLES: { key: AppRole; label: string; summary: string; can: str
     key: "admin",
     label: "Admin",
     summary: "Runs everything except payments: approvals over $50,000, vendors, people and policies.",
-    can: ["Checks, approvals, vendors", "Edit approval policies, put people on leave", "Releases only what the Finance Manager can't"],
+    can: ["Checks, approvals, vendors", "Edit approval policies, put people on leave", "Releases payments of any amount"],
   },
   {
     key: "auditor",
