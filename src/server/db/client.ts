@@ -37,6 +37,46 @@ export function connect(url: string, opts: { max?: number } = {}): Db {
 
 export const PGLITE_SCHEME = "pglite:";
 
+/** The restricted role the app runs as: no UPDATE / DELETE / TRUNCATE on audit_events (0001). */
+export const APP_ROLE = "ap_app";
+
+/**
+ * Wraps a PGlite client so the app can only ever run as `ap_app`. PGlite opens as the superuser,
+ * so the client switches role first, and EVERY query, exec and transaction waits for that switch
+ * and the `current_user` check. If either fails (role missing, database not migrated), every query
+ * rejects with the reason: the app never silently runs as superuser and bypasses the audit guards.
+ */
+export function restrictToAppRole(client: PGlite): PGlite {
+  const ready = (async () => {
+    try {
+      await client.exec(`SET ROLE ${APP_ROLE}`);
+    } catch (err) {
+      throw new Error(`Embedded database: could not switch to role ${APP_ROLE} (${err instanceof Error ? err.message : String(err)}). Run \`npm run demo -- --reset\`.`);
+    }
+    const { rows } = await client.query<{ u: string }>("SELECT current_user AS u");
+    if (rows[0]?.u !== APP_ROLE) throw new Error(`Embedded database: running as ${rows[0]?.u ?? "unknown"}, expected ${APP_ROLE}; refusing to run.`);
+  })();
+  ready.catch(() => {}); // surfaced through every query below, not as an unhandled rejection
+
+  // A wrapper, not a patch: PGlite's own methods call each other internally and must not wait on
+  // `ready` themselves. Only calls coming from the app (through drizzle) are gated.
+  const gated = new Set<PropertyKey>(["exec", "query", "transaction"]);
+  return new Proxy(client, {
+    get(target, prop) {
+      const value = Reflect.get(target, prop, target) as unknown;
+      if (typeof value !== "function") return value;
+      const fn = (value as (...a: unknown[]) => unknown).bind(target);
+      return gated.has(prop) ? async (...args: unknown[]) => (await ready, fn(...args)) : fn;
+    },
+  });
+}
+
+/** A drizzle handle on an embedded database folder, restricted to `ap_app`. No caching. */
+export function openEmbeddedDb(dir: string): { db: Db; client: PGlite } {
+  const client = restrictToAppRole(new PGlite(path.resolve(dir)));
+  return { db: drizzlePglite(client, { schema }) as unknown as Db, client };
+}
+
 /**
  * The embedded database in `dir`, opened once per process. PGlite has no file lock, so two
  * instances on one folder would corrupt it — and Next.js can load this module more than once
@@ -49,11 +89,7 @@ function openEmbedded(dir: string): Db {
     if (g.__harborlinePglite.dir !== abs) throw new Error(`Embedded database already open at ${g.__harborlinePglite.dir}`);
     return g.__harborlinePglite.db;
   }
-  const client = new PGlite(abs);
-  // The app runs as the restricted role, like on Postgres (no UPDATE/DELETE on audit_events).
-  // PGlite runs statements in call order, so this lands before any app query.
-  void client.exec("SET ROLE ap_app");
-  const db = drizzlePglite(client, { schema }) as unknown as Db;
+  const { db } = openEmbeddedDb(abs);
   g.__harborlinePglite = { dir: abs, db };
   return db;
 }
