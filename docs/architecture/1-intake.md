@@ -1,6 +1,6 @@
 # 1 — Intake
 
-**Owner:** Arpan · **Code as of:** `b655a97` + PR #11 review fixes (2026-11-21; steps 1–2 of 4 done; step 3 in `docs/todo/TODO.md`)
+**Owner:** Arpan · **Code as of:** `5feb7b1` + Docker poller (2026-11-21; steps 1–2 of 4 done; step 3 in `docs/todo/TODO.md`)
 
 ## What it does
 Watches a mailbox, turns every new email into one `InboxMessage`, classifies it (invoice / not an
@@ -78,6 +78,11 @@ One-time, ~10 minutes, per developer:
    coded, audited (`InReview`); unreadable bill → `ManualEntry`; each bill gets a `documents` row (sha256).
    Re-running is safe (no duplicates). `--no-save` only prints. Gmail's cursor advances only after every
    new email is saved.
+8. **In Docker:** `docker compose up -d` also starts the `gmail-poller` service (`docker-compose.yml`):
+   `gmail:poll --watch` every `GMAIL_POLL_SECONDS` (default 10) as `ap_app`, keys from `.env.local`, cursor
+   in the `intake-state` volume (so its first poll is a fresh baseline). No Gmail keys → it logs why and
+   exits 0. `--watch` waits for each poll to finish before the next (`scripts/gmail-poll.ts`), so a slow
+   LLM read never overlaps the next poll on the same mail. Logs: `docker compose logs -f gmail-poller`.
 
 Traps:
 - "Access blocked: … has not completed the Google verification process" → the signing-in account is

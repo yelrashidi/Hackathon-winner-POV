@@ -77,5 +77,10 @@ await pollOnce(backfill);
 if (watchSeconds <= 0) await saver.close();
 else {
   console.log(`Watching every ${watchSeconds}s — Ctrl+C to stop.`);
-  setInterval(() => pollOnce().catch((e) => console.error(String(e))), watchSeconds * 1000);
+  // Sequential, not setInterval: a poll that runs longer than the interval (LLM extraction) must
+  // finish and save its cursor before the next one starts, or two polls race on the same mail.
+  for (;;) {
+    await new Promise((r) => setTimeout(r, watchSeconds * 1000));
+    await pollOnce().catch((e) => console.error(String(e)));
+  }
 }
