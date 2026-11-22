@@ -35,6 +35,7 @@ control. A refusal is a 403 with a reason the UI shows (`You approved this invoi
 | Edit users, roles, approval policies | — | — | — | — | ✓ | — |
 | View the audit trail | — | ✓ | ✓ | ✓ | ✓ | ✓ (past invoices only) |
 | Export the audit log | — | — | — | — | ✓ | ✓ |
+| Export the accounting journal (bonus) | — | — | — | ✓ | ✓ | — |
 
 ## The rules that apply to everyone — the ones judges will test
 

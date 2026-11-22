@@ -48,6 +48,11 @@ export const ACTIONS = {
    * Export: the Auditor, and the Controller/Admin (roles-and-permissions.md "full audit log / export").
    */
   "audit.view": ["ap_clerk", "approver", "finance_manager", "controller_admin", "auditor"],
+  /**
+   * Bonus: export approved bills + settled payments as an accounting journal (posting to the books).
+   * The people who own the books — Finance Manager and Controller/Admin — decide what is posted and when.
+   */
+  "journal.export": ["finance_manager", "controller_admin"],
   "audit.export": ["auditor", "controller_admin"],
 } as const satisfies Record<string, readonly ActorRole[]>;
 
@@ -71,6 +76,7 @@ const LABELS: Record<Action, string> = {
   "admin.edit": "edit users, roles and policies",
   "audit.view": "view the audit log",
   "audit.export": "export the audit log",
+  "journal.export": "export the accounting journal",
 };
 
 export class Forbidden extends Error {

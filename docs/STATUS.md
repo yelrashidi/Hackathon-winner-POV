@@ -78,6 +78,7 @@ the top block is updated by whoever finishes a shared piece.
 - **Katie:** payments stay her Postgres service; `pipeline/payments.ts` only adds the Admin release rule. `deps.ts`: only a fully approved plan approves a payee (review finding, fixed). Payments pages sit in the shared frame; upload moved to `/checks/upload` and saves through `ingestInvoice`.
 - **Arpan:** `pipeline/intake.ts` stores intake's reason on emails the seed loaded; Duplicates is in the shared sidebar; `duplicates/__tests__/db.test.ts` now shows the refusal with the Auditor (managers may do checks).
 - `@electric-sql/pglite` is a dependency; the quick demo (`npm run dev`, no `DATABASE_URL`) runs as `ap_app` like `npm run demo`.
+**Bonus (branch `journal-export`):** Records → Journal export — approved bills + settled payments as a balanced CSV journal, Finance Manager + Admin only, never posted twice ([`journal-export.md`](architecture/journal-export.md)).
 **Next:** real auth; uploads to object storage; live mailbox polling from the Inbox (Gmail connector exists as a script).
 
 ### 7 Payments — Katie
