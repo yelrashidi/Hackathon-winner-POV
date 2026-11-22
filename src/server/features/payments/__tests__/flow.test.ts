@@ -1,5 +1,10 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import type { PGlite } from "@electric-sql/pglite";
+import { drizzle } from "drizzle-orm/pglite";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { PaymentsView } from "@/contracts/payment";
+import { createSeededDb } from "@/server/db/__tests__/helpers";
+import { setDb, type Db } from "@/server/db/client";
+import * as schema from "@/server/db/schema";
 import {
   cancelPayment,
   clearFlag,
@@ -9,14 +14,13 @@ import {
   rejectBankChange,
   releasePayment,
   requestBankChange,
-  resetState,
   schedulePayment,
   simulateSettlement,
   verifyBankChange,
   type ActionResult,
 } from "..";
 
-// End to end on the real dataset (the in-memory store loads the CSVs). People:
+// End to end on the real dataset, in the seeded database (PGlite), as the app's restricted role. People:
 // U003 Elise Tremblay (Finance Manager) · U002 Marcus Webb (Controller) · U004 Jordan Okafor and
 // U005 Sam Patel (AP clerks) · U006 Hannah Lindqvist (auditor) · U007 Dev Malhotra (approver, D01).
 
@@ -35,8 +39,25 @@ const refusedCodes = async (p: Promise<ActionResult<unknown>>) => {
 const detail = async (invoiceId: string) => (await getPaymentDetail("U003", invoiceId))!;
 const current = async (invoiceId: string) => (await detail(invoiceId)).current;
 
+// Seeded once; every test gets its own copy, so each starts from the dataset.
+let seeded: PGlite;
+let client: PGlite | null = null;
+
+beforeAll(async () => {
+  seeded = (await createSeededDb()).client;
+}, 120_000);
+
 beforeEach(async () => {
-  await resetState();
+  await client?.close();
+  client = (await seeded.clone()) as PGlite;
+  await client.exec("SET ROLE ap_app");
+  setDb(drizzle(client, { schema }) as unknown as Db);
+}, 60_000);
+
+afterAll(async () => {
+  setDb(null);
+  await client?.close();
+  await seeded.close();
 });
 
 describe("payments on the dataset", async () => {
@@ -114,22 +135,28 @@ describe("payments on the dataset", async () => {
   });
 
   it("Critical: a fraud hold stops every payment to the supplier until the Controller clears it", async () => {
-    // Summit Packaging (V011) has two scheduled payments: AP-00394 and AP-00407.
-    const a = (await current("AP-00394"));
+    // Talentbridge (V048) has two scheduled payments: AP-00419 and AP-00422 (different invoices, not duplicates).
+    const a = (await current("AP-00419"));
     await ok(releasePayment("U003", { paymentId: a.paymentId }, opts));
     await ok(simulateSettlement("U004", { paymentId: a.paymentId, outcome: "FRAUD_HOLD" }, opts));
 
-    const b = (await current("AP-00407"));
+    const b = (await current("AP-00422"));
     expect(b.status).toBe("on_hold");
-    const refused = await releasePayment("U003", { paymentId: b.paymentId }, opts);
+    const refused = await releasePayment("U002", { paymentId: b.paymentId }, opts);
     expect(!refused.ok && refused.reasons.map((r) => r.message)).toContain("Stopped: fraud hold on this supplier. Controller must review.");
 
-    const flagId = (await detail("AP-00394")).flags[0]!.flagId;
+    const flagId = (await detail("AP-00419")).flags[0]!.flagId;
     expect(await refusedCodes(clearFlag("U003", { flagId, note: "looks fine" }, opts))).toEqual(["CONTROLLER_ONLY"]);
     expect(await refusedCodes(clearFlag("U002", { flagId, note: "" }, opts))).toEqual(["NOTE_REQUIRED"]);
-    await ok(clearFlag("U002", { flagId, note: "Called Summit on the number in the master file; transfer was genuine." }, opts));
-    expect((await current("AP-00407")).status).toBe("scheduled");
-    await ok(releasePayment("U003", { paymentId: b.paymentId }, opts));
+    await ok(clearFlag("U002", { flagId, note: "Called Talentbridge on the number in the master file; transfer was genuine." }, opts));
+    expect((await current("AP-00422")).status).toBe("scheduled");
+    // Elise approved AP-00422 (P11), so the Controller releases it.
+    await ok(releasePayment("U002", { paymentId: b.paymentId }, opts));
+  });
+
+  it("a duplicate invoice can't be released: AP-00407 repeats AP-00394 (same vendor invoice #000804)", async () => {
+    const dup = (await current("AP-00407"));
+    expect(await refusedCodes(releasePayment("U003", { paymentId: dup.paymentId }, opts))).toContain("BLOCKING_FLAG");
   });
 
   it("Low: a bank error flags only the failed payment and clears itself when the retry is scheduled", async () => {
@@ -161,7 +188,7 @@ describe("payments on the dataset", async () => {
   it("every action is in the audit trail with who and when", async () => {
     const p = await ok(schedulePayment("U004", { invoiceId: "AP-00425" }, opts));
     await ok(releasePayment("U003", { paymentId: p.paymentId }, opts));
-    const trail = getPaymentAudit("U006", "AP-00425").map((e) => [e.action, e.actorId]);
+    const trail = (await getPaymentAudit("U006", "AP-00425")).map((e) => [e.action, e.actorId]);
     expect(trail).toEqual([
       ["invoice.schedule", "U004"],
       ["payment.scheduled", "U004"],

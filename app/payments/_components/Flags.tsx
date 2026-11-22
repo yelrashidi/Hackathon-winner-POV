@@ -39,7 +39,7 @@ export function FlagCounts({ counts }: { counts: Record<FlagUrgency, number> }) 
 }
 
 /** Every flag on a payment, open first then cleared; cleared ones greyed with who, when and the note. */
-export function FlagList({
+export async function FlagList({
   flags,
   user,
 }: {
@@ -50,10 +50,11 @@ export function FlagList({
 }) {
   if (flags.length === 0) return <p className="text-sm text-slate-500">No flags.</p>;
   const sorted = [...flags].sort((a, b) => Number(a.clearedAt !== null) - Number(b.clearedAt !== null));
+  const clearable = await Promise.all(sorted.map((f) => canClearFlag(user?.id ?? null, f.flagId)));
 
   return (
     <ul className="space-y-3">
-      {sorted.map((f) => {
+      {sorted.map((f, i) => {
         const cleared = f.clearedAt !== null;
         return (
           <li key={f.flagId} className={`flex flex-wrap items-start gap-3 text-sm ${cleared ? "opacity-60" : ""}`}>
@@ -68,7 +69,7 @@ export function FlagList({
                     : ` · Cleared by ${f.clearedBy?.name ?? "—"}, ${formatDate(f.clearedAt)}${f.clearNote ? `: ${f.clearNote}` : ""}`)}
               </p>
             </div>
-            {canClearFlag(user?.id ?? null, f.flagId) && (
+            {clearable[i] && (
               <ActionForm action={clearFlagAction} label="Clear flag" hidden={{ flagId: f.flagId }} tone="quiet">
                 <input
                   name="note"

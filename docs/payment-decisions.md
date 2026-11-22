@@ -1,6 +1,6 @@
 # Payments — decisions (Katie)
 
-**Last updated — payment session (branch `Katie`):** 2026-11-21 (Schedule again confirmation text)
+**Last updated — payment session (branch `Katie`):** 2026-11-21 (Payments on the database)
 **Last updated — dashboard session (branch `dashboard`):** 2026-11-21 (moved in from dashboard-todo.md by the payment session, one-time exception)
 
 What we decided for payments and the payments dashboard, and **why**, in sentences you can say
@@ -128,7 +128,7 @@ the risk keeps payments moving without letting fraud through.
 - **Q5 Whoever scheduled a payment can never release it, whatever their role.** *Why:* this is the
   "four eyes" rule. Setting up a payment and sending it are two separate keys, so no one person can
   move money out alone. It costs nothing in practice: in ten months of history, all 415 payments
-  were scheduled by AP clerks and released by someone else. The planned database has the same rule
+  were scheduled by AP clerks and released by someone else. The database has the same rule
   (`released_by` ≠ `prepared_by`) as a backstop.
 - **Q6 Whoever requested an invoice can never release its payment.** *Why:* it's the same idea as
   "you can't approve your own request". Nobody should be able to buy something and also send the money
@@ -155,10 +155,10 @@ the risk keeps payments moving without letting fraud through.
 
 ### Building before teammates finish (decided 2026-11-21)
 
-- **Every piece we need from another feature sits behind one small adapter.** Today the adapters
-  return fake data. At the end, we swap each one for the teammate's real code.
+- **Every piece we need from another feature sits behind one small adapter.** The adapters started
+  with fake data; since 2026-11-21 they read the database (see "Payments on the database" below).
   *Why:* we didn't have to wait for anyone, and the payment rules never touch fake data directly.
-  So swapping in the real thing doesn't change the rules or their tests.
+  So swapping in the real thing didn't change the rules or their tests.
 - Every assumption is written down in `payment-assumptions.md`, with its shape and owner.
 
 ### Decided by default while building (2026-11-21) — Katie to review
@@ -166,16 +166,17 @@ the risk keeps payments moving without letting fraud through.
 Katie said "stop asking and build everything", so these used the recommended option. Change any of them
 and the code follows.
 
-- **Sample data:** the real dataset CSVs are loaded at startup, with no hand-written records. Only open work
-  is loaded: 2 approved invoices and the scheduled EFT payments. The 10 months of paid history are not.
-  Failed and on-hold payments only appear when you run the demo.
+- **Sample data:** the database seed loads the real dataset CSVs (`npm run db:reset`), with no hand-written
+  records. Payments shows only open work: the approved invoices and the scheduled EFT payments, plus anything
+  paid through the app. The 10 months of paid history are not shown. Failed and on-hold payments only appear
+  when you run the demo.
 - **Cheque and card payments in the dataset are left out** (5 scheduled invoices: AP-00398, AP-00405,
   AP-00408, AP-00411, AP-00420), because payments does EFT only for now.
 - **The dataset's unverified bank change (BC-009, Cascadia Cartage, by email) is a pending bank account.**
   Release to that supplier is refused until a Finance Manager or Controller verifies or rejects it.
   *Why:* it's the classic "we changed banks" email. Nobody should pay until a second person has checked.
-- **Who approved:** read from the dataset's approval history for now. It swaps to Youssef's
-  `approversOf()` at step 11.
+- **Who approved:** Youssef's `approversOf()` over the approval plans in the database (the seed loads the
+  dataset's approval history into them).
 - **Pay date:** an overdue invoice defaults to today. A weekend date moves to the Friday before, or to
   the next Monday if that Friday has already passed. A pay date in the past is refused.
 - **A failed bank account gets the status `closed`**, so it can't be paid until new details are verified.
@@ -187,7 +188,7 @@ and the code follows.
 - **"Simulate bank answer"** can be pressed by any finance role (it's a demo control).
 - **UI:** the buttons live on their own page, `/payments-console`, so payments doesn't touch the
   dashboard's `/payments` pages. Release stays clickable even when refused, so you can show the server
-  saying no. There's also a "Reset demo data" button.
+  saying no. (The "Reset demo data" button was removed on 2026-11-21: see "Payments on the database".)
 - **Signed-in person:** the same cookie as the dashboard's "Viewing as" switcher (`hl_viewing_as`).
   The payment functions take the person's id as an argument (read from the session by the caller), so
   they can be tested.
@@ -198,8 +199,7 @@ and the code follows.
 
 - **One place for buttons.** Schedule, Release, Retry / Schedule again, Clear flag, Cancel and the bank change
   (enter, verify, reject) sit on the dashboard pages. `/payments-console` keeps only the demo
-  controls: "Simulated bank" (the bank's answer for a released payment) and "Reset demo data", linked
-  from the dashboard header. *Why:* one screen per role, and an action taken anywhere shows up everywhere,
+  control "Simulated bank" (the bank's answer for a released payment), linked from the dashboard header. *Why:* one screen per role, and an action taken anywhere shows up everywhere,
   because every page reads the same payments code.
 - **No copies of rules or data on the dashboard.** The dashboard's copied types, sample data, failure
   reasons and release rules are deleted. It shows the server's own release check (every reason), the
@@ -213,6 +213,39 @@ and the code follows.
   Both make a new attempt that goes through every check. After "Schedule again" the confirmation reads
   "Payment scheduled again (new attempt)". *Why:* a cancelled payment didn't fail, so "Retry" would make
   a judge read it as a failure.
+
+### Payments on the database (decided 2026-11-21)
+
+- **Payments reads and writes the team's Postgres database, not a copy in memory.** Users, suppliers,
+  invoices, bank-account versions, release policies, approvals, payments, payment flags and the audit log
+  all come from the tables the seed fills. *Why:* the in-memory copy reset on every restart, and a payment
+  has to point at a real invoice row, so moving only half wouldn't work. The upload page's store stays in memory.
+- **Payments uses the team's shared core.** Invoice status changes go through `fire()`, audit rows through
+  `withAction()`, and every action calls `authorize()` first (`payment.prepare`, `payment.release`, and the
+  bank-change actions). Payments' own checks still run and still list every reason. *Why:* hard rules 1–3.
+  One state machine, one audit writer and one role table, which a judge can test by calling the server as
+  the wrong role. The change and its audit rows commit together or not at all.
+- **Why a bank account was closed comes from the payment flag that the failure raised.** No new column.
+  *Why:* no schema change in a teammate's area. Every failure raises a flag, so every closed account has one.
+- **The dashboard lists open work:** approved invoices and their payment attempts, plus anything paid through
+  the app. Invoices that were already paid in the dataset's history aren't shown. *Why:* the same screen as before.
+- **New payment IDs continue the dataset's numbering:** PAY-00416, PAY-00417, … *Why:* the ID is shown on the
+  details page, and new payments should look like the old ones.
+- **The audit trail on a payment's page shows payment events,** meaning payments, payment flags, bank accounts
+  and the invoice's payment status changes, including the history the seed rebuilt (for example, who
+  scheduled each dataset payment; those times are approximate). *Why:* it answers "what happened to this
+  payment". Approvals and validation stay in the auditor's view.
+- **An invoice with no due date is due on its invoice date plus the supplier's payment terms** (vendor
+  master); if either is missing, today. That date is shown as its due date. *Why:* invoices from email can
+  arrive without a due date, and that's how AP works one out.
+- **"Reset demo data" button removed.** Reset with `npm run db:reset` in the terminal: it wipes and reseeds
+  the local database, audit log included. *Why:* the database refuses to change or delete audit rows, so the
+  app can't undo what happened. That's the point of an audit trail.
+- **The payment session added the `await`s on the dashboard pages** for the three payment functions that now
+  wait for the database (`canClearFlag`, `getPaymentAudit`, `getSupplierBank`). One-time exception, nothing else
+  on those pages changed. *Why:* without them the build breaks.
+- **Tests run on the seeded in-process database (PGlite)**, with the same scenarios and the same expected results.
+  The in-memory `fake-data/` folder is deleted.
 
 ## Dashboard decisions
 
@@ -302,6 +335,11 @@ _(Moved here from `docs/dashboard-todo.md` on 2026-11-21, a one-time exception b
 
 | Date | Topic | Decision | By |
 |---|---|---|---|
+| 2026-11-21 | Payments on the database | Postgres through the shared core (`fire`, `withAction`, `authorize`); open work only; closed reason from the flag; dashboard `await`s; tests on PGlite; `fake-data/` deleted | Katie |
+| 2026-11-21 | Reset demo data | Button removed; reset with `npm run db:reset` (audit rows can't be deleted) | Katie |
+| 2026-11-21 | New payment IDs | Continue the dataset's numbering: PAY-00416, … | Katie |
+| 2026-11-21 | Payment audit trail | Payment events, including the seed's rebuilt history | Katie |
+| 2026-11-21 | No due date | Invoice date + the supplier's payment terms; otherwise today | Katie |
 | 2026-11-21 | Wrap-up docs | STATUS section, TODO moved to completed (Katie), duplicate pair as a Duplicates TODO, BUG-Katie-01/02 + 2 backend rules, `7-payments.md` | Katie |
 | 2026-11-21 | Schedule again confirmation | After "Schedule again" the message reads "Payment scheduled again (new attempt)" | Katie |
 | 2026-11-21 | Cancelled payment button | "Schedule again" instead of "Retry"; failed payments keep "Retry" | Katie |

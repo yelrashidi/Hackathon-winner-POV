@@ -4,9 +4,10 @@ import { FailureCode } from "@/contracts/payment";
 import { listPayments } from "@/server/features/payments";
 import { getCurrentUser } from "@/server/session/current-user";
 import { ActionForm, inputClass } from "../payments/_components/ActionForm";
-import { resetDemo, settleAction } from "../payments/actions";
+import { settleAction } from "../payments/actions";
 
-// Demo controls only: the simulated bank's answer for released payments, and a reset.
+// Demo control only: the simulated bank's answer for released payments. To start the demo
+// again, `npm run db:reset` (the audit log can't be undone from the app).
 // Every real payment button lives on the dashboard (/payments). Who is acting is the dashboard's
 // "Viewing as" person.
 
@@ -71,11 +72,6 @@ async function Bank() {
           ))}
         </ul>
       </section>
-      <form action={resetDemo}>
-        <button className="rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50">
-          Reset demo data
-        </button>
-      </form>
     </>
   );
 }
