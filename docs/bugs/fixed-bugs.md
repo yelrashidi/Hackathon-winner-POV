@@ -20,6 +20,8 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Arpan-02 | High | Arpan | 2026-11-21 | Gmail advanced its cursor past messages excluded by the delivery cap |
 | BUG-Arpan-03 | High | Arpan | 2026-11-21 | Credit notes kept positive amounts when their total was missing or already negative |
 | BUG-Arpan-04 | Medium | Arpan | 2026-11-21 | Missing line values silently became zero amounts or quantity one |
+| BUG-Arpan-05 | Medium | Arpan | 2026-11-21 | DB tests picked "the first row" without ORDER BY and broke when the seed wrote more rows |
+| BUG-Arpan-06 | Medium | Arpan | 2026-11-21 | Duplicates page queried the DB while Next.js prerendered and the route errored on the embedded DB |
 | BUG-Katie-01 | High | Katie | 2026-11-21 | Release said "No approval record was found" in the app while tests passed |
 | BUG-Katie-02 | Medium | Katie | 2026-11-21 | `import "server-only"` made `npm run check` fail |
 
@@ -166,3 +168,15 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 **Symptom.** `npm run gmail:poll` and `npm run intake:dataset` classified and printed each email; no invoice reached Postgres.
 **Cause.** `ingestFromIntake` was built and tested on fixtures, but the two entry points were never switched to it. The Gmail cursor was also saved *before* processing, so once saving existed a DB error would have skipped mail for good.
 **Fix.** `scripts/intake-save.ts` calls `ingestFromIntake` per email (and keeps each bill's bytes for a `documents` row); both scripts use it; Gmail's cursor advances only after every new email is saved. Verified with all 59 dataset emails, twice, into Docker Postgres.
+
+### BUG-Arpan-05
+**Tests depended on heap order** · Medium · FIXED · found 2026-11-21 while adding the duplicates seed pass
+
+**Cause.** `audit-trail.test.ts` took "the first open flag" (`LIMIT 1`, no `ORDER BY`) and assumed it was on a new invoice; `intake.test.ts` compared audit actions and "the first audit event" in physical order. Once the seed also wrote duplicate flags, Postgres returned other rows first.
+**Fix.** Explicit filters and `ORDER BY id` (`src/server/db/__tests__/audit-trail.test.ts` override setup, `src/server/pipeline/__tests__/intake.test.ts:62`, `:87`, `:124`). Rule: db.md.
+
+### BUG-Arpan-06
+**DB read during prerender** · Medium · FIXED · found 2026-11-21 running `next start` on the embedded demo DB
+
+**Cause.** With `cacheComponents`, `/payments/duplicates` started its database read while Next.js was still prerendering the shell; PGlite reads the clock, and Next refuses `Date.now()` during prerender ("encountered the unstable value `Date.now()`").
+**Fix.** `await connection()` before the read (`app/payments/_lib/duplicates.ts`). Rule: frontend.md.
