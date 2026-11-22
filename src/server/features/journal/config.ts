@@ -14,6 +14,7 @@ export interface MappedAccount {
   name: string;
 }
 
+// Read once when the module loads; an unset or blank variable keeps the default account.
 const env = (key: string, fallback: string) => process.env[key]?.trim() || fallback;
 
 export const JOURNAL_ACCOUNTS = {
