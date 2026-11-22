@@ -1,0 +1,151 @@
+{
+  "vendor": {
+    "vendorId": "V057",
+    "legalName": "Blue Heron Couriers",
+    "category": "Freight & Carriers",
+    "status": "pending_review",
+    "statusReason": null,
+    "address": null,
+    "provinceOrState": "BC",
+    "country": "CA",
+    "gstHstNumber": "324978405RT0001",
+    "qstNumber": null,
+    "paymentTermsDays": 30,
+    "earlyPayDiscount": null,
+    "preferredPaymentMethod": "EFT",
+    "acceptsCardPayment": false,
+    "apContactEmail": "ar@blueheron.example",
+    "requiresPo": false,
+    "defaultGlAccount": null,
+    "onboardedAt": "2026-11-02",
+    "onboardedBy": {
+      "userId": "U004",
+      "name": "Jordan Okafor",
+      "role": "ap_clerk"
+    },
+    "approvedBy": null
+  },
+  "bankAccounts": [
+    {
+      "version": 1,
+      "status": "pending",
+      "currency": "CAD",
+      "last4": "5617",
+      "channel": "phone_callback_verified",
+      "changedAt": "2026-11-02",
+      "requestedBy": {
+        "userId": "U004",
+        "name": "Jordan Okafor",
+        "role": "ap_clerk"
+      },
+      "verifiedBy": null,
+      "verifiedAt": null
+    }
+  ],
+  "contracts": [],
+  "purchaseOrders": [],
+  "invoices": [
+    {
+      "invoiceId": "IN-invoice-4443",
+      "invoiceNumber": "4443",
+      "invoiceDate": "2026-10-20",
+      "status": "InReview",
+      "totalCents": 140774,
+      "currency": "CAD",
+      "openFlags": 4
+    }
+  ],
+  "timeline": [
+    {
+      "id": 2532,
+      "occurredAt": "2026-11-22T01:30:01.504Z",
+      "action": "vendor.created",
+      "summary": "Jordan Okafor (ap_clerk) onboarded vendor Blue Heron Couriers (V057) — pending review until a second person approves it",
+      "actor": {
+        "userId": "U004",
+        "name": "Jordan Okafor",
+        "role": "ap_clerk"
+      },
+      "actorRoleAtTime": "ap_clerk",
+      "onBehalfOf": null,
+      "entityType": "vendor",
+      "entityId": "V057",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "id": "V057",
+        "status": "pending_review",
+        "address": null,
+        "country": "CA",
+        "category": "Freight & Carriers",
+        "legalName": "Blue Heron Couriers",
+        "qstNumber": null,
+        "requiresPo": false,
+        "onboardedAt": "2026-11-02",
+        "gstHstNumber": "324978405RT0001",
+        "apContactEmail": "ar@blueheron.example",
+        "provinceOrState": "BC",
+        "defaultGlAccount": null,
+        "paymentTermsDays": 30,
+        "acceptsCardPayment": false,
+        "preferredPaymentMethod": "EFT"
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "1e4de7dc-4f6b-4b4a-b7eb-706f850b4638"
+    },
+    {
+      "id": 2533,
+      "occurredAt": "2026-11-22T01:30:01.504Z",
+      "action": "bank_account.change_requested",
+      "summary": "Jordan Okafor (ap_clerk) entered new bank details V057#1 (••5617) — waiting for a second person",
+      "actor": {
+        "userId": "U004",
+        "name": "Jordan Okafor",
+        "role": "ap_clerk"
+      },
+      "actorRoleAtTime": "ap_clerk",
+      "onBehalfOf": null,
+      "entityType": "bank_account",
+      "entityId": "V057#1",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "last4": "5617",
+        "status": "pending",
+        "channel": "phone_callback_verified",
+        "version": 1,
+        "currency": "CAD"
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "1e4de7dc-4f6b-4b4a-b7eb-706f850b4638"
+    }
+  ],
+  "allowedActions": {
+    "approve": {
+      "allowed": false,
+      "reason": "Your role (ap_clerk) cannot approve new vendors."
+    },
+    "hold": {
+      "allowed": true,
+      "reason": null
+    },
+    "releaseHold": {
+      "allowed": false,
+      "reason": "Your role (ap_clerk) cannot lift a vendor hold."
+    },
+    "requestBankChange": {
+      "allowed": false,
+      "reason": "A bank change is already waiting for verification; verify or reject it first."
+    },
+    "verifyBankChange": {
+      "allowed": false,
+      "reason": "Your role (ap_clerk) cannot verify vendor bank changes."
+    },
+    "rejectBankChange": {
+      "allowed": false,
+      "reason": "Your role (ap_clerk) cannot verify vendor bank changes."
+    }
+  }
+}

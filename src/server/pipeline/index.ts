@@ -14,7 +14,7 @@
  * Not here yet: 5 duplicates (no owner) and 7 payments (Katie's service still runs on its in-memory
  * adapters in features/payments/deps.ts; the tables it needs exist — see docs/architecture/8-audit.md).
  */
-export { ingestInvoice, revalidateInvoice, editInvoice, IngestError, type IngestOptions, type AnalysisResult, type InvoicePatch } from "./ingest";
+export { ingestInvoice, revalidateInvoice, reanalyseWithin, editInvoice, IngestError, type IngestOptions, type AnalysisResult, type InvoicePatch } from "./ingest";
 export { codeWithin, codeInvoiceLine, acceptConfidentLines, loadCodingContext, CodingError } from "./coding";
 export { submitForApproval, decideApproval, loadApprovalContext, PostgresApprovalStore, ApprovalFlowError } from "./approvals";
 export { invoiceInputFromDb } from "./input";

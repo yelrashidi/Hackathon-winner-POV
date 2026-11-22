@@ -71,6 +71,16 @@ async function analyse(action: ActionContext, input: ValidationInput, today: str
   return { result, summary, coding };
 }
 
+/**
+ * Re-runs steps 3–4 on an invoice inside an action that is already open — for a change elsewhere
+ * that the invoice's checks depend on (feature 9: a vendor approved, put on hold, or its bank
+ * details verified). The re-run's audit rows share the causing action's request id.
+ */
+export async function reanalyseWithin(action: ActionContext, invoiceId: string, today: string) {
+  const input = await invoiceInputFromDb(action.tx, invoiceId, today);
+  return analyse(action, input, today);
+}
+
 export async function ingestInvoice(draft: ValidationInputDraft, opts: IngestOptions): Promise<AnalysisResult> {
   const parsed = ValidationInput.safeParse(draft);
   if (!parsed.success) throw new IngestError(`Extraction output does not match the ValidationInput contract: ${parsed.error.issues[0]?.message ?? "invalid"}`, 400);
