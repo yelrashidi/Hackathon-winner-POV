@@ -1,17 +1,19 @@
 import { getCurrentUser } from "@/server/session/current-user";
 import { dashboardRole, pagesFor, ROLE_ABILITIES, type PageKey } from "../_lib/access";
 import { getPayments, needsAttention } from "../_lib/data";
+import { openDuplicateCount } from "../_lib/duplicates";
 import { SidebarNav, type NavItem } from "./SidebarNav";
 
 /** Only the pages the signed-in person's role includes, with a count on each queue. */
 export async function Sidebar() {
-  const [user, view] = await Promise.all([getCurrentUser(), getPayments()]);
+  const [user, view, duplicates] = await Promise.all([getCurrentUser(), getPayments(), openDuplicateCount()]);
   const role = dashboardRole(user);
 
   const counts: Partial<Record<PageKey, number>> = {
     "to-schedule": view.awaitingPayment.length,
     "to-release": view.payments.filter((p) => p.current.status === "scheduled").length,
     "needs-attention": view.payments.filter(needsAttention).length,
+    duplicates: duplicates ?? undefined,
   };
 
   const items: NavItem[] = pagesFor(role).map((p) => ({
@@ -19,7 +21,7 @@ export async function Sidebar() {
     href: p.href,
     label: p.label,
     count: counts[p.key],
-    alert: p.key === "needs-attention" && (counts["needs-attention"] ?? 0) > 0,
+    alert: (p.key === "needs-attention" || p.key === "duplicates") && (counts[p.key] ?? 0) > 0,
   }));
 
   return (

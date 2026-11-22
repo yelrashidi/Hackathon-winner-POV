@@ -36,7 +36,7 @@ export function canAct(role: DashboardRole): boolean {
   return role === "clerk" || role === "finance_manager" || role === "controller";
 }
 
-export type PageKey = "overview" | "upload" | "to-schedule" | "to-release" | "needs-attention";
+export type PageKey = "overview" | "upload" | "to-schedule" | "to-release" | "needs-attention" | "duplicates";
 
 export type PaymentsPage = {
   key: PageKey;
@@ -83,6 +83,15 @@ export const PAGES: PaymentsPage[] = [
     roles: ["clerk", "finance_manager", "controller", "auditor"],
     forWhom: "AP Clerks, Finance Managers and Controllers",
   },
+  {
+    // Feature 5: possible duplicates and card-paid bills. A person decides every one; the server
+    // re-checks the role (invoice.review / flag.override) on each action.
+    key: "duplicates",
+    href: "/payments/duplicates",
+    label: "Duplicates",
+    roles: ["clerk", "controller", "auditor"],
+    forWhom: "AP Clerks and Controllers",
+  },
 ];
 
 export function pagesFor(role: DashboardRole): PaymentsPage[] {
@@ -99,7 +108,7 @@ export function pageByKey(key: PageKey): PaymentsPage {
 
 /** What each role can do here, in plain words, shown under the sidebar. */
 export const ROLE_ABILITIES: Record<DashboardRole, string[]> = {
-  clerk: ["Schedule approved invoices", "Retry failed payments", "Can't release payments"],
+  clerk: ["Schedule approved invoices", "Retry failed payments", "Decide possible duplicates", "Can't release payments"],
   finance_manager: [
     "Release payments up to $100,000 CAD",
     "Not ones you approved, requested or scheduled",
@@ -107,6 +116,7 @@ export const ROLE_ABILITIES: Record<DashboardRole, string[]> = {
   controller: [
     "Release payments of any amount",
     "Review escalations",
+    "Decide possible duplicates",
     "Not ones you approved, requested or scheduled",
   ],
   auditor: ["See every payment and page", "Can't change anything"],

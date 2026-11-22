@@ -108,7 +108,7 @@
       "verifiedAccountLast4": "9931",
       "pendingBankChange": false,
       "openInvoices": 1,
-      "openFlags": 2,
+      "openFlags": 3,
       "spendYtdCadCents": 1716420,
       "onboardedAt": "2019-08-11"
     },
@@ -172,7 +172,7 @@
       "verifiedAccountLast4": null,
       "pendingBankChange": false,
       "openInvoices": 3,
-      "openFlags": 4,
+      "openFlags": 6,
       "spendYtdCadCents": 2596800,
       "onboardedAt": "2024-02-06"
     },
@@ -348,7 +348,7 @@
       "verifiedAccountLast4": "3279",
       "pendingBankChange": false,
       "openInvoices": 2,
-      "openFlags": 2,
+      "openFlags": 3,
       "spendYtdCadCents": 4727990,
       "onboardedAt": "2024-05-08"
     },
@@ -636,7 +636,7 @@
       "verifiedAccountLast4": "2201",
       "pendingBankChange": false,
       "openInvoices": 3,
-      "openFlags": 5,
+      "openFlags": 7,
       "spendYtdCadCents": 5456091,
       "onboardedAt": "2022-11-08"
     },

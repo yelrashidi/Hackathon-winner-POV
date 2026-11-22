@@ -55,7 +55,10 @@ export function createIntakeSaver(opts: { args: string[]; today?: string; storag
       return `Saved to Postgres: ${[...tally].map(([k, n]) => `${n} ${k}`).join(", ") || "no attachments"}`;
     },
     async close() {
-      if (enabled) await (getDb() as unknown as { $client: { end(): Promise<void> } }).$client.end();
+      if (!enabled) return;
+      // Server Postgres (postgres.js) closes with end(); the embedded demo database (PGlite) with close().
+      const client = (getDb() as unknown as { $client: { end?: () => Promise<void>; close?: () => Promise<void> } }).$client;
+      await (client.end ?? client.close)?.call(client);
     },
   };
 }

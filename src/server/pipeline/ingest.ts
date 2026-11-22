@@ -7,6 +7,7 @@ import { authorize, Forbidden } from "@/server/core/authorize";
 import { fire } from "@/server/core/fire";
 import { getDb, type Db } from "@/server/db/client";
 import { departments, invoiceLines, invoiceTaxes, invoices, purchaseOrders, users } from "@/server/db/schema";
+import { checkDuplicatesWithin, type DuplicateResult } from "@/server/features/duplicates";
 import { validateWithin, type PersistSummary, type ValidationResult } from "@/server/features/validation";
 import { codeWithin } from "./coding";
 import { invoiceInputFromDb } from "./input";
@@ -19,13 +20,15 @@ import { invoiceInputFromDb } from "./input";
  *     1. save invoice (Received) + lines + tax lines           audit invoice.created
  *     2. fire extractionSucceeded → InReview                    audit invoice.status_changed
  *     3. validation (4): resolves the vendor, CAD total, flags  audit invoice.edited, flag.*, invoice.validated
- *     4. coding (3): GL account + department per line, journal  audit invoice.coding_suggested, flag.*
+ *     4. duplicates (5): earlier copies, card charges          audit flag.*, invoice.duplicates_checked
+ *     5. coding (3): GL account + department per line, journal  audit invoice.coding_suggested, flag.*
  *
  *   editInvoice(actor, id, patch)      a clerk corrects fields in review (incl. the requester, which
- *                                      approvals needs) → fieldsEdited → steps 3–4 re-run
- *   revalidateInvoice(id)              re-runs steps 3–4 on the current rows
+ *                                      approvals needs) → fieldsEdited → steps 3–5 re-run
+ *   revalidateInvoice(id)              re-runs steps 3–5 on the current rows
  *
- * Validation runs before coding because coding takes validation's vendor (one vendor for all stages).
+ * Validation runs first because duplicates and coding take validation's vendor (one vendor for all
+ * stages). Duplicates never decides anything: its flags wait for a person on the duplicates dashboard.
  * Human decisions survive every re-run: flag overrides (syncFlags) and confirmed coding lines.
  */
 
@@ -58,21 +61,23 @@ export interface AnalysisResult {
   status: string;
   result: ValidationResult;
   summary: PersistSummary;
+  duplicates: { result: DuplicateResult; summary: PersistSummary };
   coding: { result: CodingResult; lines: LineCoding[] };
 }
 
 const norm = (n: string | null) => (n ? n.toUpperCase().replace(/[\s-]/g, "") : null);
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
-/** Steps 3–4 inside an open action. */
+/** Steps 3–5 inside an open action. */
 async function analyse(action: ActionContext, input: ValidationInput, today: string) {
   const { result, summary } = await validateWithin(action, input, { today });
+  const duplicates = await checkDuplicatesWithin(action, input.invoiceId);
   const coding = await codeWithin(action, input, result.vendorId);
-  return { result, summary, coding };
+  return { result, summary, duplicates, coding };
 }
 
 /**
- * Re-runs steps 3–4 on an invoice inside an action that is already open — for a change elsewhere
+ * Re-runs steps 3–5 on an invoice inside an action that is already open — for a change elsewhere
  * that the invoice's checks depend on (feature 9: a vendor approved, put on hold, or its bank
  * details verified). The re-run's audit rows share the causing action's request id.
  */

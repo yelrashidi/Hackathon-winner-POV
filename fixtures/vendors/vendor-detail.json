@@ -57,8 +57,8 @@
   ],
   "timeline": [
     {
-      "id": 2532,
-      "occurredAt": "2026-11-22T01:30:01.504Z",
+      "id": 2624,
+      "occurredAt": "2026-11-22T01:48:41.750Z",
       "action": "vendor.created",
       "summary": "Jordan Okafor (ap_clerk) onboarded vendor Blue Heron Couriers (V057) — pending review until a second person approves it",
       "actor": {
@@ -92,11 +92,11 @@
       },
       "reason": null,
       "imported": false,
-      "requestId": "1e4de7dc-4f6b-4b4a-b7eb-706f850b4638"
+      "requestId": "4687ffa5-837b-4d21-8638-acaccdeeb51d"
     },
     {
-      "id": 2533,
-      "occurredAt": "2026-11-22T01:30:01.504Z",
+      "id": 2625,
+      "occurredAt": "2026-11-22T01:48:41.750Z",
       "action": "bank_account.change_requested",
       "summary": "Jordan Okafor (ap_clerk) entered new bank details V057#1 (••5617) — waiting for a second person",
       "actor": {
@@ -119,7 +119,7 @@
       },
       "reason": null,
       "imported": false,
-      "requestId": "1e4de7dc-4f6b-4b4a-b7eb-706f850b4638"
+      "requestId": "4687ffa5-837b-4d21-8638-acaccdeeb51d"
     }
   ],
   "allowedActions": {
