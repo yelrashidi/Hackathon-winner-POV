@@ -22,11 +22,17 @@ npm run demo                 # npm run demo -- --reset  starts from a fresh data
 
 Stop any other `npm run dev` first: only one process may open the embedded database.
 
-**Everything in Docker** — Postgres + migrations/seed + the app:
+**Everything in Docker** — Postgres, migrations + first-time seed, the app (frontend + backend) and
+the Gmail poller, one command → http://localhost:3000:
 
 ```bash
 docker compose up -d         # rebuild after code changes: docker compose up -d --build
+docker compose logs -f gmail-poller   # watch new mail being read and saved
+docker compose down -v       # stop and wipe the database (next up re-seeds)
 ```
+
+Secrets (`ANTHROPIC_API_KEY`, `GMAIL_*`) come from `.env.local`. Without the Gmail keys the poller
+prints why and stops; the rest still runs. Get the refresh token once on the host: `npm run gmail:auth`.
 
 **Developing against Docker Postgres:** `npm run db:up`, `npm run db:reset`, set `DATABASE_URL`
 (see `.env.example`), then `npm run dev`.
