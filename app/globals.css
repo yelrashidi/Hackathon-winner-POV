@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Light theme only: the Brim frame and white cards are designed for it (app/brim-theme.css). */
+:root {
+  color-scheme: light;
+}

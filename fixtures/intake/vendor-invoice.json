@@ -1,0 +1,28 @@
+{
+  "decision": "invoice",
+  "kind": "invoice",
+  "reason": "1 of 1 attachment(s) is a bill: beaumontrivieres_FA000557.pdf (invoice).",
+  "invoiceAttachments": [
+    "beaumontrivieres_FA000557.pdf"
+  ],
+  "decidedBy": "llm",
+  "signals": [
+    "ATTACHMENT_DOCUMENT",
+    "INVOICE_TERMS",
+    "KNOWN_VENDOR_SENDER",
+    "DOC_TEXT_LAYER",
+    "DOC_INVOICE_NUMBER",
+    "DOC_TOTAL",
+    "DOC_TITLE_INVOICE",
+    "LLM_BILL"
+  ],
+  "documents": [
+    {
+      "sourceRef": "beaumontrivieres_FA000557.pdf",
+      "filename": "beaumontrivieres_FA000557.pdf",
+      "verdict": "bill",
+      "documentType": "invoice",
+      "reason": "Invoice: Document titled INVOICE requesting payment for legal services, with invoice number, due date and remittance details. Note: the Quebec vendor shows a QST number but charges only GST 5%; no QST line is printed."
+    }
+  ]
+}

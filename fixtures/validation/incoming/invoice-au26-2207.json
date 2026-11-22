@@ -1,0 +1,61 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/Invoice AU26-2207.pdf",
+  "emailId": "EM-050",
+  "input": {
+    "invoiceId": "IN-invoice-au26-2207",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Aurora Mobile Business",
+      "gstHstNumber": "511304707RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@auroramobile.example",
+    "invoiceNumber": "AU26-2207",
+    "invoiceDate": "2026-11-02",
+    "dueDate": "2026-11-23",
+    "receivedDate": "2026-11-02",
+    "currency": "CAD",
+    "paymentTermsDays": 21,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1055 W Hastings St, Suite 900, Vancouver BC V6E 2E9",
+      "province": "BC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Business mobile plans (36 lines)",
+        "quantity": 1,
+        "unitPriceCents": 234350,
+        "amountCents": 234350,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 11718
+      }
+    ],
+    "subtotalCents": 234350,
+    "totalCents": 246068,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "010",
+      "transit": "26841",
+      "account": "377190807"
+    }
+  },
+  "expectedCodes": [
+    "CONTRACT_FIXED_FEE_MISMATCH"
+  ],
+  "why": "Billed $2,343.50 vs the fixed $2,150.00 monthly fee."
+}

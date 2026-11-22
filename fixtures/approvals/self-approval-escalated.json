@@ -1,0 +1,150 @@
+{
+  "description": "The Operations manager requested it himself, so it escalates to his manager (P07).",
+  "asOf": "2026-11-02T00:00:00.000Z",
+  "decidedAt": "2026-11-03T15:00:00.000Z",
+  "input": {
+    "invoiceVersion": 1,
+    "submittedBy": "U004",
+    "poId": null,
+    "poRequesterId": null,
+    "conflicts": [],
+    "lineDepartmentIds": [],
+    "departmentSpendYtdCadCents": null,
+    "flags": [],
+    "invoiceId": "FX-APPR-003",
+    "vendorId": "V001",
+    "vendorNameRaw": "Polar Freight Lines Ltd.",
+    "departmentId": "D01",
+    "requesterId": "U007",
+    "currency": "CAD",
+    "totalCents": 300000,
+    "fxRateToCad": 1,
+    "totalCadCents": 300000
+  },
+  "plan": {
+    "invoiceId": "FX-APPR-003",
+    "invoiceVersion": 1,
+    "departmentId": "D01",
+    "routedAt": "2026-11-02T00:00:00.000Z",
+    "outcome": "route",
+    "routingCadCents": 300000,
+    "basis": {
+      "vendorId": "V001",
+      "currency": "CAD",
+      "totalCents": 300000,
+      "totalCadCents": 300000,
+      "requesterId": "U007",
+      "poId": null
+    },
+    "steps": [
+      {
+        "seq": 1,
+        "role": "dept_manager",
+        "alsoCovers": [],
+        "policyId": "P01",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P01",
+            "message": "$3,000.00 CAD: Invoice total up to $10,000 CAD — Department manager of the requesting department"
+          }
+        ],
+        "routedTo": "U007",
+        "assignedTo": "U001",
+        "onBehalfOf": null,
+        "resolution": [
+          {
+            "policyId": "P07",
+            "message": "Dev Malhotra (U007) requested this invoice; escalated to their manager Priya Raman (U001)."
+          }
+        ],
+        "decision": "pending",
+        "actedBy": null,
+        "actedAs": null,
+        "acknowledgedFlags": [],
+        "comment": null,
+        "decidedAt": null
+      }
+    ],
+    "excludedApprovers": [
+      {
+        "userId": "U007",
+        "reason": "requested this invoice",
+        "kind": "self"
+      },
+      {
+        "userId": "U004",
+        "reason": "submitted this invoice",
+        "kind": "self"
+      }
+    ],
+    "attention": [],
+    "holdReasons": [],
+    "notes": []
+  },
+  "approved": {
+    "invoiceId": "FX-APPR-003",
+    "invoiceVersion": 1,
+    "departmentId": "D01",
+    "routedAt": "2026-11-02T00:00:00.000Z",
+    "outcome": "route",
+    "routingCadCents": 300000,
+    "basis": {
+      "vendorId": "V001",
+      "currency": "CAD",
+      "totalCents": 300000,
+      "totalCadCents": 300000,
+      "requesterId": "U007",
+      "poId": null
+    },
+    "steps": [
+      {
+        "seq": 1,
+        "role": "dept_manager",
+        "alsoCovers": [],
+        "policyId": "P01",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P01",
+            "message": "$3,000.00 CAD: Invoice total up to $10,000 CAD — Department manager of the requesting department"
+          }
+        ],
+        "routedTo": "U007",
+        "assignedTo": "U001",
+        "onBehalfOf": null,
+        "resolution": [
+          {
+            "policyId": "P07",
+            "message": "Dev Malhotra (U007) requested this invoice; escalated to their manager Priya Raman (U001)."
+          }
+        ],
+        "decision": "approved",
+        "actedBy": "U001",
+        "actedAs": {
+          "fullName": "Priya Raman",
+          "role": "controller_admin",
+          "approvalLimitCents": 50000000
+        },
+        "acknowledgedFlags": [],
+        "comment": null,
+        "decidedAt": "2026-11-03T15:00:00.000Z"
+      }
+    ],
+    "excludedApprovers": [
+      {
+        "userId": "U007",
+        "reason": "requested this invoice",
+        "kind": "self"
+      },
+      {
+        "userId": "U004",
+        "reason": "submitted this invoice",
+        "kind": "self"
+      }
+    ],
+    "attention": [],
+    "holdReasons": [],
+    "notes": []
+  }
+}

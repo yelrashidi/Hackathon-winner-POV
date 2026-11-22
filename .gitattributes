@@ -1,0 +1,15 @@
+# Let Git normalise text files, but never touch binary files.
+* text=auto
+
+# Invoices and documents: binary, so line-ending conversion can never corrupt them.
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.docx binary
+*.xlsx binary
+
+# Data and scripts: always LF, on every OS, so parsers and diffs agree.
+*.csv  text eol=lf
+*.json text eol=lf
+*.sh   text eol=lf

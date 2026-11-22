@@ -1,0 +1,101 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/cascadiacartagel_1625.pdf",
+  "emailId": "EM-019",
+  "input": {
+    "invoiceId": "IN-cascadiacartagel-1625",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Cascadia Cartage Ltd.",
+      "gstHstNumber": "669086667RT0001",
+      "qstNumber": null,
+      "province": "BC",
+      "country": "CA"
+    },
+    "senderEmail": "ar@cascadiacartage.example",
+    "invoiceNumber": "1625",
+    "invoiceDate": "2026-10-27",
+    "dueDate": "2026-11-26",
+    "receivedDate": "2026-10-27",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+      "province": "QC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "LTL shipment Ottawa-Toronto",
+        "quantity": 1,
+        "unitPriceCents": 88657,
+        "amountCents": 88657,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "LTL shipment Hamilton-Vancouver",
+        "quantity": 1,
+        "unitPriceCents": 148834,
+        "amountCents": 148834,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 3,
+        "description": "LTL shipment Toronto-Edmonton",
+        "quantity": 1,
+        "unitPriceCents": 105809,
+        "amountCents": 105809,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 4,
+        "description": "LTL shipment Regina-Winnipeg",
+        "quantity": 1,
+        "unitPriceCents": 148118,
+        "amountCents": 148118,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 5,
+        "description": "Fuel surcharge (7.10%)",
+        "quantity": 1,
+        "unitPriceCents": 34891,
+        "amountCents": 34891,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 26315
+      },
+      {
+        "code": "QST9975",
+        "label": "QST (9.975%)",
+        "ratePct": 9.975,
+        "amountCents": 52499
+      }
+    ],
+    "subtotalCents": 526309,
+    "totalCents": 605123,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "003",
+      "transit": "92968",
+      "account": "953389679"
+    }
+  },
+  "expectedCodes": [
+    "BANK_ACCOUNT_UNVERIFIED",
+    "QST_NUMBER_MISSING",
+    "SPLIT_INVOICE_SUSPECTED"
+  ],
+  "why": "Remit-to is the bank account changed 2026-10-27 by email, not verified; 3 Cascadia invoices in 3 days total over $10k; QST without QST number."
+}

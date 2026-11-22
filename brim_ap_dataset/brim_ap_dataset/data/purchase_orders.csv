@@ -1,0 +1,53 @@
+po_id,vendor_id,department_id,requester_user_id,issue_date,description,total_amount,currency,status,approved_by
+PO-2026-0001,V043,D01,U021,2025-12-15,Repairs & Maintenance - Fixwell Facility Services,3462.86,CAD,closed,U007
+PO-2026-0002,V043,D07,U039,2025-12-21,Repairs & Maintenance - Fixwell Facility Services,1611.54,CAD,closed,U012
+PO-2026-0003,V013,D07,U038,2025-12-25,Safety Supplies - Brightline Safety Supply,2837.54,CAD,closed,U012
+PO-2026-0004,V014,D07,U039,2025-12-27,Safety Supplies - Hardhat Outfitters Ltd.,2645.98,CAD,closed,U012
+PO-2026-0005,V011,D01,U017,2025-12-28,Warehouse & Packaging - Summit Packaging Supply,12775.62,CAD,closed,U007
+PO-2026-0006,V044,D01,U019,2025-12-30,Repairs & Maintenance - Torque Industrial Maintenance,327.21,CAD,closed,U007
+PO-2026-0007,V011,D01,U020,2026-01-16,Warehouse & Packaging - Summit Packaging Supply,4394.10,CAD,closed,U007
+PO-2026-0008,V010,D01,U013,2026-02-07,Warehouse & Packaging - Ironwood Pallet Co.,3892.45,CAD,closed,U007
+PO-2026-0009,V011,D01,U020,2026-02-10,Warehouse & Packaging - Summit Packaging Supply,5642.82,CAD,closed,U007
+PO-2026-0010,V043,D07,U038,2026-02-11,Repairs & Maintenance - Fixwell Facility Services,955.83,CAD,closed,U012
+PO-2026-0011,V043,D01,U013,2026-02-13,Repairs & Maintenance - Fixwell Facility Services,3783.11,CAD,closed,U007
+PO-2026-0012,V025,D07,U037,2026-02-19,Office Furniture - Deskhive Furniture Ltd.,6837.77,CAD,closed,U012
+PO-2026-0013,V025,D07,U039,2026-02-20,Office Furniture - Deskhive Furniture Ltd.,2358.42,CAD,closed,U012
+PO-2026-0014,V044,D01,U017,2026-02-21,Repairs & Maintenance - Torque Industrial Maintenance,1903.77,CAD,closed,U007
+PO-2026-0015,V043,D01,U017,2026-02-22,Repairs & Maintenance - Fixwell Facility Services,2337.31,CAD,closed,U007
+PO-2026-0016,V025,D07,U037,2026-02-23,Office Furniture - Deskhive Furniture Ltd.,6390.71,CAD,closed,U012
+PO-2026-0017,V025,D07,U039,2026-02-25,Office Furniture - Deskhive Furniture Ltd.,8002.41,CAD,closed,U012
+PO-2026-0018,V010,D01,U015,2026-03-22,Warehouse & Packaging - Ironwood Pallet Co.,5269.72,CAD,closed,U007
+PO-2026-0019,V043,D07,U038,2026-03-22,Repairs & Maintenance - Fixwell Facility Services,1167.31,CAD,closed,U012
+PO-2026-0020,V010,D01,U013,2026-03-25,Warehouse & Packaging - Ironwood Pallet Co.,11106.04,CAD,closed,U007
+PO-2026-0021,V013,D01,U016,2026-03-26,Safety Supplies - Brightline Safety Supply,459.52,CAD,closed,U007
+PO-2026-0022,V043,D07,U038,2026-03-27,Repairs & Maintenance - Fixwell Facility Services,2321.43,CAD,closed,U012
+PO-2026-0023,V010,D01,U016,2026-03-31,Warehouse & Packaging - Ironwood Pallet Co.,5508.15,CAD,closed,U007
+PO-2026-0024,V044,D01,U015,2026-04-06,Repairs & Maintenance - Torque Industrial Maintenance,340.88,CAD,closed,U007
+PO-2026-0025,V010,D01,U017,2026-04-10,Warehouse & Packaging - Ironwood Pallet Co.,4560.78,CAD,closed,U007
+PO-2026-0026,V014,D07,U037,2026-04-11,Safety Supplies - Hardhat Outfitters Ltd.,4637.71,CAD,closed,U012
+PO-2026-0027,V047,D03,U028,2026-04-14,Events & Catering - Alpenglow Events & Catering,2222.44,CAD,closed,U009
+PO-2026-0028,V047,D03,U029,2026-04-16,Events & Catering - Alpenglow Events & Catering,3272.64,CAD,closed,U009
+PO-2026-0029,V012,D01,U013,2026-04-17,Warehouse & Packaging - Keystone Racking Systems,5033.60,CAD,closed,U007
+PO-2026-0030,V010,D01,U013,2026-05-04,Warehouse & Packaging - Ironwood Pallet Co.,7107.90,CAD,closed,U007
+PO-2026-0031,V013,D01,U018,2026-05-14,Safety Supplies - Brightline Safety Supply,2767.86,CAD,closed,U007
+PO-2026-0032,V013,D07,U039,2026-06-15,Safety Supplies - Brightline Safety Supply,1922.76,CAD,closed,U012
+PO-2026-0033,V044,D01,U019,2026-06-18,Repairs & Maintenance - Torque Industrial Maintenance,3359.61,CAD,closed,U007
+PO-2026-0034,V013,D01,U015,2026-06-28,Safety Supplies - Brightline Safety Supply,4311.21,CAD,closed,U007
+PO-2026-0035,V013,D01,U021,2026-07-03,Safety Supplies - Brightline Safety Supply,3536.83,CAD,closed,U007
+PO-2026-0036,V012,D01,U017,2026-07-10,Warehouse & Packaging - Keystone Racking Systems,9696.33,CAD,closed,U007
+PO-2026-0037,V044,D07,U038,2026-07-22,Dock levelers and door repairs - Calgary warehouse,5000.00,CAD,partially_invoiced,U012
+PO-2026-0038,V047,D06,U035,2026-07-22,Events & Catering - Alpenglow Events & Catering,6048.22,CAD,closed,U011
+PO-2026-0039,V044,D07,U037,2026-07-26,Repairs & Maintenance - Torque Industrial Maintenance,4935.86,CAD,closed,U012
+PO-2026-0040,V047,D06,U035,2026-07-29,Events & Catering - Alpenglow Events & Catering,1604.88,CAD,closed,U011
+PO-2026-0041,V011,D01,U019,2026-08-18,Warehouse & Packaging - Summit Packaging Supply,2054.16,CAD,closed,U007
+PO-2026-0042,V047,D06,U036,2026-08-24,Events & Catering - Alpenglow Events & Catering,6213.37,CAD,closed,U011
+PO-2026-0043,V043,D07,U038,2026-08-25,Repairs & Maintenance - Fixwell Facility Services,1714.20,CAD,closed,U012
+PO-2026-0044,V011,D01,U019,2026-09-03,Warehouse & Packaging - Summit Packaging Supply,2174.50,CAD,closed,U007
+PO-2026-0045,V012,D01,U019,2026-09-22,Warehouse & Packaging - Keystone Racking Systems,8332.00,CAD,closed,U007
+PO-2026-0046,V012,D01,U013,2026-09-22,Warehouse & Packaging - Keystone Racking Systems,6803.89,CAD,open,U007
+PO-2026-0047,V054,D06,U036,2026-09-23,Events & Catering - Riverbend Catering Co.,3146.00,CAD,open,U011
+PO-2026-0048,V014,D01,U014,2026-09-27,Safety Supplies - Hardhat Outfitters Ltd.,6391.16,CAD,closed,U007
+PO-2026-0049,V043,D07,U037,2026-09-27,Repairs & Maintenance - Fixwell Facility Services,3003.00,CAD,open,U012
+PO-2026-0050,V047,D03,U027,2026-10-03,Events & Catering - Alpenglow Events & Catering,6105.19,CAD,open,U009
+PO-2026-0051,V010,D01,U020,2026-10-09,Warehouse & Packaging - Ironwood Pallet Co.,1007.20,CAD,open,U007
+PO-2026-0052,V011,D01,U020,2026-10-22,Warehouse & Packaging - Summit Packaging Supply,5500.00,CAD,open,U007

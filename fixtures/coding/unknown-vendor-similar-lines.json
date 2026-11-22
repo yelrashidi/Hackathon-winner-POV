@@ -1,0 +1,188 @@
+{
+  "description": "Unknown courier (not in the vendor master): freight from other vendors' lines, medium at most; department unknown and flagged.",
+  "source": "fixtures/validation/incoming/invoice-4443.json",
+  "vendorId": null,
+  "input": {
+    "invoiceId": "IN-invoice-4443",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Blue Heron Couriers",
+      "gstHstNumber": "324978405RT0001",
+      "qstNumber": null,
+      "province": "BC",
+      "country": "CA"
+    },
+    "senderEmail": "ar@blueheron.example",
+    "invoiceNumber": "4443",
+    "invoiceDate": "2026-10-20",
+    "dueDate": "2026-11-19",
+    "receivedDate": "2026-10-20",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "250 6 Ave SW, Suite 700, Calgary AB T2P 3H7",
+      "province": "AB"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "LTL shipment Vancouver-Calgary",
+        "quantity": 3,
+        "unitPriceCents": 41000,
+        "amountCents": 123000,
+        "lineType": "services"
+      },
+      {
+        "lineNo": 2,
+        "description": "Fuel surcharge (9%)",
+        "quantity": 1,
+        "unitPriceCents": 11070,
+        "amountCents": 11070,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5,
+        "amountCents": 6704
+      }
+    ],
+    "subtotalCents": 134070,
+    "totalCents": 140774,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "004",
+      "transit": "39446",
+      "account": "38053633"
+    }
+  },
+  "result": {
+    "invoiceId": "IN-invoice-4443",
+    "vendorId": null,
+    "invoiceDepartment": {
+      "value": null,
+      "label": null,
+      "confidence": "none",
+      "basis": "none",
+      "reason": "Unknown vendor and no requester or PO: pick the requesting department",
+      "alternatives": []
+    },
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "LTL shipment Vancouver-Calgary",
+        "quantity": 3,
+        "unitPriceCents": 41000,
+        "amountCents": 123000,
+        "lineType": "services",
+        "account": {
+          "value": "5010",
+          "label": "5010 Freight & Carrier Costs",
+          "confidence": "medium",
+          "basis": "description_similarity",
+          "reason": "Unknown vendor; 7 of 7 past lines described like \"LTL shipment Vancouver-Calgary\" (e.g. \"LTL shipment Vancouver-Calgary\" from Northbound Couriers) were coded 5010 Freight & Carrier Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": null,
+          "label": null,
+          "confidence": "none",
+          "basis": "none",
+          "reason": "Unknown vendor and no requester or PO: pick the requesting department",
+          "alternatives": []
+        },
+        "glAccount": "5010",
+        "departmentId": null,
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      },
+      {
+        "lineNo": 2,
+        "description": "Fuel surcharge (9%)",
+        "quantity": 1,
+        "unitPriceCents": 11070,
+        "amountCents": 11070,
+        "lineType": "services",
+        "account": {
+          "value": "5010",
+          "label": "5010 Freight & Carrier Costs",
+          "confidence": "medium",
+          "basis": "description_similarity",
+          "reason": "Unknown vendor; 76 of 76 past lines described like \"Fuel surcharge (9%)\" (e.g. \"Fuel surcharge (9.62%)\" from Laurentian Logistics Inc.) were coded 5010 Freight & Carrier Costs",
+          "alternatives": []
+        },
+        "department": {
+          "value": null,
+          "label": null,
+          "confidence": "none",
+          "basis": "none",
+          "reason": "Unknown vendor and no requester or PO: pick the requesting department",
+          "alternatives": []
+        },
+        "glAccount": "5010",
+        "departmentId": null,
+        "source": "suggested",
+        "codedBy": null,
+        "codedAt": null,
+        "note": null
+      }
+    ],
+    "journal": {
+      "currency": "CAD",
+      "debits": [
+        {
+          "glAccount": "5010",
+          "departmentId": null,
+          "amountCents": 123000,
+          "kind": "line",
+          "lineNo": 1,
+          "taxCode": null
+        },
+        {
+          "glAccount": "5010",
+          "departmentId": null,
+          "amountCents": 11070,
+          "kind": "line",
+          "lineNo": 2,
+          "taxCode": null
+        },
+        {
+          "glAccount": "1160",
+          "departmentId": null,
+          "amountCents": 6704,
+          "kind": "recoverable_tax",
+          "lineNo": null,
+          "taxCode": "GST5"
+        }
+      ],
+      "credit": {
+        "glAccount": "2100",
+        "amountCents": 140774
+      },
+      "balanced": true,
+      "differenceCents": 0
+    },
+    "flags": [
+      {
+        "code": "CODING_DEPARTMENT_UNCERTAIN",
+        "severity": "warn",
+        "message": "Unknown vendor and no requester or PO: pick the requesting department.",
+        "evidence": {
+          "rule": "coding",
+          "field": "department",
+          "candidates": []
+        },
+        "status": "open"
+      }
+    ]
+  }
+}

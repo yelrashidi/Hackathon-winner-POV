@@ -1,0 +1,663 @@
+{
+  "invoice": {
+    "invoiceId": "IN-alpengloweventsc-inv-010",
+    "invoiceNumber": "AL26-0689",
+    "status": "InReview",
+    "legacyStatus": null,
+    "version": 1,
+    "source": "email",
+    "invoiceDate": "2026-10-23",
+    "receivedDate": "2026-10-23",
+    "dueDate": "2026-11-22",
+    "currency": "CAD",
+    "subtotalCents": 555017,
+    "totalCents": 638131,
+    "totalCadCents": 638131,
+    "fxRate": "1",
+    "shipToProvince": null,
+    "isCreditNote": false,
+    "poId": null,
+    "contractId": null,
+    "departmentId": "D03",
+    "requester": null,
+    "vendor": {
+      "vendorId": "V047",
+      "legalName": "Alpenglow Events & Catering",
+      "status": "active",
+      "category": "Events & Catering"
+    },
+    "vendorNameRaw": "Alpenglow Events & Catering",
+    "createdAt": "2026-11-21T21:43:25.869Z"
+  },
+  "document": null,
+  "extraction": {
+    "raw": {
+      "lines": [
+        {
+          "lineNo": 1,
+          "lineType": "services",
+          "quantity": 1,
+          "amountCents": 176398,
+          "description": "Venue rental",
+          "unitPriceCents": 176398
+        },
+        {
+          "lineNo": 2,
+          "lineType": "services",
+          "quantity": 1,
+          "amountCents": 378619,
+          "description": "Team event catering",
+          "unitPriceCents": 378619
+        }
+      ],
+      "taxes": [
+        {
+          "code": "GST5",
+          "label": "GST (5%)",
+          "ratePct": 5,
+          "amountCents": 27751
+        },
+        {
+          "code": "QST9975",
+          "label": "QST (9.975%)",
+          "ratePct": 9.975,
+          "amountCents": 55363
+        }
+      ],
+      "billTo": {
+        "name": "Harborline Logistics Inc.",
+        "address": "1250 Rene-Levesque O, Bureau 2200, Montreal QC H3B 4W8",
+        "province": "QC"
+      },
+      "vendor": {
+        "country": "CA",
+        "nameRaw": "Alpenglow Events & Catering",
+        "province": "BC",
+        "qstNumber": null,
+        "gstHstNumber": "238900291RT0001"
+      },
+      "dueDate": "2026-11-22",
+      "remitTo": {
+        "account": "967079384",
+        "transit": "90104",
+        "institution": "001"
+      },
+      "currency": "CAD",
+      "poNumber": null,
+      "invoiceId": "IN-alpengloweventsc-inv-010",
+      "totalCents": 638131,
+      "contractRef": null,
+      "invoiceDate": "2026-10-23",
+      "senderEmail": "ar@alpenglowevents.example",
+      "documentType": "invoice",
+      "receivedDate": "2026-10-23",
+      "statedFxRate": null,
+      "creditNoteRef": null,
+      "invoiceNumber": "AL26-0689",
+      "subtotalCents": 555017,
+      "shipToProvince": null,
+      "paymentTermsDays": 30
+    },
+    "confidence": {}
+  },
+  "lines": [
+    {
+      "lineNo": 1,
+      "description": "Venue rental",
+      "lineType": "services",
+      "qty": "1",
+      "unitPriceCents": 176398,
+      "amountCents": 176398,
+      "glAccount": {
+        "code": "6720",
+        "name": "Meals & Events"
+      },
+      "departmentId": "D03",
+      "taxCodes": [],
+      "codingSource": "suggested"
+    },
+    {
+      "lineNo": 2,
+      "description": "Team event catering",
+      "lineType": "services",
+      "qty": "1",
+      "unitPriceCents": 378619,
+      "amountCents": 378619,
+      "glAccount": {
+        "code": "6720",
+        "name": "Meals & Events"
+      },
+      "departmentId": "D03",
+      "taxCodes": [],
+      "codingSource": "suggested"
+    }
+  ],
+  "taxes": [
+    {
+      "code": "GST5",
+      "label": "GST (5%)",
+      "rate": "0.05",
+      "amountCents": 27751
+    },
+    {
+      "code": "QST9975",
+      "label": "QST (9.975%)",
+      "rate": "0.09974999999999999",
+      "amountCents": 55363
+    }
+  ],
+  "validationRuns": [
+    {
+      "occurredAt": "2026-11-21T21:43:25.869Z",
+      "invoiceVersion": 1,
+      "vendorId": "V047",
+      "vendorMatch": {
+        "method": "tax_number",
+        "vendor": {
+          "id": "V047",
+          "status": "active",
+          "country": "CA",
+          "category": "Events & Catering",
+          "province": "BC",
+          "legalName": "Alpenglow Events & Catering",
+          "qstNumber": null,
+          "requiresPo": true,
+          "onboardedAt": "2021-09-22",
+          "contactEmail": "ar@alpenglowevents.example",
+          "gstHstNumber": "238900291RT0001",
+          "invoiceCount": 6,
+          "paymentTermsDays": 30
+        },
+        "candidates": []
+      },
+      "contractId": null,
+      "fxRate": null,
+      "totalCadCents": 638131,
+      "blocking": false,
+      "flags": [
+        {
+          "code": "PO_REQUIRED_MISSING",
+          "severity": "warn"
+        },
+        {
+          "code": "QST_NUMBER_MISSING",
+          "severity": "info"
+        }
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "flagId": 99,
+      "source": "validation",
+      "code": "PO_REQUIRED_MISSING",
+      "severity": "warn",
+      "message": "Alpenglow Events & Catering requires a purchase order and the invoice has none (policy P13). Open PO for this vendor: PO-2026-0050 ($6,105.19 remaining) — link one if it covers this invoice.",
+      "evidence": {
+        "rule": "po",
+        "field": "poNumber",
+        "source": "vendor master V047",
+        "openPurchaseOrders": [
+          {
+            "poId": "PO-2026-0050",
+            "currency": "CAD",
+            "totalCents": 610519,
+            "remainingCents": 610519
+          }
+        ]
+      },
+      "status": "overridden",
+      "raisedAt": "2026-11-21T21:43:25.869Z",
+      "resolvedBy": {
+        "userId": "U004",
+        "name": "Jordan Okafor",
+        "role": "ap_clerk"
+      },
+      "resolvedAt": "2026-11-21T21:43:27.293Z",
+      "resolutionNote": "Confirmed with the vendor by phone; acceptable for this billing period.",
+      "relatedInvoiceId": null
+    },
+    {
+      "flagId": 100,
+      "source": "validation",
+      "code": "QST_NUMBER_MISSING",
+      "severity": "info",
+      "message": "Quebec QST 9.975% ($553.63) charged without a QST registration number on the invoice or in the vendor master; the QST refund needs it",
+      "evidence": {
+        "rule": "tax",
+        "field": "vendor.qstNumber",
+        "actualCents": 55363
+      },
+      "status": "open",
+      "raisedAt": "2026-11-21T21:43:25.869Z",
+      "resolvedBy": null,
+      "resolvedAt": null,
+      "resolutionNote": null,
+      "relatedInvoiceId": null
+    },
+    {
+      "flagId": 101,
+      "source": "coding",
+      "code": "CODING_NOT_CONFIRMED",
+      "severity": "block",
+      "message": "2 of 2 lines still need a person to accept or change the coding (lines 1, 2).",
+      "evidence": {
+        "rule": "coding",
+        "field": "lines",
+        "lineNos": [
+          1,
+          2
+        ]
+      },
+      "status": "open",
+      "raisedAt": "2026-11-21T21:43:25.869Z",
+      "resolvedBy": null,
+      "resolvedAt": null,
+      "resolutionNote": null,
+      "relatedInvoiceId": null
+    }
+  ],
+  "approvals": [],
+  "payments": [],
+  "paymentFlags": [],
+  "controls": [
+    {
+      "id": "APPROVER_NOT_REQUESTER",
+      "label": "No one approved their own invoice",
+      "result": "not_applicable",
+      "detail": "No approvals recorded."
+    },
+    {
+      "id": "APPROVAL_WITHIN_LIMIT",
+      "label": "An approver's limit covered the amount",
+      "result": "not_applicable",
+      "detail": "No approver limits recorded."
+    },
+    {
+      "id": "RELEASER_DID_NOT_APPROVE",
+      "label": "The person who released payment did not approve it",
+      "result": "not_applicable",
+      "detail": "No payment released."
+    },
+    {
+      "id": "PREPARER_NOT_RELEASER",
+      "label": "Payment prepared and released by different people",
+      "result": "not_applicable",
+      "detail": "No payment released."
+    },
+    {
+      "id": "PAID_TO_VERIFIED_ACCOUNT",
+      "label": "EFT paid only to a verified bank account",
+      "result": "not_applicable",
+      "detail": "No EFT payments."
+    },
+    {
+      "id": "NO_OPEN_BLOCKING_FLAGS",
+      "label": "No blocking flag left open after review",
+      "result": "not_applicable",
+      "detail": "Invoice is still in review."
+    },
+    {
+      "id": "PAID_NOT_MORE_THAN_INVOICED",
+      "label": "Not paid more than the invoice total",
+      "result": "not_applicable",
+      "detail": "No payments."
+    }
+  ],
+  "timeline": [
+    {
+      "id": 2614,
+      "occurredAt": "2026-11-21T21:43:25.869Z",
+      "action": "invoice.created",
+      "summary": "System (automated) (system) received the invoice via email",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice",
+      "entityId": "IN-alpengloweventsc-inv-010",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "lines": 2,
+        "taxes": 2,
+        "source": "email",
+        "status": "Received",
+        "currency": "CAD",
+        "totalCents": 638131,
+        "invoiceDate": "2026-10-23",
+        "invoiceNumber": "AL26-0689",
+        "vendorNameRaw": "Alpenglow Events & Catering"
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "0a915994-504f-411c-b476-9c32815d3ee9"
+    },
+    {
+      "id": 2615,
+      "occurredAt": "2026-11-21T21:43:25.869Z",
+      "action": "invoice.status_changed",
+      "summary": "System (automated) (system) moved the invoice Received → InReview",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice",
+      "entityId": "IN-alpengloweventsc-inv-010",
+      "paymentId": null,
+      "before": {
+        "status": "Received",
+        "version": 1
+      },
+      "after": {
+        "status": "InReview",
+        "version": 1
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "0a915994-504f-411c-b476-9c32815d3ee9"
+    },
+    {
+      "id": 2616,
+      "occurredAt": "2026-11-21T21:43:25.869Z",
+      "action": "invoice.edited",
+      "summary": "System (automated) (system) changed fxRate, vendorId, totalCadCents — \"Filled in by validation (vendor match, FX conversion, contract)\"",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice",
+      "entityId": "IN-alpengloweventsc-inv-010",
+      "paymentId": null,
+      "before": {
+        "fxRate": null,
+        "vendorId": null,
+        "contractId": null,
+        "totalCadCents": null
+      },
+      "after": {
+        "fxRate": "1",
+        "vendorId": "V047",
+        "contractId": null,
+        "totalCadCents": 638131
+      },
+      "reason": "Filled in by validation (vendor match, FX conversion, contract)",
+      "imported": false,
+      "requestId": "0a915994-504f-411c-b476-9c32815d3ee9"
+    },
+    {
+      "id": 2617,
+      "occurredAt": "2026-11-21T21:43:25.869Z",
+      "action": "flag.raised",
+      "summary": "Flag raised: PO_REQUIRED_MISSING (warn) — Alpenglow Events & Catering requires a purchase order and the invoice has none (policy P13). Open PO for this vendor: PO-2026-0050 ($6,105.19 remaining) — link one if it covers this invoice.",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice_flag",
+      "entityId": "99",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "code": "PO_REQUIRED_MISSING",
+        "status": "open",
+        "message": "Alpenglow Events & Catering requires a purchase order and the invoice has none (policy P13). Open PO for this vendor: PO-2026-0050 ($6,105.19 remaining) — link one if it covers this invoice.",
+        "evidence": {
+          "rule": "po",
+          "field": "poNumber",
+          "source": "vendor master V047",
+          "openPurchaseOrders": [
+            {
+              "poId": "PO-2026-0050",
+              "currency": "CAD",
+              "totalCents": 610519,
+              "remainingCents": 610519
+            }
+          ]
+        },
+        "severity": "warn",
+        "resolvedBy": null,
+        "invoiceVersion": 1,
+        "resolutionNote": null
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "0a915994-504f-411c-b476-9c32815d3ee9"
+    },
+    {
+      "id": 2618,
+      "occurredAt": "2026-11-21T21:43:25.869Z",
+      "action": "flag.raised",
+      "summary": "Flag raised: QST_NUMBER_MISSING (info) — Quebec QST 9.975% ($553.63) charged without a QST registration number on the invoice or in the vendor master; the QST refund needs it",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice_flag",
+      "entityId": "100",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "code": "QST_NUMBER_MISSING",
+        "status": "open",
+        "message": "Quebec QST 9.975% ($553.63) charged without a QST registration number on the invoice or in the vendor master; the QST refund needs it",
+        "evidence": {
+          "rule": "tax",
+          "field": "vendor.qstNumber",
+          "actualCents": 55363
+        },
+        "severity": "info",
+        "resolvedBy": null,
+        "invoiceVersion": 1,
+        "resolutionNote": null
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "0a915994-504f-411c-b476-9c32815d3ee9"
+    },
+    {
+      "id": 2619,
+      "occurredAt": "2026-11-21T21:43:25.869Z",
+      "action": "invoice.validated",
+      "summary": "Validation ran on version 1: 2 flag(s)",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice",
+      "entityId": "IN-alpengloweventsc-inv-010",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "flags": [
+          {
+            "code": "PO_REQUIRED_MISSING",
+            "severity": "warn"
+          },
+          {
+            "code": "QST_NUMBER_MISSING",
+            "severity": "info"
+          }
+        ],
+        "fxRate": null,
+        "blocking": false,
+        "vendorId": "V047",
+        "contractId": null,
+        "vendorMatch": {
+          "method": "tax_number",
+          "vendor": {
+            "id": "V047",
+            "status": "active",
+            "country": "CA",
+            "category": "Events & Catering",
+            "province": "BC",
+            "legalName": "Alpenglow Events & Catering",
+            "qstNumber": null,
+            "requiresPo": true,
+            "onboardedAt": "2021-09-22",
+            "contactEmail": "ar@alpenglowevents.example",
+            "gstHstNumber": "238900291RT0001",
+            "invoiceCount": 6,
+            "paymentTermsDays": 30
+          },
+          "candidates": []
+        },
+        "totalCadCents": 638131,
+        "invoiceVersion": 1,
+        "deliveryProvince": "QC"
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "0a915994-504f-411c-b476-9c32815d3ee9"
+    },
+    {
+      "id": 2620,
+      "occurredAt": "2026-11-21T21:43:25.869Z",
+      "action": "invoice.edited",
+      "summary": "System (automated) (system) changed departmentId — \"Requesting department suggested by coding (medium): Alpenglow Events & Catering has one open PO, PO-2026-0050, raised for Marketing (D03); the invoice does not reference it\"",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice",
+      "entityId": "IN-alpengloweventsc-inv-010",
+      "paymentId": null,
+      "before": {
+        "departmentId": null
+      },
+      "after": {
+        "departmentId": "D03"
+      },
+      "reason": "Requesting department suggested by coding (medium): Alpenglow Events & Catering has one open PO, PO-2026-0050, raised for Marketing (D03); the invoice does not reference it",
+      "imported": false,
+      "requestId": "0a915994-504f-411c-b476-9c32815d3ee9"
+    },
+    {
+      "id": 2621,
+      "occurredAt": "2026-11-21T21:43:25.869Z",
+      "action": "invoice.coding_suggested",
+      "summary": "Coding suggested accounts for 2 line(s)",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice",
+      "entityId": "IN-alpengloweventsc-inv-010",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "lines": [
+          {
+            "lineNo": 1,
+            "account": "high: 5 of the last 5 Alpenglow Events & Catering lines like \"Venue rental\" → 6720 Meals & Events",
+            "glAccount": "6720",
+            "department": "medium: Alpenglow Events & Catering has one open PO, PO-2026-0050, raised for Marketing (D03); the invoice does not reference it",
+            "departmentId": "D03"
+          },
+          {
+            "lineNo": 2,
+            "account": "high: 3 of the last 3 Alpenglow Events & Catering lines like \"Team event catering\" → 6720 Meals & Events",
+            "glAccount": "6720",
+            "department": "medium: Alpenglow Events & Catering has one open PO, PO-2026-0050, raised for Marketing (D03); the invoice does not reference it",
+            "departmentId": "D03"
+          }
+        ],
+        "journalBalanced": true
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "0a915994-504f-411c-b476-9c32815d3ee9"
+    },
+    {
+      "id": 2622,
+      "occurredAt": "2026-11-21T21:43:25.869Z",
+      "action": "flag.raised",
+      "summary": "Flag raised: CODING_NOT_CONFIRMED (block) — 2 of 2 lines still need a person to accept or change the coding (lines 1, 2).",
+      "actor": {
+        "userId": "SYSTEM",
+        "name": "System (automated)",
+        "role": "system"
+      },
+      "actorRoleAtTime": "system",
+      "onBehalfOf": null,
+      "entityType": "invoice_flag",
+      "entityId": "101",
+      "paymentId": null,
+      "before": null,
+      "after": {
+        "code": "CODING_NOT_CONFIRMED",
+        "status": "open",
+        "message": "2 of 2 lines still need a person to accept or change the coding (lines 1, 2).",
+        "evidence": {
+          "rule": "coding",
+          "field": "lines",
+          "lineNos": [
+            1,
+            2
+          ]
+        },
+        "severity": "block",
+        "resolvedBy": null,
+        "invoiceVersion": 1,
+        "resolutionNote": null
+      },
+      "reason": null,
+      "imported": false,
+      "requestId": "0a915994-504f-411c-b476-9c32815d3ee9"
+    },
+    {
+      "id": 3056,
+      "occurredAt": "2026-11-21T21:43:27.293Z",
+      "action": "flag.overridden",
+      "summary": "Jordan Okafor (ap_clerk) OVERRODE flag PO_REQUIRED_MISSING (warn) — \"Confirmed with the vendor by phone; acceptable for this billing period.\"",
+      "actor": {
+        "userId": "U004",
+        "name": "Jordan Okafor",
+        "role": "ap_clerk"
+      },
+      "actorRoleAtTime": "ap_clerk",
+      "onBehalfOf": null,
+      "entityType": "invoice_flag",
+      "entityId": "99",
+      "paymentId": null,
+      "before": {
+        "code": "PO_REQUIRED_MISSING",
+        "status": "open",
+        "message": "Alpenglow Events & Catering requires a purchase order and the invoice has none (policy P13). Open PO for this vendor: PO-2026-0050 ($6,105.19 remaining) — link one if it covers this invoice.",
+        "severity": "warn"
+      },
+      "after": {
+        "status": "overridden",
+        "resolvedBy": "U004",
+        "resolutionNote": "Confirmed with the vendor by phone; acceptable for this billing period."
+      },
+      "reason": "Confirmed with the vendor by phone; acceptable for this billing period.",
+      "imported": false,
+      "requestId": "a1d77191-d2f4-493b-b002-7e9a09849aa5"
+    }
+  ]
+}

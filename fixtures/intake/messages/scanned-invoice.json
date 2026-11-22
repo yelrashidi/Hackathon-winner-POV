@@ -1,0 +1,19 @@
+{
+  "source": "dataset",
+  "externalId": "EM-011",
+  "threadId": null,
+  "fromName": "Prairie Natural Gas Utility Accounts Receivable",
+  "fromAddress": "ar@prairienatural.example",
+  "toAddress": "ap@harborline-logistics.example",
+  "subject": "Facture PR26-1012",
+  "receivedAt": "2026-10-23T13:40:00",
+  "bodyText": "Bonjour,\n\nVeuillez trouver ci-joint la facture PR26-1012.\n\nCordialement,\nPrairie Natural Gas Utility",
+  "attachments": [
+    {
+      "filename": "scan_8749.png",
+      "mimeType": "image/png",
+      "sizeBytes": null,
+      "sourceRef": "scan_8749.png"
+    }
+  ]
+}

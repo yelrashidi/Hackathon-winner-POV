@@ -1,0 +1,19 @@
+{
+  "source": "dataset",
+  "externalId": "EM-001",
+  "threadId": null,
+  "fromName": "Blue Heron Couriers Accounts Receivable",
+  "fromAddress": "ar@blueheron.example",
+  "toAddress": "ap@harborline-logistics.example",
+  "subject": "Facture 4443",
+  "receivedAt": "2026-10-20T14:19:00",
+  "bodyText": "Good afternoon,\n\nAttached is invoice 4443. Kindly remit by the due date.\n\nBlue Heron Couriers Billing",
+  "attachments": [
+    {
+      "filename": "Invoice 4443.pdf",
+      "mimeType": "application/pdf",
+      "sizeBytes": null,
+      "sourceRef": "Invoice 4443.pdf"
+    }
+  ]
+}

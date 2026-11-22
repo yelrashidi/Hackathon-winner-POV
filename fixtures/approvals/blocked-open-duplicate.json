@@ -1,0 +1,95 @@
+{
+  "description": "An open duplicate flag blocks submission: the invoice stays in review.",
+  "asOf": "2026-11-02T00:00:00.000Z",
+  "decidedAt": "2026-11-03T15:00:00.000Z",
+  "input": {
+    "invoiceVersion": 1,
+    "submittedBy": "U004",
+    "poId": null,
+    "poRequesterId": null,
+    "conflicts": [],
+    "lineDepartmentIds": [],
+    "departmentSpendYtdCadCents": null,
+    "flags": [
+      {
+        "code": "DUPLICATE_SUSPECTED",
+        "severity": "block",
+        "message": "Same vendor, amount and date as invoice FX-APPR-000 (number 4471 vs ST-4471)",
+        "evidence": {},
+        "relatedInvoiceId": "FX-APPR-000",
+        "status": "open"
+      }
+    ],
+    "invoiceId": "FX-APPR-005",
+    "vendorId": "V001",
+    "vendorNameRaw": "Polar Freight Lines Ltd.",
+    "departmentId": "D01",
+    "requesterId": "U013",
+    "currency": "CAD",
+    "totalCents": 300000,
+    "fxRateToCad": 1,
+    "totalCadCents": 300000
+  },
+  "plan": {
+    "invoiceId": "FX-APPR-005",
+    "invoiceVersion": 1,
+    "departmentId": "D01",
+    "routedAt": "2026-11-02T00:00:00.000Z",
+    "outcome": "blocked",
+    "routingCadCents": 300000,
+    "basis": {
+      "vendorId": "V001",
+      "currency": "CAD",
+      "totalCents": 300000,
+      "totalCadCents": 300000,
+      "requesterId": "U013",
+      "poId": null
+    },
+    "steps": [
+      {
+        "seq": 1,
+        "role": "dept_manager",
+        "alsoCovers": [],
+        "policyId": "P01",
+        "policyVersion": 1,
+        "reasons": [
+          {
+            "policyId": "P01",
+            "message": "$3,000.00 CAD: Invoice total up to $10,000 CAD — Department manager of the requesting department"
+          }
+        ],
+        "routedTo": "U007",
+        "assignedTo": "U007",
+        "onBehalfOf": null,
+        "resolution": [],
+        "decision": "pending",
+        "actedBy": null,
+        "actedAs": null,
+        "acknowledgedFlags": [],
+        "comment": null,
+        "decidedAt": null
+      }
+    ],
+    "excludedApprovers": [
+      {
+        "userId": "U013",
+        "reason": "requested this invoice",
+        "kind": "self"
+      },
+      {
+        "userId": "U004",
+        "reason": "submitted this invoice",
+        "kind": "self"
+      }
+    ],
+    "attention": [],
+    "holdReasons": [
+      {
+        "policyId": null,
+        "message": "DUPLICATE_SUSPECTED: Same vendor, amount and date as invoice FX-APPR-000 (number 4471 vs ST-4471)"
+      }
+    ],
+    "notes": []
+  },
+  "approved": null
+}

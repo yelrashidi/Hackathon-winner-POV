@@ -1,0 +1,28 @@
+{
+  "decision": "invoice",
+  "kind": "invoice",
+  "reason": "1 of 1 attachment(s) is a bill: fixwellfacilitys_CNFA000413.pdf (credit note).",
+  "invoiceAttachments": [
+    "fixwellfacilitys_CNFA000413.pdf"
+  ],
+  "decidedBy": "llm",
+  "signals": [
+    "ATTACHMENT_DOCUMENT",
+    "INVOICE_TERMS",
+    "KNOWN_VENDOR_SENDER",
+    "DOC_TEXT_LAYER",
+    "DOC_INVOICE_NUMBER",
+    "DOC_TOTAL",
+    "DOC_TITLE_CREDIT_NOTE",
+    "LLM_BILL"
+  ],
+  "documents": [
+    {
+      "sourceRef": "fixwellfacilitys_CNFA000413.pdf",
+      "filename": "fixwellfacilitys_CNFA000413.pdf",
+      "verdict": "bill",
+      "documentType": "credit_note",
+      "reason": "Credit note: Document is titled CREDIT NOTE with negative amounts, even though a field is labelled 'Invoice Number'."
+    }
+  ]
+}

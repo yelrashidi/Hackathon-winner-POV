@@ -1,0 +1,59 @@
+{
+  "source": "brim_ap_dataset/brim_ap_dataset/incoming_invoices/harlowsternllp_001470.pdf",
+  "emailId": "EM-008",
+  "input": {
+    "invoiceId": "IN-harlowsternllp-001470",
+    "documentType": "invoice",
+    "vendor": {
+      "nameRaw": "Harlow & Stern LLP",
+      "gstHstNumber": "134920677RT0001",
+      "qstNumber": null,
+      "province": "ON",
+      "country": "CA"
+    },
+    "senderEmail": "ar@harlow.example",
+    "invoiceNumber": "001470",
+    "invoiceDate": "2026-10-21",
+    "dueDate": "2026-11-20",
+    "receivedDate": "2026-10-23",
+    "currency": "CAD",
+    "paymentTermsDays": 30,
+    "poNumber": null,
+    "contractRef": null,
+    "creditNoteRef": null,
+    "billTo": {
+      "name": "Harborline Logistics Inc.",
+      "address": "1055 W Hastings St, Suite 900, Vancouver BC V6E 2E9",
+      "province": "BC"
+    },
+    "shipToProvince": null,
+    "lines": [
+      {
+        "lineNo": 1,
+        "description": "Disbursements and filing fees",
+        "quantity": 1,
+        "unitPriceCents": 32335,
+        "amountCents": 32335,
+        "lineType": "services"
+      }
+    ],
+    "taxes": [
+      {
+        "code": "GST5",
+        "label": "GST (5%)",
+        "ratePct": 5.0,
+        "amountCents": 1617
+      }
+    ],
+    "subtotalCents": 32335,
+    "totalCents": 33952,
+    "statedFxRate": null,
+    "remitTo": {
+      "institution": "004",
+      "transit": "18643",
+      "account": "736063279"
+    }
+  },
+  "expectedCodes": [],
+  "why": "Clean."
+}
