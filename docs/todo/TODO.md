@@ -97,7 +97,7 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 
 ## 9 Vendors — owner: Andrew (server side)
 - [ ] P1 Vendor screens (list, detail, onboard form, hold / approve / verify buttons) from `src/contracts/vendor.ts` + `fixtures/vendors/`. [dashboard owner]
-- [ ] P1 One bank-change flow: payments (in-memory today) and `features/vendors` (Postgres) — choose at merge; reason codes already match. [Katie / Andrew]
+- [ ] P2 Bank changes exist in payments (Katie) and `features/vendors`, both on Postgres and compatible (same rows, statuses, audit names; verified both directions). Pick which one the screens call, or have payments' form call vendors'. [Katie / Andrew]
 - [ ] P2 Edit vendor fields after onboarding (name / tax number changes as a reviewed action). [Andrew]
 
 ## P3 — Bonus (only after 1–9 work)

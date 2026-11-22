@@ -1,6 +1,6 @@
 # 9 — Vendor management
 
-**Owner:** Andrew · **Code as of:** `cfde335` + vendor management on `andrew-audit-db` (2026-11-21)
+**Owner:** Andrew · **Code as of:** `114cc24` (2026-11-21)
 
 ## What it does
 The company's list of approved suppliers (the **vendor master**) and the controls around it. A new vendor
@@ -107,8 +107,9 @@ The bank codes and messages match payments' own checks (`features/payments/rules
   hundreds of open invoices would make a hold slow; we'd queue those re-checks instead.
 
 ## Known gaps
-- **Payments (Katie) still uses its own in-memory bank-change flow**, which she is moving to the
-  database now. At merge, pick one flow: the reason codes already match, and payments only needs to
-  read `vendor_bank_accounts` rows with status `verified`.
+- **Bank changes also exist in payments (Katie)**, on Postgres since PR #15. Both write the same
+  `vendor_bank_accounts` rows the same way (pending → verified, the old one superseded first, audit
+  `bank_account.*` on `V043#3`), and it was verified in both directions on Docker: entered in one,
+  verified in the other, the two-people rule holding across both. The screens may call either.
 - **No screens yet** (dashboard owner). No editing of vendor fields after onboarding: a change of
   tax number or name would be a new reviewed action, which we cut.

@@ -16,6 +16,7 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Andrew-04 | Medium | Andrew | 2026-11-21 | A refused coding attempt hung the request instead of returning 403 |
 | BUG-Andrew-05 | Low | Andrew | 2026-11-21 | Seeded history showed a payment "scheduled" after it was released |
 | BUG-Andrew-06 | High | Andrew | 2026-11-21 | Intake scripts never saved anything: the DB adapter existed but nothing called it |
+| BUG-Andrew-07 | Low | Andrew | 2026-11-21 | Intake scripts' shutdown crashed on the embedded demo database |
 | BUG-Arpan-01 | High | Arpan | 2026-11-21 | Any PDF in an email that said "invoice" became a draft bill |
 | BUG-Arpan-02 | High | Arpan | 2026-11-21 | Gmail advanced its cursor past messages excluded by the delivery cap |
 | BUG-Arpan-03 | High | Arpan | 2026-11-21 | Credit notes kept positive amounts when their total was missing or already negative |
@@ -24,6 +25,7 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Arpan-06 | Medium | Arpan | 2026-11-21 | Duplicates page queried the DB while Next.js prerendered and the route errored on the embedded DB |
 | BUG-Katie-01 | High | Katie | 2026-11-21 | Release said "No approval record was found" in the app while tests passed |
 | BUG-Katie-02 | Medium | Katie | 2026-11-21 | `import "server-only"` made `npm run check` fail |
+| BUG-Katie-03 | Medium | Andrew | 2026-11-21 | `.env.example` was referenced but not in the repo |
 
 ---
 
@@ -180,3 +182,18 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 
 **Cause.** With `cacheComponents`, `/payments/duplicates` started its database read while Next.js was still prerendering the shell; PGlite reads the clock, and Next refuses `Date.now()` during prerender ("encountered the unstable value `Date.now()`").
 **Fix.** `await connection()` before the read (`app/payments/_lib/duplicates.ts`). Rule: frontend.md.
+
+### BUG-Andrew-07
+**Intake scripts' shutdown crashed on the embedded demo database** · Low · FIXED · found 2026-11-21 by Andrew (merging main's `npm run demo`)
+
+**Symptom.** `intake:dataset` with `DATABASE_URL=pglite:…` would throw at the end: `$client.end is not a function`.
+**Cause.** `scripts/intake-save.ts` closed the connection with postgres.js's `end()`; main added an embedded PGlite mode whose client closes with `close()`.
+**Fix.** Close with whichever the client has (`end` or `close`). Verified on the embedded demo DB and Docker.
+
+### BUG-Katie-03
+**`.env.example` is referenced but not in the repo** · Medium · FIXED · found 2026-11-21 by Katie
+
+**Symptom.** Without a `.env`, the app and `npm run db:reset` fail with "DATABASE_URL is not set (see .env.example)" (`src/server/db/client.ts:34`, `scripts/db-reset.ts:13`), and `tasks-completed.md` lists `.env.example` as landed, but no commit on any branch has the file (`git log --all -- .env.example` is empty).
+**Cause.** Probably created locally and never committed (`.gitignore` un-ignores it).
+**Blocks.** Everyone running the app on Postgres (now every payments page) has to guess the variable names; the local values are only in `docker-compose.yml` and `docker/init/`.
+**Fix.** Committed `.env.example` (2026-11-21, Andrew, `andrew-audit-db`): `DATABASE_URL` (ap_app) and `DATABASE_URL_ADMIN` (owner) with the local Docker values from `docker-compose.yml`. It holds no secrets; API keys stay in the git-ignored `.env.local`.
