@@ -48,6 +48,8 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P1 Tests: idempotent re-run, rollback leaves nothing half-written, two-invoice email → two invoices, uncertain document → its own item, receipt PDF → `documents` row and no invoice. [Arpan]
 
 ### After step 3 [Arpan]
+- [ ] P0 Rehearse `docs/demo-workflow.md` end to end on live mail: Polar 000975 emailed → Paid; 000963 emailed → `DUPLICATE_INVOICE` (not yet run live). Pick and rehearse the $10k–$50k bill for the P11 twist. [Arpan]
+- [ ] P2 Test the first-run backfill (`GMAIL_BACKFILL`, `scripts/gmail-poll.ts:34`): move the choice into a small function in `intake/gmail/` and unit-test no cursor + env → backfill, cursor + env → incremental. [Arpan]
 - [ ] P1 Step 4: clerk inbox dashboard. Emails with decision + reason, each document's verdict, PDF viewer through `/api/documents/[id]` (`authorize()` before streaming), and a "Needs a decision" queue for uncertain documents. [Arpan]
 - [ ] P1 Upload → `documents` + draft invoice: same `readDocument` + `saveIntakeResult` path, source `upload`. [Arpan]
 - [ ] P1 Deployed polling: a cron route calls `pollGmail` (Vercel cron), cursor in the DB. [Arpan]

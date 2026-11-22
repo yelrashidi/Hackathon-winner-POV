@@ -10,7 +10,8 @@
 #   gmail-poller  polls the Gmail inbox every GMAIL_POLL_SECONDS (default 10) and saves bills
 #          through the pipeline as ap_app. Needs the GMAIL_* keys in .env.local (one-time
 #          `npm run gmail:auth` on the host — it opens a browser). Without them it exits quietly.
-#          The first poll records "now"; only mail arriving after that is read. Logs:
+#          The first poll (no saved cursor) backfills GMAIL_BACKFILL (default 1d) of inbox mail, so
+#          bills already waiting reach the dashboard; after that only new mail is read. Logs:
 #          docker compose logs -f gmail-poller
 #
 # Only the database (for `npm run dev` on your machine): npm run db:up
@@ -72,6 +73,7 @@ services:
     environment:
       DATABASE_URL: postgres://ap_app:ap_app_local@db:5432/harborline
       GMAIL_POLL_SECONDS: ${GMAIL_POLL_SECONDS:-10}
+      GMAIL_BACKFILL: ${GMAIL_BACKFILL:-1d}
     # No Gmail credentials → say so and exit 0 (stays stopped); the rest of the demo still runs.
     command:
       - sh

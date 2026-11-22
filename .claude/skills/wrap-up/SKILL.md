@@ -50,4 +50,4 @@ doc is new, add its line to `docs/architecture/README.md`.
 
 ## 8. Hand back
 
-Report in five lines or fewer, then run `/commit-msg`. Do not commit.
+Report in five lines or fewer, then run `/commit-msg`. Commit or push only if the user asks.

@@ -25,6 +25,7 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Arpan-04 | Medium | Arpan | 2026-11-21 | Missing line values silently became zero amounts or quantity one |
 | BUG-Arpan-05 | Medium | Arpan | 2026-11-21 | DB tests picked "the first row" without ORDER BY and broke when the seed wrote more rows |
 | BUG-Arpan-06 | Medium | Arpan | 2026-11-21 | Duplicates page queried the DB while Next.js prerendered and the route errored on the embedded DB |
+| BUG-Arpan-07 | High | Arpan | 2026-11-21 | Bills emailed before the Gmail poller's first run never reached the dashboard |
 | BUG-Katie-01 | High | Katie | 2026-11-21 | Release said "No approval record was found" in the app while tests passed |
 | BUG-Katie-02 | Medium | Katie | 2026-11-21 | `import "server-only"` made `npm run check` fail |
 | BUG-Katie-03 | Medium | Andrew | 2026-11-21 | `.env.example` was referenced but not in the repo |
@@ -213,3 +214,10 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 **Cause.** Probably created locally and never committed (`.gitignore` un-ignores it).
 **Blocks.** Everyone running the app on Postgres (now every payments page) has to guess the variable names; the local values are only in `docker-compose.yml` and `docker/init/`.
 **Fix.** Committed `.env.example` (2026-11-21, Andrew, `andrew-audit-db`): `DATABASE_URL` (ap_app) and `DATABASE_URL_ADMIN` (owner) with the local Docker values from `docker-compose.yml`. It holds no secrets; API keys stay in the git-ignored `.env.local`.
+
+### BUG-Arpan-07
+**Bills emailed before the poller's first run never reached the dashboard** · High · FIXED · found 2026-11-21 by Arpan (four test invoices sent to the inbox; none showed up)
+
+**Cause.** With no saved cursor, `pollGmail` records the current history id and returns nothing (deliberate: never read a personal inbox by accident). The `gmail-poller` container started about six hours after the test mail arrived, so that mail was behind the baseline forever. Nothing in the dashboard path was wrong: later mail was saved and shown.
+**Fix.** `GMAIL_BACKFILL` (env): on the first run only (no cursor), backfill that window before going incremental (`scripts/gmail-poll.ts:34`); `docker-compose.yml` defaults it to `1d`. Saving is idempotent, so overlap is harmless. The missed mail was recovered with `--backfill 1d`. Rule: backend.md.
+
