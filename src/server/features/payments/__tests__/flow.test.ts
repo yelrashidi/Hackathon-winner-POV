@@ -159,6 +159,25 @@ describe("payments on the dataset", async () => {
     expect(await refusedCodes(releasePayment("U003", { paymentId: dup.paymentId }, opts))).toContain("BLOCKING_FLAG");
   });
 
+  it("clearing a supplier fraud hold leaves duplicate invoice protection in place", async () => {
+    // Summit Packaging's AP-00407 repeats AP-00394, including its invoice number and amount.
+    const a = await current("AP-00394");
+    await ok(releasePayment("U003", { paymentId: a.paymentId }, opts));
+    await ok(simulateSettlement("U004", { paymentId: a.paymentId, outcome: "FRAUD_HOLD" }, opts));
+    const flagId = (await detail("AP-00394")).flags[0]!.flagId;
+    await ok(clearFlag("U002", { flagId, note: "Reviewed the supplier fraud hold; duplicate review is still required." }, opts));
+
+    const b = await current("AP-00407");
+    const result = await releasePayment("U003", { paymentId: b.paymentId }, opts);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reasons).toEqual([
+        expect.objectContaining({ code: "BLOCKING_FLAG", message: expect.stringContaining("DUPLICATE_INVOICE") }),
+      ]);
+    }
+    expect((await current("AP-00407")).status).toBe("scheduled");
+  });
+
   it("Low: a bank error flags only the failed payment and clears itself when the retry is scheduled", async () => {
     const p = await ok(schedulePayment("U004", { invoiceId: "AP-00425" }, opts));
     await ok(releasePayment("U003", { paymentId: p.paymentId }, opts));
