@@ -1,7 +1,7 @@
 import type { DirectoryUser } from "@/server/session/users";
 import type { PaymentRow } from "../_lib/data";
 import { formatDate } from "../_lib/format";
-import { canClearFlag } from "@/server/features/payments";
+import { paymentsDb } from "@/server/pipeline";
 import { clearFlagAction } from "../actions";
 import { ActionForm, inputClass } from "./ActionForm";
 import type { PaymentFlag, FlagUrgency } from "@/contracts/payment";
@@ -49,12 +49,13 @@ export async function FlagList({
   user: DirectoryUser | null;
 }) {
   if (flags.length === 0) return <p className="text-sm text-slate-500">No flags.</p>;
+  // Who may clear each flag: the same rule clearFlag() enforces, asked of the server once per list.
+  const clearable = await paymentsDb.canClearFlags(user?.id ?? null, flags.filter((f) => f.clearedAt === null).map((f) => f.flagId));
   const sorted = [...flags].sort((a, b) => Number(a.clearedAt !== null) - Number(b.clearedAt !== null));
-  const clearable = await Promise.all(sorted.map((f) => canClearFlag(user?.id ?? null, f.flagId)));
 
   return (
     <ul className="space-y-3">
-      {sorted.map((f, i) => {
+      {sorted.map((f) => {
         const cleared = f.clearedAt !== null;
         return (
           <li key={f.flagId} className={`flex flex-wrap items-start gap-3 text-sm ${cleared ? "opacity-60" : ""}`}>
@@ -69,7 +70,7 @@ export async function FlagList({
                     : ` · Cleared by ${f.clearedBy?.name ?? "—"}, ${formatDate(f.clearedAt)}${f.clearNote ? `: ${f.clearNote}` : ""}`)}
               </p>
             </div>
-            {clearable[i] && (
+            {clearable[f.flagId] && (
               <ActionForm action={clearFlagAction} label="Clear flag" hidden={{ flagId: f.flagId }} tone="quiet">
                 <input
                   name="note"

@@ -51,6 +51,7 @@ export const AUDIT_ACTIONS = [
   "bank_account.closed",
   "policy.edited",
   "user.role_changed",
+  "user.status_changed", // on leave + delegate (P08), or back to active — the Admin's people screen
   // security
   "authz.denied", // a refused attempt (written in its own transaction)
 ] as const;

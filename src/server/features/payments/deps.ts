@@ -272,7 +272,10 @@ async function getApprovalFacts(exec: Executor, invoice: InvoiceRec): Promise<Ap
   const plans = await getApprovalPlans(invoice.id, { store });
   if (plans.length === 0) return undefined;
   const current = await getCurrentApprovalPlan(invoice.id, { store, invoiceVersion: invoice.version });
-  if (!current) return { approverIds: [...approversOf(...plans)], basis: null };
+  // Only a COMPLETED approval approves a payee and an amount: a routed plan whose every step is
+  // approved. Pending, rejected, held or blocked plans approve nothing (TODO review finding, P1).
+  const complete = current && current.outcome === "route" && current.steps.length > 0 && current.steps.every((s) => s.decision === "approved");
+  if (!complete) return { approverIds: [...approversOf(...plans)], basis: null };
   return {
     approverIds: [...approversOf(...plans)],
     basis: {

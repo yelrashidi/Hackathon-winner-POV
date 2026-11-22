@@ -1,0 +1,38 @@
+/*
+ * Brim-inspired theme tokens: the ONE place for the app's colours and display font.
+ * Feel only, no Brim logo or artwork. Blue and turquoise are eyeballed from a brimfinancial.com
+ * screenshot (hero band, logo colour); swap in exact brand values here if we get them.
+ *
+ * Status colours (settled green, failed red, on hold amber, scheduled blue, released purple,
+ * cancelled grey) are deliberately NOT here: they carry meaning and stay Tailwind's palette.
+ *
+ * Scoped to the `brim-theme` class so it can't leak into other pages. Use with Tailwind's
+ * CSS-variable syntax inside that class:
+ *   bg-(--brim-frame)   text-(--brim-link)   ring-(--brim-accent)   font-(family-name:--brim-font-display)
+ *
+ * Team-wide version (needs the team's OK, it's a shared file): move these into a @theme block
+ * in app/globals.css as --color-brim-frame etc., which also gives classes like bg-brim-frame.
+ */
+.brim-theme {
+  /* Frame: top bar and sidebar */
+  --brim-frame: #2e5a76; /* Brim blue */
+  --brim-frame-active: #234a63; /* selected / hover item on the frame; white text on it is 9.4:1 */
+  --brim-on-frame: #ffffff; /* 7.4:1 on the frame */
+  --brim-on-frame-muted: #c8d7e3; /* 5:1 on the frame */
+
+  /* Accent: primary buttons, active tab marker */
+  --brim-accent: #54b8d0; /* Brim turquoise */
+  --brim-accent-hover: #44a6be;
+  --brim-on-accent: #12344a; /* text on turquoise buttons, 5.7:1 */
+  /* Turquoise text and focus rings on white: the same hue, deep enough to see (4.9:1).
+     The bright turquoise on white is 2.3:1, too faint for text. */
+  --brim-link: #1e7a90;
+
+  /* Content */
+  --brim-surface: #f5f7fa; /* page background behind white cards */
+  --brim-heading: #16324a; /* page titles and big numbers */
+
+  /* Type: bold rounded face for page titles and summary numbers (loaded with next/font in
+     app/layout.tsx). Body text stays the app's Geist. */
+  --brim-font-display: var(--font-brim-display), ui-rounded, system-ui, sans-serif;
+}

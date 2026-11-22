@@ -123,7 +123,8 @@ export async function ingestFromIntake(
       classification: `${classification.decision}/${classification.kind}`,
       raw: { message, classification },
     })
-    .onConflictDoUpdate({ target: inboxMessages.id, set: { classification: `${classification.decision}/${classification.kind}` } });
+    // The seed may already hold the raw email; intake's verdict (and its reason) is added either way.
+    .onConflictDoUpdate({ target: inboxMessages.id, set: { classification: `${classification.decision}/${classification.kind}`, raw: { message, classification } } });
 
   const outcomes: IntakeOutcome[] = [];
   for (const reading of readings) {

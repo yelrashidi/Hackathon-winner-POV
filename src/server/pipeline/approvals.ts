@@ -221,6 +221,101 @@ async function storedFlags(db: Executor, invoiceId: string): Promise<Flag[]> {
   }));
 }
 
+type InvoiceRow = typeof invoices.$inferSelect;
+
+/**
+ * What approvals routes on, from the stored invoice: header, PO requester, the departments the coded
+ * lines charge, the department's approved spend this year, and every stored flag. Shared by
+ * submitForApproval() and previewApproval(), so the preview is exactly what submit will do.
+ */
+async function buildApprovalInput(tx: Executor, inv: InvoiceRow, submitterId: string | null, now: Date): Promise<ApprovalInput> {
+  const invoiceId = inv.id;
+  const year = (inv.invoiceDate ?? now.toISOString()).slice(0, 4);
+  const [[po], lineDepts, [ytd], flags] = await Promise.all([
+    inv.poId ? tx.select({ requesterId: purchaseOrders.requesterId }).from(purchaseOrders).where(eq(purchaseOrders.id, inv.poId)) : Promise.resolve([undefined]),
+    tx.selectDistinct({ d: invoiceLines.departmentId }).from(invoiceLines).where(and(eq(invoiceLines.invoiceId, invoiceId), isNotNull(invoiceLines.departmentId))),
+    tx
+      .select({ n: sql<string | null>`sum(${invoices.totalCadCents})::text` })
+      .from(invoices)
+      .where(
+        and(
+          eq(invoices.departmentId, inv.departmentId!),
+          ne(invoices.id, invoiceId),
+          inArray(invoices.status, APPROVED_SPEND),
+          gte(invoices.invoiceDate, `${year}-01-01`),
+          lt(invoices.invoiceDate, `${Number(year) + 1}-01-01`),
+        ),
+      ),
+    storedFlags(tx, invoiceId),
+  ]);
+
+  return {
+    invoiceId,
+    invoiceVersion: inv.version,
+    vendorId: inv.vendorId,
+    vendorNameRaw: inv.vendorNameRaw ?? "",
+    departmentId: inv.departmentId!,
+    requesterId: inv.requesterId!,
+    submittedBy: submitterId && submitterId !== inv.requesterId ? submitterId : null,
+    poId: inv.poId,
+    poRequesterId: po?.requesterId ?? null,
+    // Feature 9: who maintains this vendor (onboarded it, changed its bank) may not approve it.
+    conflicts: await vendorConflicts(tx, inv.vendorId),
+    currency: inv.currency!,
+    totalCents: inv.totalCents!,
+    fxRateToCad: Number(inv.fxRate ?? "1"), // a rate (decimal), as the approvals contract takes it
+    totalCadCents: inv.totalCadCents!,
+    lineDepartmentIds: lineDepts.map((x) => x.d!),
+    departmentSpendYtdCadCents: ytd?.n ? Number(ytd.n) : 0,
+    flags,
+  };
+}
+
+/**
+ * The route submit would produce right now, without saving anything: who approves each step (after
+ * delegation and escalation), what would hold or block it, and what approvers must acknowledge.
+ * Null when the invoice is missing a field approvals needs (the review screen says which).
+ */
+export async function previewApproval(invoiceId: string, submitterId: string | null, opts: { db?: Db; now?: Date } = {}): Promise<ApprovalPlan | null> {
+  const db = opts.db ?? getDb();
+  const now = opts.now ?? new Date();
+  const [inv] = await db.select().from(invoices).where(eq(invoices.id, invoiceId));
+  if (!inv || !inv.requesterId || !inv.departmentId || !inv.currency || inv.totalCents === null || inv.totalCadCents === null) return null;
+  const input = await buildApprovalInput(db, inv, submitterId, now);
+  const store = new PostgresApprovalStore(db);
+  const [ctx, history] = await Promise.all([loadApprovalContext(db, now), getApprovalPlans(invoiceId, { store })]);
+  return planApprovals(input, ctx, history);
+}
+
+/**
+ * An invoice approvals put On hold (e.g. a PO the vendor requires is missing) goes back to review once
+ * someone has dealt with the reason — state machine OnHold —holdCleared→ InReview — with a note saying how.
+ * The next submit routes it again from scratch.
+ */
+export async function releaseHold(actor: Actor, invoiceId: string, note: string, opts: { db?: Db } = {}): Promise<{ status: string }> {
+  const db = opts.db ?? getDb();
+  let who;
+  try {
+    who = authorize(actor, "invoice.review").actor;
+  } catch (err) {
+    if (err instanceof Forbidden) await recordDenied(actor, { attempted: "invoice.review (release hold)", reason: err.reason, invoiceId }, { db });
+    throw err;
+  }
+  const reason = note.trim();
+  if (!reason) throw new ApprovalFlowError("Say what was done about the hold before sending the invoice back to review.", 400, "NOTE_REQUIRED");
+  return withAction(
+    who,
+    async (action) => {
+      const [inv] = await action.tx.select({ status: invoices.status }).from(invoices).where(eq(invoices.id, invoiceId)).for("update");
+      if (!inv) throw new ApprovalFlowError(`Invoice ${invoiceId} does not exist.`, 404);
+      if (inv.status !== "OnHold") throw new ApprovalFlowError(`Only an invoice on hold can be released (it is ${inv.status}).`, 409);
+      const fired = await fire(action, invoiceId, "holdCleared", { reason });
+      return { status: fired.to };
+    },
+    { db },
+  );
+}
+
 /**
  * Submit an invoice in review for approval. Routes it with planApprovals() on the stored flags
  * (validation + coding + duplicates), saves the plan, and fires `submit` (→ PendingApproval) or
@@ -254,45 +349,7 @@ export async function submitForApproval(actor: Actor, invoiceId: string, opts: {
       ].filter(Boolean);
       if (missing.length) throw new ApprovalFlowError(`Set ${missing.join(", ")} before submitting — approvals routes on them.`, 409, "MISSING_FIELDS");
 
-      const year = (inv.invoiceDate ?? now.toISOString()).slice(0, 4);
-      const [[po], lineDepts, [ytd], flags] = await Promise.all([
-        inv.poId ? tx.select({ requesterId: purchaseOrders.requesterId }).from(purchaseOrders).where(eq(purchaseOrders.id, inv.poId)) : Promise.resolve([undefined]),
-        tx.selectDistinct({ d: invoiceLines.departmentId }).from(invoiceLines).where(and(eq(invoiceLines.invoiceId, invoiceId), isNotNull(invoiceLines.departmentId))),
-        tx
-          .select({ n: sql<string | null>`sum(${invoices.totalCadCents})::text` })
-          .from(invoices)
-          .where(
-            and(
-              eq(invoices.departmentId, inv.departmentId!),
-              ne(invoices.id, invoiceId),
-              inArray(invoices.status, APPROVED_SPEND),
-              gte(invoices.invoiceDate, `${year}-01-01`),
-              lt(invoices.invoiceDate, `${Number(year) + 1}-01-01`),
-            ),
-          ),
-        storedFlags(tx, invoiceId),
-      ]);
-
-      const input: ApprovalInput = {
-        invoiceId,
-        invoiceVersion: inv.version,
-        vendorId: inv.vendorId,
-        vendorNameRaw: inv.vendorNameRaw ?? "",
-        departmentId: inv.departmentId!,
-        requesterId: inv.requesterId!,
-        submittedBy: who.userId !== inv.requesterId ? who.userId : null,
-        poId: inv.poId,
-        poRequesterId: po?.requesterId ?? null,
-        // Feature 9: who maintains this vendor (onboarded it, changed its bank) may not approve it.
-        conflicts: await vendorConflicts(tx, inv.vendorId),
-        currency: inv.currency!,
-        totalCents: inv.totalCents!,
-        fxRateToCad: Number(inv.fxRate ?? "1"), // a rate (decimal), as the approvals contract takes it
-        totalCadCents: inv.totalCadCents!,
-        lineDepartmentIds: lineDepts.map((x) => x.d!),
-        departmentSpendYtdCadCents: ytd?.n ? Number(ytd.n) : 0,
-        flags,
-      };
+      const input = await buildApprovalInput(tx, inv, who.userId, now);
 
       const store = new PostgresApprovalStore(tx);
       const ctx = await loadApprovalContext(tx, now);

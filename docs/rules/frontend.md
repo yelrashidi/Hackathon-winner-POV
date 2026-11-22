@@ -21,4 +21,6 @@ paths:
 - **Data loads on the server** (server components or route handlers) through `src/server`
   services. No database client or secret in client components.
 - **Delegate actions read as such everywhere**: *Approved by Priya Shah on behalf of Tom Lee*.
+- **Never read a plain value (a class string, a constant) from a `"use client"` file in a server component** — you get a client reference, not the value (BUG-Youssef-06). Shared constants go in a plain module (`app/_lib/styles.ts`).
+- **Every section has its own `loading.tsx`**: on a client navigation only what is below the shared layout re-renders, so the root one does not cover a switch between sections (Cache Components "instant navigation").
 - **Database reads in a page or layout go after `await connection()`** (or after a cookie read is awaited). With `cacheComponents`, a read that starts during prerender fails on anything time-based, e.g. the embedded demo DB (BUG-Arpan-06).

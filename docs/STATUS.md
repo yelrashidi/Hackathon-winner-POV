@@ -11,7 +11,7 @@ the top block is updated by whoever finishes a shared piece.
 | Owner | Features | Also owns |
 |---|---|---|
 | Arpan | 1 Intake, 2 Extraction, 5 Duplicates | |
-| Youssef | 3 Coding, 6 Approvals | |
+| Youssef | 3 Coding, 6 Approvals, dashboard (all roles) | |
 | Andrew | 4 Validation, 8 Audit + foundation (schema, `core/`, `src/server/pipeline/`), 9 Vendors (server side) | |
 | Katie | 7 Payments, payments dashboard | |
 | shared | foundation (`core/`) | schema merges: _name_ |
@@ -51,10 +51,9 @@ the top block is updated by whoever finishes a shared piece.
 **Waiting on:** foundation for persistence. **Andrew / Youssef:** contract fixtures and raw replies are ready for the validation mapper and coding's `lineType` consumer (`src/contracts/__tests__/intake-fixtures.test.ts`).
 
 ### 3 Coding — Youssef
-**Works** (pure, tested on branch `step-3`): per-line GL account + department suggestions with confidence and reason; journal preview (recoverable tax → 1160/1165, BC PST into goods lines, AP 2100); server-side coding gate, bulk-accept, submit guard (`CODING_NOT_CONFIRMED`), learning loop. Backtest 99.6% (never wrong at high); fixtures in `fixtures/coding/`.
-**Stubbed:** no persistence to `invoice_lines`, no review screen yet; history index built in memory from the dataset.
-**Next:** wire into the analysis pass after validation's `matchVendor`; review screen with bulk-accept.
-**Waiting on:** intake to capture the **requester** (department is 100% right with it, 82.8% without; none of the 56 incoming invoices has one); extraction to keep `lineType`; LLM provider decision (optional fallback). New contract: `src/contracts/coding.ts`.
+**Works end to end** (branch `dashboard-redesign`): suggestions persisted on Postgres (Andrew's `pipeline/coding.ts`) and shown on **Checks**: per-line account + department with confidence, reason and alternatives; accept / change with a note; bulk-accept high confidence; journal preview; the submit guard. Backtest 99.6% (never wrong at high).
+**Stubbed:** no LLM fallback for lines with no evidence. **Next:** `reapprovalReasons` on edits after approval.
+**Waiting on:** intake to capture the requester (Checks asks the clerk for it today).
 
 ### 4 Validation — Andrew
 **Works (merged to main, PR #12):** every check in `src/server/features/validation/`. **On Postgres:** `loadDbContext`, `validateWithin`, and flags saved to `invoice_flags` via `syncFlags` (one row per `flagKey`, so human decisions survive re-runs). `overrideFlag` / `resolveFlag` need a note (also a DB CHECK) and are audited. The DB path reproduces the CSV run on all 56 incoming invoices.
@@ -69,10 +68,17 @@ the top block is updated by whoever finishes a shared piece.
 **Shared changes:** `contracts/audit.ts` + `invoice.duplicates_checked`; `db/client.ts` accepts `pglite:`; seed + `pipeline/ingest.ts`; validation exports (`approvalThresholdsFromPolicyRows` extracted, same behaviour); Duplicates tab in Katie's dashboard; Youssef's chaos test timeout 30 s.
 
 ### 6 Approvals — Youssef
-**Works** (tested): routing from `approval_policies` P01–P13 with delegation, escalation and separation of duties; the approve/reject gate `checkDecision`; re-approval on edits; aging; saving and loading plans and decisions (`saveApprovalPlan`, `getApprovalPlans`, `getCurrentApprovalPlan`, `saveDecision`). 137 tests; fixtures in `fixtures/approvals/`.
-**Stubbed:** the store is in-memory (`// TEMP: db`) until the schema lands; not wired to `fire()`, `authorize()`, an API route or a screen yet. Payments (Katie) already reads it through `getApprovalPlans` / `approversOf` / `basis`.
-**Next:** approvals API route + approver queue screen once the foundation lands; make the in-memory store one shared copy together with Katie's seed (see TODO).
-**Waiting on:** foundation (schema — `approval_plans` proposal in `6-approvals.md`, `fire`, `authorize`, session); validation (`PO_OVER_BALANCE`, `SPLIT_INVOICE_SUSPECTED.combinedCadCents`); vendors (`conflicts`). Contract change in `src/contracts/` — see [`6-approvals-edge-cases.md`](architecture/6-approvals-edge-cases.md) §13.
+**Works end to end** (branch `dashboard-redesign`, on Postgres): submit from Checks with a live **route preview** (`previewApproval`, the same input builder as `submitForApproval`); **Approvals** queue = `waitingOn` per person (delegates see "on behalf of"); decision page with acknowledgements; holds go back to review with a note (`releaseHold`); the Admin edits policies (new version row, `updatePolicy`) and puts approvers on leave with a delegate (`setUserAvailability`). Routing follows `approval_policies.csv` (team decision 2026-11-21).
+**Stubbed:** `approvalAging` reminders; `reapprovalReasons` not yet called on edits.
+
+### Dashboard (all roles) — Youssef
+**Works** (branch `dashboard-redesign`, merged with main): one app for the five roles, one person each (Jordan Okafor, Dev Malhotra, Elise Tremblay, Marcus Webb, Hannah Lindqvist — `session/roster.ts`); they are the only sign-ins and the only requesters offered. Click-by-click demo, incl. a Claude-read upload: [`demo-script.md`](demo-script.md). 909 tests pass after merging main (`e4ecc52`). Home / Inbox / Checks (+ upload, manual entry) / Approvals / Payments / Vendors / Audit trail / People & policies / Demo controls. Runs with **no Docker**: without `DATABASE_URL` an in-process Postgres is built from the dataset at startup (`src/server/demo/`). Doc: [`architecture/dashboard.md`](architecture/dashboard.md); end-to-end flow test `src/server/dashboard/__tests__/flow.test.ts`.
+**Changes in other people's code — please review:**
+- **Andrew:** `core/authorize.ts` — checks open to `approver` + `finance_manager`; `audit.view` for all five roles, `audit.export` + `controller_admin`. Contracts: `audit.ts` + `user.status_changed`, `audit-view.ts` + optional `statuses`. `pipeline/approvals.ts`: shared `buildApprovalInput` (keeps `vendorConflicts`); new `pipeline/{manual-entry,documents,admin,payments}.ts`. Vendors screen calls `features/vendors`.
+- **Katie:** payments stay her Postgres service; `pipeline/payments.ts` only adds the Admin release rule. `deps.ts`: only a fully approved plan approves a payee (review finding, fixed). Payments pages sit in the shared frame; upload moved to `/checks/upload` and saves through `ingestInvoice`.
+- **Arpan:** `pipeline/intake.ts` stores intake's reason on emails the seed loaded; Duplicates is in the shared sidebar; `duplicates/__tests__/db.test.ts` now shows the refusal with the Auditor (managers may do checks).
+- `@electric-sql/pglite` is a dependency; the quick demo (`npm run dev`, no `DATABASE_URL`) runs as `ap_app` like `npm run demo`.
+**Next:** real auth; uploads to object storage; live mailbox polling from the Inbox (Gmail connector exists as a script).
 
 ### 7 Payments — Katie
 **Works (on the database since 2026-11-21, branch `Katie`; tested on PGlite):** schedule / release / cancel / retry / schedule again; release rules (P09–P11, approver / scheduler / requester can't release, active staff, verified bank, pending bank change, payee + amount = approved, FX re-check, blocking flags); simulated EFT with 9 failure reasons; urgency flags; bank change + second-person verify. Every action: `authorize()` first, then one transaction with `fire()` and its `withAction` audit rows. Reads approvals through `PostgresApprovalStore` and open `invoice_flags` (so Validation's "waiting on Katie" is done). Dashboard `/payments` reads and acts through it; `/payments-console` = simulated bank only (reset = `npm run db:reset`). Contract `src/contracts/payment.ts`, guide `docs/payment-data.md`, doc `docs/architecture/7-payments.md`.

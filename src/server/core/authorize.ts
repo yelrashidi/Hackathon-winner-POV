@@ -16,10 +16,15 @@ import { Actor as ActorSchema, type Actor, type ActorRole } from "@/contracts/ac
 
 export const ACTIONS = {
   "invoice.submit": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin"],
-  /** Ingest inbox, review extraction, edit fields, code lines. */
-  "invoice.review": ["ap_clerk", "controller_admin"],
-  "flag.resolve": ["ap_clerk", "controller_admin"],
-  "flag.override": ["ap_clerk", "controller_admin"],
+  /**
+   * Ingest inbox, review extraction, edit fields, code lines ("the checks"). The team's dashboard
+   * plan (2026-11-21): access widens with seniority — managers and the Finance Manager can do the
+   * clerk's checks too. Separation of duties still holds at approval: whoever submits an invoice is
+   * excluded from approving it (approvals' route.ts), so doing the checks never lets you approve your own work.
+   */
+  "invoice.review": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
+  "flag.resolve": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
+  "flag.override": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "approval.decide": ["approver", "finance_manager", "controller_admin"],
   "payment.prepare": ["ap_clerk", "finance_manager", "controller_admin"],
   "payment.release": ["finance_manager", "controller_admin"],
@@ -38,12 +43,12 @@ export const ACTIONS = {
   "vendor.bank_change.verify": ["finance_manager", "controller_admin"],
   "admin.edit": ["controller_admin"],
   /**
-   * The audit dashboard (invoice list + invoice detail) and its export. Auditor ONLY, as the team
-   * decided on 2026-11-21. Note: roles-and-permissions.md also lists the Controller for "view full
-   * audit log" — add "controller_admin" here if the team keeps that row.
+   * The audit trail (past invoices + one invoice's full trail). Every dashboard role reads it (team
+   * decision 2026-11-21, dashboard redesign); the Auditor sees nothing else. Read-only for everyone.
+   * Export: the Auditor, and the Controller/Admin (roles-and-permissions.md "full audit log / export").
    */
-  "audit.view": ["auditor"],
-  "audit.export": ["auditor"],
+  "audit.view": ["ap_clerk", "approver", "finance_manager", "controller_admin", "auditor"],
+  "audit.export": ["auditor", "controller_admin"],
 } as const satisfies Record<string, readonly ActorRole[]>;
 
 export type Action = keyof typeof ACTIONS;

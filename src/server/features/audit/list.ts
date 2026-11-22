@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, ilike, lte, or, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, gte, ilike, inArray, lte, or, sql, type SQL } from "drizzle-orm";
 import type { Actor } from "@/contracts/actor";
 import { AuditInvoiceListQuery, type AuditInvoiceList, type AuditInvoiceListQuery as Query } from "@/contracts/audit-view";
 import { getDb, type Db } from "@/server/db/client";
@@ -23,6 +23,7 @@ export async function listAuditInvoices(actor: Actor, query: Query = {}, opts: {
   const where: (SQL | undefined)[] = [
     q.search ? or(ilike(invoices.id, `%${q.search}%`), ilike(invoices.invoiceNumber, `%${q.search}%`), ilike(vendors.legalName, `%${q.search}%`), ilike(invoices.vendorNameRaw, `%${q.search}%`)) : undefined,
     q.status ? eq(invoices.status, q.status) : undefined,
+    q.statuses?.length ? inArray(invoices.status, q.statuses) : undefined,
     q.vendorId ? eq(invoices.vendorId, q.vendorId) : undefined,
     q.from ? gte(invoices.invoiceDate, q.from) : undefined,
     q.to ? lte(invoices.invoiceDate, q.to) : undefined,

@@ -63,6 +63,8 @@ export const AuditInvoiceListQuery = z.object({
   /** Matches invoice id, invoice number or vendor name (case-insensitive). */
   search: z.string().trim().optional(),
   status: z.string().optional(),
+  /** Only these statuses (e.g. the Auditor's "past invoices": decided ones). Combined with `status`. */
+  statuses: z.array(z.string()).optional(),
   vendorId: z.string().optional(),
   /** Invoice date range, inclusive. */
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),

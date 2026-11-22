@@ -1,0 +1,31 @@
+import Link from "next/link";
+import type { Viewer } from "@/server/session/current-user";
+import { roleInfo } from "@/server/session/roles";
+import { section, type SectionKey } from "../_lib/nav";
+
+/** Shown instead of a screen the signed-in person's role doesn't include. Checked on the server. */
+export function NotForYourRole({ sectionKey, viewer }: { sectionKey: SectionKey; viewer: Viewer | null }) {
+  const s = section(sectionKey);
+  return (
+    <div className="mx-auto mt-10 max-w-lg rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+        <svg viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5" aria-hidden>
+          <path fillRule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <h1 className="mt-4 font-(family-name:--brim-font-display) text-xl font-extrabold text-(--brim-heading)">
+        {s.label} is for {s.forWhom}
+      </h1>
+      <p className="mt-2 text-sm text-slate-500">
+        {viewer ? `You're signed in as ${viewer.user.fullName} (${roleInfo(viewer.role).label}).` : "You haven't picked who you are yet."} Switch person in the top-right, or go
+        to your home screen.
+      </p>
+      <Link
+        href="/"
+        className="mt-6 inline-flex rounded-lg bg-(--brim-accent) px-4 py-2 text-sm font-semibold text-(--brim-on-accent) hover:bg-(--brim-accent-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brim-link) focus-visible:ring-offset-2"
+      >
+        Go to my home screen
+      </Link>
+    </div>
+  );
+}

@@ -17,7 +17,7 @@ import { confirmDuplicate, dismissDuplicate, DuplicateActionError, listDuplicate
 
 const TODAY = "2026-11-02";
 const CLERK: Actor = { userId: "U004", role: "ap_clerk" };
-const APPROVER: Actor = { userId: "U007", role: "approver" };
+const AUDITOR: Actor = { userId: "U006", role: "auditor" };
 const fixture = (name: string) => loadIncomingFixtures().find((f) => f.file === name)!.fixture.input;
 const dupFlags = (db: Db, invoiceId: string) => db.select().from(invoiceFlags).where(and(eq(invoiceFlags.invoiceId, invoiceId), eq(invoiceFlags.source, "duplicates")));
 
@@ -93,12 +93,13 @@ describe("analysis pass on a new invoice", () => {
     expect((await dupFlags(db, out.invoiceId)).map((f) => f.status)).toEqual(["resolved", "resolved"]);
   });
 
-  it("an approver may not decide duplicates (server-side), and the refusal is logged", async () => {
+  // Dashboard plan (2026-11-21): managers may do the clerk's checks, duplicates included; the Auditor never writes.
+  it("the auditor may not decide duplicates (server-side), and the refusal is logged", async () => {
     const out = await ingestInvoice(fixture("cloudbarnsoftwar-inv01561.json"), { source: "upload", today: TODAY, db });
     const [flag] = await dupFlags(db, out.invoiceId);
-    await expect(confirmDuplicate(APPROVER, flag!.id, "x", { db })).rejects.toBeInstanceOf(Forbidden);
-    await expect(dismissDuplicate(APPROVER, flag!.id, "x", { db })).rejects.toBeInstanceOf(Forbidden);
-    const denied = await db.select().from(auditEvents).where(and(eq(auditEvents.action, "authz.denied"), eq(auditEvents.actorId, "U007")));
+    await expect(confirmDuplicate(AUDITOR, flag!.id, "x", { db })).rejects.toBeInstanceOf(Forbidden);
+    await expect(dismissDuplicate(AUDITOR, flag!.id, "x", { db })).rejects.toBeInstanceOf(Forbidden);
+    const denied = await db.select().from(auditEvents).where(and(eq(auditEvents.action, "authz.denied"), eq(auditEvents.actorId, AUDITOR.userId)));
     expect(denied.length).toBeGreaterThanOrEqual(2);
   });
 });

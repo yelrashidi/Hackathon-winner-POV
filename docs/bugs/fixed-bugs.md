@@ -10,6 +10,8 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Youssef-03 | Medium | Youssef | 2026-11-21 | Leave or termination after routing left nobody able to approve |
 | BUG-Youssef-04 | Medium | Youssef | 2026-11-21 | Overriding `PO_OVER_BALANCE` removed the P12 finance review |
 | BUG-Youssef-05 | Medium | Youssef | 2026-11-21 | `applyDecision` could record a different actor or action than was checked |
+| BUG-Youssef-06 | Low | Youssef | 2026-11-21 | Form fields rendered unstyled: a server page read a class string from a "use client" file |
+| BUG-Youssef-07 | Medium | Youssef | 2026-11-21 | Every unconfirmed bill showed as "Blocked" in Checks |
 | BUG-Andrew-01 | High | Andrew | 2026-11-21 | Empty string in an extracted field crashed validation |
 | BUG-Andrew-02 | High | Andrew | 2026-11-21 | Impossible dates (2026-02-30) rolled over and raised false date flags |
 | BUG-Andrew-03 | High | Andrew | 2026-11-21 | Unmapped tax line produced a false blocking TAX_MISSING |
@@ -170,6 +172,20 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 **Symptom.** `npm run gmail:poll` and `npm run intake:dataset` classified and printed each email; no invoice reached Postgres.
 **Cause.** `ingestFromIntake` was built and tested on fixtures, but the two entry points were never switched to it. The Gmail cursor was also saved *before* processing, so once saving existed a DB error would have skipped mail for good.
 **Fix.** `scripts/intake-save.ts` calls `ingestFromIntake` per email (and keeps each bill's bytes for a `documents` row); both scripts use it; Gmail's cursor advances only after every new email is saved. Verified with all 59 dataset emails, twice, into Docker Postgres.
+
+### BUG-Youssef-06
+**Form fields rendered unstyled: a server page read a class string from a "use client" file** · Low · FIXED · found 2026-11-21 by Youssef (screenshots)
+
+**Symptom.** Inputs and selects built as `` `w-64 ${inputClass}` `` (payments' Cancel / Clear flag, Checks' coding row) had no border or size; `className={inputClass}` alone looked fine.
+**Fix.** The class strings live in a plain module, `app/_lib/styles.ts`; the client `ActionForm` no longer exports them.
+**Why it happened.** A server component importing a non-component value from a `"use client"` module gets a client reference, not the string; interpolating it produces garbage.
+
+### BUG-Youssef-07
+**Every unconfirmed bill showed as "Blocked" in Checks** · Medium · FIXED · found 2026-11-21 by Youssef (dashboard flow test)
+
+**Symptom.** The Checks queue counted coding's own `CODING_NOT_CONFIRMED` (block) as a blocking flag, so all 56 incoming bills read "1 blocking flag to resolve or override".
+**Fix.** The queue's blocking count leaves out `source = 'coding'` (`src/server/dashboard/checks.ts`); coding's state is shown per line instead (confirmed / unsure).
+**Why it happened.** Coding stores its submit guard as an ordinary block flag on purpose (so `fire('submit')` needs no extra check); the screen must not treat it as a validation problem.
 
 ### BUG-Arpan-05
 **Tests depended on heap order** · Medium · FIXED · found 2026-11-21 while adding the duplicates seed pass

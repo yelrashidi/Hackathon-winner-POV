@@ -21,4 +21,5 @@ How the code works and why. One doc per feature, written by its owner from
 | [`7-payments.md`](7-payments.md) | payments: schedule, release rules, simulated EFT, failures and urgency flags, bank change | Katie |
 | [`9-vendors.md`](9-vendors.md) | vendor master: list, onboard + second-person approval, hold, bank change request + verify, conflicts for approvals | Andrew |
 | [`8-audit.md`](8-audit.md) | audit trail + DB foundation: schema, append-only `audit_events`, `core/` (`withAction`, `fire`, `authorize`), the pipeline on Postgres (3→4→6→8), auditor dashboard services, control checks | Andrew |
-| `9-vendors.md` | *to write* | |
+| `9-vendors.md` | *to write* (thin vendor master is on the dashboard: `dashboard.md`) | |
+| [`dashboard.md`](dashboard.md) | the app: five roles and what each sees, demo database, read/write split, payments on Postgres | Youssef |

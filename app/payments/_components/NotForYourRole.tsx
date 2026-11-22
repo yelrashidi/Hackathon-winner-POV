@@ -20,13 +20,13 @@ export function NotForYourRole({ page, user }: { page: PaymentsPage; user: Direc
         {user
           ? `You're viewing as ${user.fullName} (${ROLE_LABEL[user.role]}).`
           : "You haven't picked who you are yet."}{" "}
-        Switch person in the top-right, or go back to the overview.
+        Switch person in the top-right, or go to your home screen.
       </p>
       <Link
-        href="/payments"
+        href="/"
         className="mt-6 inline-flex rounded-lg bg-(--brim-accent) px-4 py-2 text-sm font-semibold text-(--brim-on-accent) hover:bg-(--brim-accent-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brim-link) focus-visible:ring-offset-2"
       >
-        Go to overview
+        Go to my home screen
       </Link>
     </div>
   );
