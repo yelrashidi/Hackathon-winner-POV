@@ -184,7 +184,7 @@ function toRow(d: PaymentsData, viewer: DirectoryUser | undefined, invoice: Invo
 
 /** Every payment the signed-in person may see. */
 export async function listPayments(viewerId: string | null): Promise<PaymentsView> {
-  const d = await store.loadData(getDb(), { today: localDate(new Date()) });
+  const d = await store.loadData(getDb(), { today: () => localDate(new Date()) });
   const viewer = viewerId ? d.users.get(viewerId) : undefined;
   const rows: PaymentRow[] = [];
   const awaiting: InvoiceRecord[] = [];
@@ -204,7 +204,7 @@ export async function listPayments(viewerId: string | null): Promise<PaymentsVie
 
 /** One invoice's payment, or null if it has none or the person may not see it. */
 export async function getPaymentDetail(viewerId: string | null, invoiceId: string): Promise<PaymentRow | null> {
-  const d = await store.loadData(getDb(), { invoiceId, today: localDate(new Date()) });
+  const d = await store.loadData(getDb(), { invoiceId, today: () => localDate(new Date()) });
   const viewer = viewerId ? d.users.get(viewerId) : undefined;
   const invoice = d.invoices[0];
   if (!invoice || !canSee(viewer, invoice)) return null;
@@ -214,7 +214,7 @@ export async function getPaymentDetail(viewerId: string | null, invoiceId: strin
 
 /** Everyone who could release this invoice's current payment right now, by the same rules release uses. */
 export async function eligibleReleasers(invoiceId: string): Promise<Person[]> {
-  const d = await store.loadData(getDb(), { invoiceId, today: localDate(new Date()) });
+  const d = await store.loadData(getDb(), { invoiceId, today: () => localDate(new Date()) });
   const invoice = d.invoices[0];
   const current = attemptsFor(d, invoiceId).at(-1);
   if (!invoice || !current) return [];
@@ -239,7 +239,7 @@ export async function canClearFlag(viewerId: string | null, flagId: string): Pro
 /** The invoice's payment audit trail (who, when, what), oldest first. */
 export async function getPaymentAudit(viewerId: string | null, invoiceId: string): Promise<AuditEvent[]> {
   const db = getDb();
-  const [invoice] = await store.loadInvoices(db, { invoiceId, today: localDate(new Date()) });
+  const [invoice] = await store.loadInvoices(db, { invoiceId, today: () => localDate(new Date()) });
   const viewer = viewerId ? await store.getUser(db, viewerId) : undefined;
   if (!invoice || !canSee(viewer, invoice)) return [];
   return store.loadPaymentAudit(db, invoiceId, invoice.vendorId);
@@ -313,7 +313,7 @@ async function perform<T>(
 
 /** The payment as stored after the writes, read in the same transaction. */
 async function recordOf(exec: Executor, invoiceId: string, paymentId: string, today: string): Promise<PaymentRecord> {
-  const d = await store.loadData(exec, { invoiceId, today });
+  const d = await store.loadData(exec, { invoiceId, today: () => today });
   return toRecord(d, d.attempts.find((p) => p.paymentId === paymentId)!);
 }
 
@@ -321,7 +321,7 @@ async function recordOf(exec: Executor, invoiceId: string, paymentId: string, to
 async function loadForPayment(exec: Executor, paymentId: string, today: string, lock: boolean) {
   const ref = await store.findPayment(exec, paymentId, lock);
   if (!ref) return null;
-  const d = await store.loadData(exec, { invoiceId: ref.invoiceId, today });
+  const d = await store.loadData(exec, { invoiceId: ref.invoiceId, today: () => today });
   const p = d.attempts.find((x) => x.paymentId === paymentId);
   const invoice = d.invoices[0];
   return p && invoice ? { d, p, invoice } : null;
@@ -333,7 +333,7 @@ export async function schedulePayment(actorId: string | null, input: { invoiceId
   const today = localDate(now);
   return perform(actorId, "payment.prepare", async (exec, actor, lock) => {
     if (lock) await store.lockInvoice(exec, input.invoiceId);
-    const d = await store.loadData(exec, { invoiceId: input.invoiceId, today });
+    const d = await store.loadData(exec, { invoiceId: input.invoiceId, today: () => today });
     const invoice = d.invoices[0];
     if (!invoice) return notFound(`Invoice ${input.invoiceId}`);
     const attempts = attemptsFor(d, invoice.id);

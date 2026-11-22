@@ -92,8 +92,11 @@ function inView() {
 export interface Scope {
   invoiceId?: string;
   vendorId?: string;
-  /** Harborline's calendar day: the due date of an invoice without one. */
-  today: string;
+  /**
+   * Harborline's calendar day, for an invoice without a due date. Called only then, so a page
+   * render doesn't read the clock (Next.js refuses `new Date()` while prerendering).
+   */
+  today: () => string;
 }
 
 export async function loadInvoices(exec: Executor, scope: Scope): Promise<InvoiceRec[]> {
@@ -112,7 +115,7 @@ export async function loadInvoices(exec: Executor, scope: Scope): Promise<Invoic
       vendorId: r.vendorId ?? "",
       vendorInvoiceNumber: r.invoiceNumber ?? "",
       invoiceDate: r.invoiceDate ?? "",
-      dueDate: dueDateFor(r.dueDate, r.invoiceDate, termsDays, scope.today),
+      dueDate: r.dueDate ?? dueDateFor(null, r.invoiceDate, termsDays, scope.today()),
       currency: (r.currency ?? "") as Currency,
       totalCents,
       totalCadCents: r.totalCadCents ?? 0,
