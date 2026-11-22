@@ -89,7 +89,7 @@ export default async function CheckPage({ params }: PageProps<"/checks/[invoiceI
                 <ActionForm action={editFieldsAction} label="Save changes" pendingLabel="Saving…" hidden={{ invoiceId: inv.invoiceId }} layout="stacked" size="md">
                   <div className="grid gap-3 sm:grid-cols-2">
                     <Field label="Requester (who asked for it)" required hint={!inv.requesterId ? "Approvals routes on this — set it." : undefined}>
-                      <Select name="requesterId" value={inv.requesterId} options={options.people} />
+                      <RequesterSelect value={inv.requesterId} currentName={check.names[inv.requesterId ?? ""]?.name ?? null} people={options.people} departmentId={inv.departmentId} />
                     </Field>
                     <Field label="Department">
                       <Select name="departmentId" value={inv.departmentId} options={options.departments} />
@@ -145,7 +145,7 @@ export default async function CheckPage({ params }: PageProps<"/checks/[invoiceI
             </Card>
 
             <CodingCard check={check} options={options} editable={editable} />
-            <FlagsCard check={check} editable={editable} />
+            <FlagsCard check={check} editable={editable} canAudit={canSee(viewer!.role, "audit")} />
 
             {editable && (
               <>
@@ -323,7 +323,7 @@ function CodingCard({ check, options, editable }: { check: CheckDetail; options:
   );
 }
 
-function FlagsCard({ check, editable }: { check: CheckDetail; editable: boolean }) {
+function FlagsCard({ check, editable, canAudit }: { check: CheckDetail; editable: boolean; canAudit: boolean }) {
   const open = check.flags.filter((f) => f.status === "open");
   const closed = check.flags.filter((f) => f.status !== "open");
   const order = { block: 0, warn: 1, info: 2 } as const;
@@ -345,7 +345,7 @@ function FlagsCard({ check, editable }: { check: CheckDetail; editable: boolean 
               {f.relatedInvoiceId && (
                 <p className="mt-0.5 text-xs text-slate-500">
                   Related invoice:{" "}
-                  <TextLink href={canSee(viewer!.role, "audit") ? `/audit/${f.relatedInvoiceId}` : `/invoices/${f.relatedInvoiceId}`}>{f.relatedInvoiceId}</TextLink>
+                  <TextLink href={canAudit ? `/audit/${f.relatedInvoiceId}` : `/invoices/${f.relatedInvoiceId}`}>{f.relatedInvoiceId}</TextLink>
                 </p>
               )}
               <FlagEvidence evidence={f.evidence} />
@@ -399,6 +399,37 @@ function Input({ name, value, type = "text" }: { name: string; value: string | n
     <>
       <input type="hidden" name={`was_${name}`} value={value ?? ""} />
       <input name={name} type={type} defaultValue={value ?? ""} className={fieldClass} />
+    </>
+  );
+}
+
+/**
+ * The requester: who ordered the goods or services (usually an employee, not the clerk). Everyone who
+ * can request, grouped by department, the bill's own department first. A current requester who is no
+ * longer on the list (left the company) stays selectable, so saving other fields never clears it.
+ */
+function RequesterSelect({ value, currentName, people, departmentId }: { value: string | null; currentName: string | null; people: { value: string; label: string; departmentId: string | null; group: string }[]; departmentId: string | null }) {
+  const groups = new Map<string, typeof people>();
+  for (const p of people) groups.set(p.group, [...(groups.get(p.group) ?? []), p]);
+  const billGroup = people.find((p) => p.departmentId !== null && p.departmentId === departmentId)?.group ?? null;
+  const ordered = [...groups].sort(([a], [b]) => (a === billGroup ? -1 : b === billGroup ? 1 : a.localeCompare(b)));
+  const listed = value === null || people.some((p) => p.value === value);
+  return (
+    <>
+      <input type="hidden" name="was_requesterId" value={value ?? ""} />
+      <select name="requesterId" defaultValue={value ?? ""} className={fieldClass}>
+        <option value="">Choose…</option>
+        {!listed && <option value={value!}>{currentName ?? value} (current)</option>}
+        {ordered.map(([group, members]) => (
+          <optgroup key={group} label={group === billGroup ? `${group} (this bill's department)` : group}>
+            {members.map((m) => (
+              <option key={m.value} value={m.value}>
+                {m.label}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
     </>
   );
 }

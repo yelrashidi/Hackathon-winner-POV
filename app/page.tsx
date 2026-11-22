@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { listAuditInvoices } from "@/server/features/audit";
+import { listInvoiceRecords } from "@/server/features/invoices";
 import { listApprovals } from "@/server/dashboard/approvals";
 import { listChecks } from "@/server/dashboard/checks";
 import { recentActivity } from "@/server/dashboard/records";
 import { signInAs } from "@/server/session/actions";
 import { getViewer, listSwitchableUsers, type Viewer } from "@/server/session/current-user";
 import { APP_ROLES, appRoleOf, roleInfo } from "@/server/session/roles";
-import { Card, EmptyState, InvoiceStatus, Money, PageHeader, Pill, StatCard, TextLink } from "./_components/ui";
+import { Card, Day, EmptyState, InvoiceStatus, Money, PageHeader, Pill, StatCard, TextLink } from "./_components/ui";
+import { WhereItIs } from "./_components/WhereItIs";
 import { countsFor } from "./_lib/counts";
 import { ago, initials } from "./_lib/format";
 import { canSee } from "./_lib/nav";
@@ -15,7 +17,8 @@ const FLAG_TONE = { block: "red", warn: "amber", info: "slate" } as const;
 
 export default async function HomePage() {
   const viewer = await getViewer();
-  return viewer ? <RoleHome viewer={viewer} /> : <ChooseWhoYouAre />;
+  if (!viewer) return <ChooseWhoYouAre />;
+  return viewer.role === "employee" ? <EmployeeHome viewer={viewer} /> : <RoleHome viewer={viewer} />;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -68,6 +71,60 @@ async function ChooseWhoYouAre() {
           );
         })}
       </div>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------------------------
+// Signed in as an employee: "My bills" — the bills they requested and where each one is (read-only)
+// ---------------------------------------------------------------------------------------------
+
+async function EmployeeHome({ viewer }: { viewer: Viewer }) {
+  const info = roleInfo(viewer.role);
+  // An employee's own bills are few (the busiest requester in the data has 56), so one page holds them all.
+  const bills = await listInvoiceRecords(viewer.actor, { pageSize: 200 });
+  const where = Object.values(bills.where);
+  const paid = where.filter((w) => w === "paid").length;
+  const rejected = where.filter((w) => w === "rejected").length;
+  const inProgress = bills.total - paid - rejected;
+
+  return (
+    <>
+      <PageHeader eyebrow={info.label} title={`Hello, ${viewer.user.fullName.split(" ")[0]}`} description={info.summary} />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard label="Bills you requested" value={bills.total} hint="All of them, newest first" href="/invoices" />
+        <StatCard label="In progress" value={inProgress} hint="In checks, waiting for approval, or approved and not paid yet" href="/invoices" tone={inProgress ? "alert" : "default"} />
+        <StatCard label="Paid" value={paid} hint={rejected ? `${rejected} rejected` : "None rejected"} href="/invoices" />
+      </div>
+
+      <Card title="My bills" description="Where each one is. Open one to see who checked it, who approved it and when it was paid." action={<TextLink href="/invoices">All my bills →</TextLink>} padded={false}>
+        {bills.rows.length === 0 ? (
+          <p className="px-5 py-4 text-sm text-slate-500">No bills yet. When the AP Clerk records you as the requester on a supplier&apos;s bill, it shows up here.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100">
+            {bills.rows.slice(0, 6).map((b) => (
+              <li key={b.invoiceId}>
+                <Link href={`/invoices/${encodeURIComponent(b.invoiceId)}`} className="flex items-center gap-4 px-5 py-3 hover:bg-slate-50">
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-slate-900">{b.vendorName ?? b.invoiceId}</span>
+                    <span className="block truncate text-xs text-slate-500">
+                      {b.invoiceNumber ? `#${b.invoiceNumber} · ` : ""}
+                      <Day value={b.invoiceDate} />
+                    </span>
+                  </span>
+                  <Money cents={b.totalCents} currency={b.currency} cadCents={b.totalCadCents} className="text-sm font-medium" />
+                  <WhereItIs text={bills.where[b.invoiceId] ?? b.status} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      <p className="text-xs text-slate-500">
+        Suppliers send their bills to accounts payable, not to you. The AP Clerk records who ordered the goods or services, and that bill then appears here. You can follow it, but not change it.
+      </p>
     </>
   );
 }

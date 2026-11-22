@@ -22,6 +22,7 @@ import { createClaudeClassifier } from "../src/server/features/intake/classify/c
 import { vendorDomainsFromCsv } from "../src/server/features/intake/dataset/vendors";
 import { createGmailClient } from "../src/server/features/intake/gmail/client";
 import { fetchGmailAttachment, pollGmail } from "../src/server/features/intake/gmail/poll";
+import { writeUploadFile } from "../src/server/pipeline/documents";
 import { printResult } from "./intake-print";
 import { createIntakeSaver } from "./intake-save";
 
@@ -45,7 +46,13 @@ const saveCursor = (cursor: string) => {
 };
 
 const client = createGmailClient();
-const saver = createIntakeSaver({ args, storageKey: (m, a) => `gmail:${m.externalId}/${a.filename}` });
+// Gmail attachments are kept in the uploads folder (shared with the app in Docker), so the review
+// screen and the audit trail can open the exact PDF the bill was read from.
+const saver = createIntakeSaver({
+  args,
+  storageKey: async (m, a, bytes) =>
+    (await writeUploadFile({ bytes, fileName: a.filename, mime: m.attachments.find((x) => x.sourceRef === a.sourceRef)?.mimeType })).storageKey,
+});
 const noLlm = args.includes("--no-llm");
 const extractor = noLlm ? undefined : createClaudeExtractor(taxCodesFromCsv());
 const deps = {

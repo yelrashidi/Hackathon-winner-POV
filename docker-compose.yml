@@ -42,6 +42,7 @@ services:
     command: ["npx", "tsx", "scripts/docker-setup.ts"]
     environment:
       DATABASE_URL_ADMIN: postgres://postgres:postgres@db:5432/harborline
+      TZ: ${TZ:-America/Toronto}
     depends_on:
       db:
         condition: service_healthy
@@ -58,8 +59,16 @@ services:
         required: false
     environment:
       DATABASE_URL: postgres://ap_app:ap_app_local@db:5432/harborline
+      # Local Docker only: the owner login, used by nothing but the Admin's "Reset demo data" button
+      # (src/server/demo/reset.ts). Never set this on a deployed database.
+      DEMO_RESET_DATABASE_URL: postgres://postgres:postgres@db:5432/harborline
+      # Harborline's local time, like a laptop running `npm run dev` (containers default to UTC,
+      # which is already "tomorrow" in the evening).
+      TZ: ${TZ:-America/Toronto}
     ports:
       - "${APP_PORT:-3000}:3000"
+    volumes:
+      - uploads:/app/.data/uploads   # uploaded + Gmail PDFs: survive rebuilds, shared with the poller
     restart: unless-stopped
 
   gmail-poller:
@@ -74,6 +83,7 @@ services:
       DATABASE_URL: postgres://ap_app:ap_app_local@db:5432/harborline
       GMAIL_POLL_SECONDS: ${GMAIL_POLL_SECONDS:-10}
       GMAIL_BACKFILL: ${GMAIL_BACKFILL:-1d}
+      TZ: ${TZ:-America/Toronto}
     # No Gmail credentials → say so and exit 0 (stays stopped); the rest of the demo still runs.
     command:
       - sh
@@ -86,8 +96,10 @@ services:
         exec npx tsx scripts/gmail-poll.ts --watch "$$GMAIL_POLL_SECONDS"
     volumes:
       - intake-state:/app/.intake   # the Gmail cursor, so a restart does not re-read old mail
+      - uploads:/app/.data/uploads  # the PDFs it saves, which the app shows
     restart: on-failure
 
 volumes:
   pgdata:
   intake-state:
+  uploads:

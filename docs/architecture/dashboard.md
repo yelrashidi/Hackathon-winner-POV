@@ -1,4 +1,4 @@
-# Dashboard — one app, five roles
+# Dashboard — one app, six roles
 
 **Owner:** Youssef · **Code as of:** `dashboard-redesign` (merged with main `e4ecc52`)
 
@@ -14,25 +14,32 @@ Access widens with seniority. Approval *routing* follows `approval_policies.csv`
 the brief also decides payments: AP clerks prepare, the Finance Manager releases ≤ $100k, the
 Controller (our Admin) releases > $100k and whatever the Finance Manager approved (P09–P11).
 
-| Screen | AP Clerk | Ops Manager¹ | Finance Mgr | Admin | Auditor |
-|---|---|---|---|---|---|
-| Home (what's waiting on me) | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Inbox, Checks, Upload | ✓ | ✓ | ✓ | ✓ | — |
-| Approvals (routed to me by policy) | — | ✓ ≤ $10k, own dept | ✓ | ✓ > $50k | — |
-| Payments: overview, needs attention | ✓ | — | ✓ | — | — |
-| Payments: to schedule | ✓ | — | — | — | — |
-| Payments: to release | — | — | ✓ | only what the FM can't² | — |
-| Vendors (bank change: enter / verify) | enter | — | verify | verify | read-only |
-| Invoices (read-only records + who did what) | all | own department | all | all | all |
-| Audit trail (full audit log) | — | — | — | ✓ + export | every invoice + export |
-| People & policies | — | — | — | ✓ | — |
+| Screen | Employee³ | AP Clerk | Ops Manager¹ | Finance Mgr | Admin | Auditor |
+|---|---|---|---|---|---|---|
+| Home (what's waiting on me) | "My bills" summary | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Inbox, Checks, Upload | — | ✓ | ✓ | ✓ | ✓ | — |
+| Approvals (routed to me by policy) | — | — | ✓ ≤ $10k, own dept | ✓ | ✓ > $50k | — |
+| Payments: overview, needs attention, payment details | — | ✓ | details only | ✓ | details, releases | details |
+| Payments: to schedule | — | ✓ | — | — | — | — |
+| Payments: to release | — | — | — | ✓ | only what the FM can't² | — |
+| Vendors (bank change: enter / verify) | — | enter | — | verify | verify | read-only |
+| Invoices (read-only records + who did what) | **My bills**: the ones they requested | all | own department | all | all | all |
+| Audit trail (full audit log) | — | — | — | — | ✓ + export | every invoice + export |
+| People & policies | — | — | — | — | ✓ | — |
 
 ¹ Approval routing still sends each department's bills to its own manager (policy file); the demo
-cast is **one person per role** (`src/server/session/roster.ts`: Jordan Okafor, Dev Malhotra
-(Operations), Elise Tremblay, Marcus Webb, Hannah Lindqvist). Only they can sign in, and they are
-the only requesters the forms offer, so a 2–3 minute demo stays simple. Demo walkthrough:
-[`../demo-script.md`](../demo-script.md).
+cast is **one person per role, six people** (`src/server/session/roster.ts`, picked by rule: Aiden
+Grant, Jordan Okafor, Dev Malhotra (Operations), Elise Tremblay, Marcus Webb, Hannah Lindqvist). Only
+they can sign in. The **requester** on Checks is anyone who can order (active employees, AP clerks and
+managers of every department, grouped by department, the bill's own first —
+`dashboard/checks.ts` `reviewOptions`), because the clerk records who asked for the bill; it is
+rarely the clerk. Demo walkthrough: [`../demo-script.md`](../demo-script.md).
 ² `pipeline/payments.ts` `adminReleaseGuard`: refused with the Finance Manager's name when she may release it.
+³ **Employee (2026-11-22):** read-only — Home + My bills, every other URL "not for your role", every
+action refused on the server (`invoice.submit` included). The cast's employee is the first active
+employee reporting to the cast's manager, so the bills the clerk records them on route to Dev. Each
+bill shows where it is in plain words (`features/invoices` `plainStatus`: in checks · waiting for
+<approver> · approved · scheduled · paid · rejected). Test: `src/server/dashboard/__tests__/employee.test.ts`.
 
 Enforced in three places that agree: `app/_lib/nav.ts` (what the sidebar shows and each page checks),
 `src/server/core/authorize.ts` (the matrix every service runs), and the services' data rules

@@ -9,6 +9,10 @@
 > Controller/Admin ("full audit log"), per `product.md`; others see their own recent actions on the home screen.
 > Doing the checks never lets you approve your own work: the submitter is excluded from the approval.
 > The Admin's release limits are enforced in `src/server/pipeline/payments.ts` (`adminReleaseGuard`).
+> **Employee (2026-11-22): read-only.** Their screens are Home and **My bills** (`/invoices`, scoped to
+> the bills they requested, each with where it is in plain words). Bills reach AP from suppliers and the
+> AP Clerk records the employee as the requester on Checks, so employees submit nothing: `invoice.submit`
+> refuses them on the server (`src/server/core/authorize.ts`, decided by Andrew 2026-11-22).
 > Screens per role: [`dashboard.md`](dashboard.md).
 
 ## One function decides
@@ -25,8 +29,8 @@ control. A refusal is a 403 with a reason the UI shows (`You approved this invoi
 
 | Action | Employee | AP Clerk | Approver | Finance Mgr | Controller | Auditor |
 |---|---|---|---|---|---|---|
-| Submit invoice (own dept) | ✓ | ✓ | ✓ | ✓ | ✓ | — |
-| View invoices (`/invoices`, read-only, with who did what) | own submissions | all | own dept | all | all | all |
+| Send a checked bill to approval (`invoice.submit`) | — (read-only) | ✓ | ✓ | ✓ | ✓ | — |
+| View invoices (`/invoices`, read-only, with who did what) | own: the bills they requested ("My bills") | all | own dept | all | all | all |
 | Ingest inbox, review extraction, code, resolve flags ("checks") | — | ✓ | ✓ | ✓ | ✓ | — |
 | Approve / reject a step | — | — | own dept, ≤ limit | above dept limits, flagged, new vendor | ✓ | — |
 | Prepare (schedule) payment | — | ✓ (the normal path, P09) | — | ✓ backup¹ | — (dashboard: the Admin does not prepare) | — |

@@ -19,6 +19,7 @@ const ICONS: Record<SectionKey, string> = {
   "to-release": "M3 10h11m-4-4 4 4-4 4M17 4v12",
   "needs-attention": "M10 7v4m0 3h.01M8.6 3.8 2.9 14a1.6 1.6 0 0 0 1.4 2.4h11.4a1.6 1.6 0 0 0 1.4-2.4L11.4 3.8a1.6 1.6 0 0 0-2.8 0Z",
   vendors: "M3 17V7l7-4 7 4v10M7 17v-5h6v5",
+  invoices: "M6 3h8a1 1 0 0 1 1 1v13l-2.5-1.5L10 17l-2.5-1.5L5 17V4a1 1 0 0 1 1-1Zm2 5h4m-4 3h4",
   audit: "M5 3h7l3 3v11H5V3Zm7 0v3h3M8 10h4M8 13h4",
   journal: "M4 4h12v12H4zM4 8h12M4 12h12M9 4v12",
   admin: "M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM10 2v2m0 12v2m8-8h-2M4 10H2m13.66-5.66-1.42 1.42M5.76 14.24l-1.42 1.42m11.32 0-1.42-1.42M5.76 5.76 4.34 4.34",

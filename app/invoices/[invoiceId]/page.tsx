@@ -6,6 +6,7 @@ import { getInvoiceRecord } from "@/server/features/invoices";
 import { getViewer } from "@/server/session/current-user";
 import { DocumentViewer } from "../../_components/invoice";
 import { NotForYourRole } from "../../_components/NotForYourRole";
+import { WhereItIs } from "../../_components/WhereItIs";
 import { WhoDidWhat } from "../../_components/WhoDidWhat";
 import { Card, Day, InvoiceStatus, KeyValues, Money, Notice, PageHeader, Pill, SeverityBadge, TextLink } from "../../_components/ui";
 import { formatWhen } from "../../_lib/format";
@@ -26,8 +27,8 @@ export default async function InvoiceRecordPage({ params }: PageProps<"/invoices
   } catch (err) {
     if (err instanceof Forbidden) {
       return (
-        <Notice tone="warning" title="Not one of your invoices">
-          {err.reason} <TextLink href="/invoices">Back to your invoices</TextLink>
+        <Notice tone="warn" title="Not one of your invoices">
+          {err.reason} <TextLink href="/invoices">{viewer!.role === "employee" ? "Back to my bills" : "Back to your invoices"}</TextLink>
         </Notice>
       );
     }
@@ -36,19 +37,20 @@ export default async function InvoiceRecordPage({ params }: PageProps<"/invoices
   if (!d) notFound();
   const inv = d.invoice;
   const open = ["ManualEntry", "InReview", "OnHold"].includes(inv.status);
+  const myBill = viewer!.role === "employee";
 
   return (
     <>
       <PageHeader
         eyebrow={
           <>
-            <TextLink href="/invoices">Invoices</TextLink> · <span className="font-mono">{inv.invoiceId}</span>
+            <TextLink href="/invoices">{myBill ? "My bills" : "Invoices"}</TextLink> · <span className="font-mono">{inv.invoiceId}</span>
           </>
         }
         title={inv.vendor?.legalName ?? inv.vendorNameRaw ?? inv.invoiceId}
         description={
           <span className="flex flex-wrap items-center gap-2">
-            <InvoiceStatus status={inv.status} />
+            {myBill ? <WhereItIs text={d.where} /> : <InvoiceStatus status={inv.status} />}
             {inv.invoiceNumber && <span className="font-mono text-xs">#{inv.invoiceNumber}</span>}
             <Money cents={inv.totalCents} currency={inv.currency} cadCents={inv.totalCadCents} className="font-medium text-slate-900" />
           </span>

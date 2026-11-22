@@ -6,6 +6,7 @@ import { fieldClass } from "../../_lib/styles";
 import { manualEntryAction } from "../actions";
 
 type Option = { value: string; label: string };
+type Person = Option & { group: string };
 type Line = { description: string; quantity: string; unitPrice: string; amount: string; lineType: "" | "goods" | "services" };
 type Tax = { code: string; amount: string };
 
@@ -17,7 +18,7 @@ const emptyLine = (): Line => ({ description: "", quantity: "1", unitPrice: "", 
  * instant feedback; the server parses the submitted fields again with the contract (ManualFields)
  * and refuses anything invalid, so this form is a convenience, not the check.
  */
-export function ManualEntryForm({ invoiceId, people, departments, taxCodes }: { invoiceId: string; people: Option[]; departments: Option[]; taxCodes: (Option & { ratePct: number })[] }) {
+export function ManualEntryForm({ invoiceId, people, departments, taxCodes }: { invoiceId: string; people: Person[]; departments: Option[]; taxCodes: (Option & { ratePct: number })[] }) {
   const [f, setF] = useState({
     documentType: "invoice" as "invoice" | "credit_note",
     vendorNameRaw: "",
@@ -197,10 +198,16 @@ export function ManualEntryForm({ invoiceId, people, departments, taxCodes }: { 
         <Field label="Requester (who asked for it)">
           <select value={f.requesterId} onChange={(e) => set({ requesterId: e.target.value })} className={fieldClass}>
             <option value="">Choose…</option>
-            {people.map((p) => (
-              <option key={p.value} value={p.value}>
-                {p.label}
-              </option>
+            {[...new Set(people.map((p) => p.group))].map((group) => (
+              <optgroup key={group} label={group}>
+                {people
+                  .filter((p) => p.group === group)
+                  .map((p) => (
+                    <option key={p.value} value={p.value}>
+                      {p.label}
+                    </option>
+                  ))}
+              </optgroup>
             ))}
           </select>
         </Field>

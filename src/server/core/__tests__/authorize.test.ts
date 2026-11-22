@@ -9,7 +9,7 @@ import { ACTIONS, authorize, can, Forbidden, type Action } from "../authorize";
  * is read by every dashboard role; export by the Auditor and the Controller/Admin.)
  */
 const MATRIX: Record<Action, ActorRole[]> = {
-  "invoice.submit": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin"],
+  "invoice.submit": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "invoice.review": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "flag.resolve": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "flag.override": ["ap_clerk", "approver", "finance_manager", "controller_admin"],

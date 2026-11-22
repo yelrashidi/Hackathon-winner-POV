@@ -12,7 +12,10 @@ import { ingestFromIntake, type IntakeAttachmentFile, type IntakeOutcome } from 
 
 type LoadAttachment = (m: InboxMessage, a: { sourceRef: string; filename: string }) => Promise<Buffer>;
 
-export function createIntakeSaver(opts: { args: string[]; today?: string; storageKey: (m: InboxMessage, a: { sourceRef: string; filename: string }) => string }) {
+/** Where an attachment's bytes go; may write them first (Gmail → the uploads folder) and return the key. */
+type StorageKey = (m: InboxMessage, a: { sourceRef: string; filename: string }, bytes: Buffer) => string | Promise<string>;
+
+export function createIntakeSaver(opts: { args: string[]; today?: string; storageKey: StorageKey }) {
   const enabled = !opts.args.includes("--no-save") && Boolean(process.env.DATABASE_URL);
   if (opts.args.includes("--no-save")) console.log("Not saving (--no-save): results are printed only.");
   else if (!enabled) console.log("Not saving: DATABASE_URL is not set (copy .env.example to .env and run `npm run db:up && npm run db:reset`).");
@@ -27,7 +30,7 @@ export function createIntakeSaver(opts: { args: string[]; today?: string; storag
     capture(load: LoadAttachment): LoadAttachment {
       return async (m, a) => {
         const bytes = await load(m, a);
-        if (enabled) files.set(m.externalId, { ...files.get(m.externalId), [a.sourceRef]: { bytes, storageKey: opts.storageKey(m, a) } });
+        if (enabled) files.set(m.externalId, { ...files.get(m.externalId), [a.sourceRef]: { bytes, storageKey: await opts.storageKey(m, a, bytes) } });
         return bytes;
       };
     },
