@@ -63,7 +63,7 @@ the top block is updated by whoever finishes a shared piece.
 
 ### 5 Duplicates — Arpan
 **Works (uncommitted on `arpan/feature/duplicate-check`, 2026-11-21):** `src/server/features/duplicates/`: same file, same number after reformatting, number variants, same amount ≤ 7 days, already paid by employee card (merchant name → vendor), and `SPLIT_IF_NOT_DUPLICATE` beside same-number pairs. Runs in `analyse()` after validation and over history in the seed; incoming 5 flagged, history every same-number pair incl. live AP-00394/AP-00407, no monthly-fee false positives. **A person decides every one** on `/payments/duplicates` (void/close via `fire()`, or override with a note). 34 tests; `npm run duplicates:batch`.
-**Also:** `npm run demo` runs the app on embedded PGlite (no Docker); `docker compose up -d` = db + setup + app (built, not run end to end — Docker disk on full C:).
+**Also:** `npm run demo` runs the app on embedded PGlite (no Docker); `docker compose up -d` = db + setup + app + gmail-poller, run end to end 2026-11-21 (seeds 426 invoices, polls Gmail every 10 s as `ap_app`). DB image is `postgres:16-alpine` (the Debian `postgres:16` snapshot was corrupt on Arpan's Docker).
 **Next / waiting on:** void or hold after approval (state machine, TODO P0); payments reading stored block flags at release (Katie); approvals routing on `SPLIT_IF_NOT_DUPLICATE` after "not a duplicate" (Youssef).
 **Shared changes:** `contracts/audit.ts` + `invoice.duplicates_checked`; `db/client.ts` accepts `pglite:`; seed + `pipeline/ingest.ts`; validation exports (`approvalThresholdsFromPolicyRows` extracted, same behaviour); Duplicates tab in Katie's dashboard; Youssef's chaos test timeout 30 s.
 
