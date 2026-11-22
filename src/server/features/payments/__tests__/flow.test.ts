@@ -135,7 +135,7 @@ describe("payments on the dataset", async () => {
   });
 
   it("Critical: a fraud hold stops every payment to the supplier until the Controller clears it", async () => {
-    // Summit Packaging (V011) has two scheduled payments: AP-00394 and AP-00407.
+    // Summit Packaging (V011) has two scheduled payments: AP-00394 and AP-00407 (a duplicate of AP-00394).
     const a = (await current("AP-00394"));
     await ok(releasePayment("U003", { paymentId: a.paymentId }, opts));
     await ok(simulateSettlement("U004", { paymentId: a.paymentId, outcome: "FRAUD_HOLD" }, opts));
@@ -150,7 +150,8 @@ describe("payments on the dataset", async () => {
     expect(await refusedCodes(clearFlag("U002", { flagId, note: "" }, opts))).toEqual(["NOTE_REQUIRED"]);
     await ok(clearFlag("U002", { flagId, note: "Called Summit on the number in the master file; transfer was genuine." }, opts));
     expect((await current("AP-00407")).status).toBe("scheduled");
-    await ok(releasePayment("U003", { paymentId: b.paymentId }, opts));
+    // Hold cleared; what still stops it is duplicates' blocking flag (release refuses any open block flag).
+    expect(await refusedCodes(releasePayment("U003", { paymentId: b.paymentId }, opts))).toEqual(["BLOCKING_FLAG"]);
   });
 
   it("Low: a bank error flags only the failed payment and clears itself when the retry is scheduled", async () => {

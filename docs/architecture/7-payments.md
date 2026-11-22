@@ -69,6 +69,6 @@ How each flag clears:
   - Delegation for release.
   - Partial payments.
   - Card, cheque and wire payments.
-- **Duplicates aren't caught yet.** Payments reads open `invoice_flags`, but nothing stores duplicate flags yet, so a duplicate scheduled twice (AP-00394 / AP-00407 in the dataset) isn't blocked.
+- **Duplicates are caught at release** since Arpan's duplicates feature stores its flags: release refuses an open `block` flag, so the dataset's duplicate pair (AP-00394 / AP-00407) can't both be paid.
 - **Still TEMP:** the money helpers (`money.ts`), and the stored-flag reader in `deps.ts` (validation exports none).
 - **Release doesn't yet require every approval step to be approved** (open P1 in TODO): a current plan with pending or rejected steps still gives an approved basis.

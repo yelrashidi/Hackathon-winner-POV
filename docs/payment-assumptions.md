@@ -21,7 +21,7 @@ exists, the teammate's actual code.
 
 | TEMP piece | Where in our code | Waiting on | Owner |
 |---|---|---|---|
-| Stored validation / duplicate flags | `deps.ts` `loadOpenInvoiceFlags` reads open `invoice_flags` rows directly | an exported reader from validation; duplicates storing flags (no owner) | Andrew; duplicates: no owner |
+| Stored validation / duplicate flags | `deps.ts` `loadOpenInvoiceFlags` reads open `invoice_flags` rows directly | an exported reader from validation (duplicates stores its flags since Arpan's branch) | Andrew |
 | Release-time bank check | release rules check our own bank versions | Andrew's planned `validateBankForRelease` (not on main yet) | Andrew |
 | Money helpers | `money.ts` (`formatMoney`, `cadMatches`) | `core/money.ts` (Andrew has money helpers inside validation, not exported) | foundation: no owner |
 | Vendors + bank accounts, bank change/verify | `deps.ts` reads and writes `vendor_bank_accounts` | feature 9 | 9 Vendors: no owner |
