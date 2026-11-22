@@ -40,7 +40,7 @@ Full permission matrix and the separation-of-duties rules:
 
 | Role | Their home screen shows |
 |---|---|
-| Employee | My submissions and their status; submit an invoice for my department |
+| Employee | My bills: the bills I requested and where each one is (read-only — suppliers send bills to AP, and the AP Clerk records me as the requester) |
 | AP Clerk | Inbox triage, review queue with flags, coding, prepare payments |
 | Approver | My approval queue (incl. as delegate), department spend |
 | Finance Manager | Escalated and flagged approvals, vendor changes to verify, payments to release (≤ $100k CAD) |

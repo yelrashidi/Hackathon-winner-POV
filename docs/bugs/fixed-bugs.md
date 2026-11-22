@@ -228,3 +228,10 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 **Symptom.** `/documents/[id]` checked only that someone was signed in, so a manager could open another department's invoice file.
 **Cause.** It was written when every dashboard role read the whole audit trail; once invoices were scoped by role, the file route kept the old, wider rule.
 **Fix.** The route finds the invoice the document belongs to and applies the same scope (`features/invoices` `inScope`); a file with no invoice yet (inbox attachment) is for inbox triage and audit-log roles only.
+
+### BUG-Andrew-09
+**On Docker, signing in did not stick, and Gmail / uploaded PDFs could not be opened** · High · FIXED · found 2026-11-22 by Andrew
+
+**Symptom.** In the Docker build, the page after "Viewing as" said you were not signed in (Safari); Gmail bills showed no PDF; uploads vanished after a rebuild; dates near midnight were a day ahead.
+**Cause.** Production-only differences that `npm run dev` never shows: (1) the sign-in cookie was `Secure` whenever `NODE_ENV=production`, but Docker serves plain http://localhost, where Safari drops Secure cookies; (2) the Gmail poller stored a `gmail:<id>/<file>` key and never kept the bytes, and the app and poller are separate containers; (3) `.data/uploads` had no volume; (4) containers run on UTC.
+**Fix.** Cookie is Secure only when the request is HTTPS (`src/server/session/actions.ts`); the poller saves attachments with `writeUploadFile` into a shared `uploads` volume (`scripts/gmail-poll.ts`, `docker-compose.yml`); `TZ=America/Toronto` in the containers; `.data` left out of the image.

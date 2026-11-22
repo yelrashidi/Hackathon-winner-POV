@@ -1,8 +1,9 @@
 # Demo script — invoice to payment in ~2 minutes
 
 Verified click by click on 2026-11-21 (headless Chrome against `npm run dev`, fresh demo database).
-One person per role: **Jordan Okafor** (AP Clerk), **Dev Malhotra** (Operations Manager),
-**Elise Tremblay** (Finance Manager), **Marcus Webb** (Admin), **Hannah Lindqvist** (Auditor).
+One person per role, six roles: **Aiden Grant** (Employee, a dispatcher in Operations who reports to
+Dev), **Jordan Okafor** (AP Clerk), **Dev Malhotra** (Operations Manager), **Elise Tremblay**
+(Finance Manager), **Marcus Webb** (Admin), **Hannah Lindqvist** (Auditor).
 Switch person with the **Viewing as** menu, top right (it takes you to that person's Home).
 
 The bill: **Polar Freight Lines Ltd. — invoice 000963 — $2,611.59 CAD** (Operations, no flags,
@@ -10,12 +11,13 @@ not a duplicate, all three lines coded with high confidence).
 
 | # | Who | Where to click | What to say |
 |---|---|---|---|
-| 1 | — | Open http://localhost:3000 → **Sign in** on Jordan Okafor | One app, five roles; the role comes from the employee record on the server. |
+| 1 | — | Open http://localhost:3000 → **Sign in** on Jordan Okafor | One app, six roles; the role comes from the employee record on the server. |
 | 2 | Jordan | Sidebar **Checks** → row **Polar Freight Lines Ltd. / 000963** | Every bill from the inbox lands here; most urgent first. |
-| 3 | Jordan | **Requester** dropdown → *Jordan Okafor* → **Save changes** | The PDF is beside the fields; validation re-runs on save ("0 flag(s)"). |
+| 3 | Jordan | **Requester** dropdown → under *Operations (this bill's department)* pick *Aiden Grant* → **Save changes** | The clerk records who ordered it — the dispatcher, not the clerk. Validation re-runs on save ("0 flag(s)"). |
 | 4 | Jordan | Coding card → green **Accept 3 high-confidence** | "11 of the last 11 Polar lines → 5010 Freight"; the journal balances. |
 | 5 | Jordan | Scroll → **If you submit now** shows *Waiting on Dev Malhotra* → **Submit for approval** | Routed by policy P01 (≤ $10k → department manager). Jordan can't approve it. |
 | 6 | Dev | Viewing as → **Dev Malhotra** → **Approvals** → **Polar Freight Lines Ltd.** → **Approve** | Separation of duties listed on the route; delegates would show "on behalf of". |
+| 6b | Aiden | *(optional, 15 s)* Viewing as → **Aiden Grant** → **My bills** shows Polar Freight *approved* → open it (who did what) → type `/checks` in the address bar | The sixth role: an employee follows the bills they asked for, read-only. Checks is "not for your role", and the server refuses any action as Aiden. |
 | 7 | Jordan | Viewing as → **Jordan Okafor** → **To schedule** → **Schedule** on 000963 | AP clerks prepare; the scheduler can't release. |
 | 8 | Elise | Viewing as → **Elise Tremblay** → **To release** → **Release** on 000963 | She didn't request, approve or schedule it, and it's ≤ $100k. |
 | 9 | Elise | Header **Demo controls** → **Send bank answer** (Settled) on 000963 | Simulated EFT; failures (closed account, fraud hold) are in the same menu. |

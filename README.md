@@ -10,8 +10,11 @@ Accounts payable (AP) automation for the Brim hackathon. A web app that takes su
 
 ## Running locally
 
-Requires Node 22+. Pick one; each ends at http://localhost:3000, where you pick who you are
-(AP Clerk, Operations Manager, Finance Manager, Admin, Auditor — one person each).
+**Just want to see the demo?** Install Docker, clone the repo, run `docker compose up -d`, open
+http://localhost:3000. Step by step, with troubleshooting: [`docs/running-with-docker.md`](docs/running-with-docker.md).
+
+The ways to run it are below. Each ends at http://localhost:3000, where you pick who you are (Employee, AP Clerk,
+Operations Manager, Finance Manager, Admin, Auditor — one person each). The no-Docker options need Node 22+.
 
 **Quick demo, no Docker, starts fresh every time** — with no `DATABASE_URL`, the app builds an
 in-process Postgres from the dataset on the first request (~5 s): 10 months of history plus the AP
@@ -37,6 +40,8 @@ docker compose up -d         # rebuild after code changes: docker compose up -d 
 docker compose logs -f gmail-poller   # watch new mail being read and saved
 docker compose down -v       # stop and wipe the database (next up re-seeds)
 ```
+
+Data survives restarts; **Demo controls → Reset demo data** (Admin) starts over without the terminal.
 
 Secrets (`ANTHROPIC_API_KEY`, `GMAIL_*`) come from `.env.local`. Without the Gmail keys the poller
 prints why and stops; the rest still runs. Get the refresh token once on the host: `npm run gmail:auth`.

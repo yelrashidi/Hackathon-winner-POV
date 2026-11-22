@@ -10,7 +10,8 @@ import { actionFor, PaymentAction, type ActionLabel } from "../_components/Actio
 import { describeAttempt } from "../_components/PaymentsTable";
 import { FlagList } from "../_components/Flags";
 import { StatusBadge } from "../_components/StatusBadge";
-import { canAct, canSeePage, dashboardRole } from "../_lib/access";
+import { canAct, canSeePage, dashboardRole, type PaymentsPage } from "../_lib/access";
+import { NotForYourRole } from "../_components/NotForYourRole";
 import { canRetry, getInvoice, getPaymentRow } from "../_lib/data";
 import { formatDate, formatMoney, formatMoneyWithCode } from "../_lib/format";
 import type { AuditEvent as PaymentAuditEvent } from "@/server/features/payments";
@@ -21,10 +22,17 @@ export const metadata: Metadata = { title: "Payment details" };
 
 // The URL uses the invoice id: one page covers every payment attempt for that invoice,
 // and a retry gets a new payment id.
+// Who may open a payment's details: everyone who works with invoices and payments (managers follow
+// their department's bills here too). Not an employee — they follow their own bills under My bills —
+// and not someone who hasn't picked who they are. Checked on the server, before anything is read.
+const DETAILS_PAGE: PaymentsPage = { key: "overview", href: "/payments", label: "Payment details", roles: ["clerk", "finance_manager", "controller", "auditor", "viewer"], forWhom: "AP, managers, the Finance Manager, the Admin and the Auditor" };
+
 export default async function PaymentDetailsPage({ params }: PageProps<"/payments/[invoiceId]">) {
   const { invoiceId } = await params;
   const id = decodeURIComponent(invoiceId);
-  const [user, invoice, row] = await Promise.all([getCurrentUser(), getInvoice(id), getPaymentRow(id)]);
+  const user = await getCurrentUser();
+  if (!user || user.role === "employee") return <NotForYourRole page={DETAILS_PAGE} user={user} />;
+  const [invoice, row] = await Promise.all([getInvoice(id), getPaymentRow(id)]);
   if (!invoice) notFound();
 
   const role = dashboardRole(user);

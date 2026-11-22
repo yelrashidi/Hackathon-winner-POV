@@ -3,10 +3,9 @@ import type { Actor } from "@/contracts/actor";
 import type { ApprovalPlan } from "@/contracts/approvals";
 import type { JournalPreview, LineCoding } from "@/contracts/coding";
 import { can } from "@/server/core/authorize";
-import { approvalSteps, auditEvents, departments, documents, glAccounts, invoiceFlags, invoiceTaxes, invoices, purchaseOrders, taxCodes, vendors } from "@/server/db/schema";
+import { approvalSteps, auditEvents, departments, documents, glAccounts, invoiceFlags, invoiceTaxes, invoices, purchaseOrders, taxCodes, users, vendors } from "@/server/db/schema";
 import { getApprovalPlans } from "@/server/features/approvals";
 import { invoiceCoding, PostgresApprovalStore, previewApproval } from "@/server/pipeline";
-import { demoRoster } from "@/server/session/roster";
 import { allow, dbOf, departmentNames, iso, people, type Opts, type PersonRef } from "./shared";
 
 /**
@@ -238,6 +237,7 @@ export async function getCheck(actor: Actor, invoiceId: string, opts: Opts = {})
     for (const s of p?.steps ?? []) [s.assignedTo, s.routedTo, s.onBehalfOf, s.actedBy].forEach(note);
     for (const e of p?.excludedApprovers ?? []) note(e.userId);
   }
+  note(inv.requesterId); // the requester picker names them even if they are no longer on its list
 
   const rejectedAfterLastRoute = rej[0] && latestPlan && inv.status === "InReview" && (iso(rej[0].at) ?? "") >= latestPlan.routedAt;
 
@@ -309,7 +309,8 @@ export async function getCheck(actor: Actor, invoiceId: string, opts: Opts = {})
 export interface ReviewOptions {
   departments: { value: string; label: string }[];
   /** Everyone active who can ask for a purchase, grouped by department in the UI. */
-  people: { value: string; label: string; departmentId: string | null; role: string }[];
+  /** Who can be recorded as the requester, sorted and grouped by department (`group` = its name). */
+  people: { value: string; label: string; departmentId: string | null; role: string; group: string }[];
   accounts: { value: string; label: string; type: string }[];
   taxCodes: { value: string; label: string; ratePct: number }[];
   purchaseOrders: { value: string; label: string; vendorId: string }[];
@@ -318,9 +319,15 @@ export interface ReviewOptions {
 export async function reviewOptions(actor: Actor, opts: Opts = {}): Promise<ReviewOptions> {
   allow(actor, "invoice.review");
   const db = dbOf(opts);
-  const [d, cast, gl, tc, po] = await Promise.all([
+  const [d, staff, gl, tc, po] = await Promise.all([
     db.select().from(departments).orderBy(asc(departments.id)),
-    demoRoster(db),
+    // Who can be a bill's requester: the people who order goods and services (employees, AP clerks)
+    // and the managers who sometimes do — active only. The whole company, not the demo cast.
+    db
+      .select({ id: users.id, fullName: users.fullName, title: users.title, role: users.role, departmentId: users.departmentId })
+      .from(users)
+      .where(and(eq(users.status, "active"), inArray(users.role, REQUESTER_ROLES)))
+      .orderBy(asc(users.departmentId), asc(users.fullName)),
     db.select().from(glAccounts).orderBy(asc(glAccounts.accountNumber)),
     db.select().from(taxCodes).orderBy(asc(taxCodes.code)),
     db.select().from(purchaseOrders).where(sql`${purchaseOrders.status} <> 'closed'`).orderBy(asc(purchaseOrders.id)),
@@ -328,13 +335,18 @@ export async function reviewOptions(actor: Actor, opts: Opts = {}): Promise<Revi
   const deptName = new Map(d.map((x) => [x.id, x.name]));
   return {
     departments: d.map((x) => ({ value: x.id, label: x.name })),
-    // Requesters: the demo cast only (one person per role), not the whole company.
-    people: cast.map(({ user: x }) => ({ value: x.id, label: `${x.fullName} · ${x.title || x.role}${x.departmentId ? ` · ${deptName.get(x.departmentId) ?? x.departmentId}` : ""}`, departmentId: x.departmentId, role: x.role })),
+    people: staff.map((x) => {
+      const dept = x.departmentId ? (deptName.get(x.departmentId) ?? x.departmentId) : "No department";
+      return { value: x.id, label: `${x.fullName} · ${x.title || x.role}`, departmentId: x.departmentId, role: x.role, group: dept };
+    }),
     accounts: gl.filter((g) => g.accountType === "expense" || g.accountType === "asset").map((g) => ({ value: g.accountNumber, label: `${g.accountNumber} ${g.name}`, type: g.accountType })),
     taxCodes: tc.map((t) => ({ value: t.code, label: t.description, ratePct: Number(t.rate) * 100 })),
     purchaseOrders: po.map((p) => ({ value: p.id, label: `${p.id}${p.description ? ` · ${p.description}` : ""}`, vendorId: p.vendorId })),
   };
 }
+
+/** Roles that can be recorded as a bill's requester on Checks (employee and ap_clerk per the dataset, plus managers). */
+export const REQUESTER_ROLES = ["employee", "ap_clerk", "approver"];
 
 /** Whether this person may act on checks at all (for the home screen and the nav). */
 export const canReview = (actor: Actor) => can(actor, "invoice.review");

@@ -35,3 +35,4 @@ paths:
 - **A new entry point is not done until it calls the persistence path**: run it against Postgres and count rows, not just the service's tests. A mailbox cursor advances only after every email is saved (BUG-Andrew-06).
 - **A mailbox baseline skips everything already in the inbox**: a fresh poller (new container, wiped volume) must backfill a window first (`GMAIL_BACKFILL`), or mail that arrived before it started never reaches the dashboard (BUG-Arpan-07).
 - **A route that serves a record's file must apply the record's own scope**, and narrowing a permission means grepping every page, link and route that reads through it (BUG-Andrew-08).
+- **Run it in Docker before calling it done**: production mode differs from `npm run dev`. Set a cookie `Secure` only when the request is HTTPS (Docker serves plain http://localhost), and keep files on a shared volume, since the app and the poller are separate containers (BUG-Andrew-09).

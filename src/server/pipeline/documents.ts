@@ -11,7 +11,9 @@ import { DATASET_DIR } from "@/server/features/validation/dataset/csv";
  * bytes the numbers came from (documents.sha256 proves it is the same file).
  *
  *   storage key "incoming_invoices/<file>"   the dataset's incoming batch (read-only folder)
- *   storage key "uploads/<sha256>.<ext>"     a file a person uploaded (UPLOAD_DIR, default .data/uploads)
+ *   storage key "uploads/<sha256>.<ext>"     a file a person uploaded, or a Gmail attachment the poller
+ *                                            saved (UPLOAD_DIR, default .data/uploads; in Docker a volume
+ *                                            shared by the app and the poller)
  *
  * TEMP: storage — a deployed app keeps uploads in object storage (Supabase Storage); only
  * saveUploadedDocument() and readDocumentFile() change.
@@ -21,14 +23,20 @@ export const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), ".d
 
 const EXT_BY_MIME: Record<string, string> = { "application/pdf": "pdf", "image/png": "png", "image/jpeg": "jpg" };
 
-export async function saveUploadedDocument(file: { bytes: Uint8Array; fileName: string; mime: string }, opts: { db?: Db } = {}): Promise<{ documentId: string; sha256: string }> {
-  const db = opts.db ?? getDb();
+/** Write a file into the uploads folder, named by its content, and return its storage key. */
+export async function writeUploadFile(file: { bytes: Uint8Array; fileName: string; mime?: string | null }): Promise<{ storageKey: string; sha256: string }> {
   const sha256 = createHash("sha256").update(file.bytes).digest("hex");
-  const ext = EXT_BY_MIME[file.mime] ?? (path.extname(file.fileName).slice(1).toLowerCase() || "bin");
+  const ext = (file.mime && EXT_BY_MIME[file.mime]) ?? (path.extname(file.fileName).slice(1).toLowerCase() || "bin");
   const name = `${sha256}.${ext}`;
   await mkdir(UPLOAD_DIR, { recursive: true });
   await writeFile(path.join(UPLOAD_DIR, name), file.bytes);
-  const [row] = await db.insert(documents).values({ storageKey: `uploads/${name}`, fileName: file.fileName, mime: file.mime, sha256 }).returning({ id: documents.id });
+  return { storageKey: `uploads/${name}`, sha256 };
+}
+
+export async function saveUploadedDocument(file: { bytes: Uint8Array; fileName: string; mime: string }, opts: { db?: Db } = {}): Promise<{ documentId: string; sha256: string }> {
+  const db = opts.db ?? getDb();
+  const { storageKey, sha256 } = await writeUploadFile(file);
+  const [row] = await db.insert(documents).values({ storageKey, fileName: file.fileName, mime: file.mime, sha256 }).returning({ id: documents.id });
   return { documentId: row!.id, sha256 };
 }
 

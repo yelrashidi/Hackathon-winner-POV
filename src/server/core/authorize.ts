@@ -15,7 +15,12 @@ import { Actor as ActorSchema, type Actor, type ActorRole } from "@/contracts/ac
  */
 
 export const ACTIONS = {
-  "invoice.submit": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin"],
+  /**
+   * Send a checked bill to approval. Not the employee: bills reach AP from suppliers and the AP Clerk
+   * records the employee as the requester; the Employee role is read-only (team decision 2026-11-22,
+   * Andrew) — they follow their bills under "My bills".
+   */
+  "invoice.submit": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   /**
    * Ingest inbox, review extraction, edit fields, code lines ("the checks"). The team's dashboard
    * plan (2026-11-21): access widens with seniority — managers and the Finance Manager can do the

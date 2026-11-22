@@ -1,8 +1,11 @@
 import type { UserRole } from "./users";
 
 /**
- * The five roles the dashboard is built for (team plan, 2026-11-21). Access widens with seniority:
+ * The six roles of the brief (docs/brief.md: every user has one of six roles). Access widens with seniority:
  *
+ *   employee  Employee          read-only: the bills they requested ("My bills") and where each one is.
+ *                               Bills reach AP from suppliers, so there is no "submit" screen; the AP
+ *                               Clerk records the employee as the requester during the checks
  *   clerk     AP Clerk          the checks (what extraction or coding could not settle), uploads, schedules payments
  *   manager   Operations Mgr.   + approves their department's bills (dataset policy: up to $10,000 CAD;
  *                               every department manager is in this group, Dev Malhotra runs Operations)
@@ -13,9 +16,10 @@ import type { UserRole } from "./users";
  *
  * The role always comes from the employee record on the server; this file only names and groups it.
  */
-export type AppRole = "clerk" | "manager" | "finance" | "admin" | "auditor";
+export type AppRole = "employee" | "clerk" | "manager" | "finance" | "admin" | "auditor";
 
 export const APP_ROLE: Partial<Record<UserRole, AppRole>> = {
+  employee: "employee",
   ap_clerk: "clerk",
   approver: "manager",
   finance_manager: "finance",
@@ -26,6 +30,12 @@ export const APP_ROLE: Partial<Record<UserRole, AppRole>> = {
 export const appRoleOf = (role: string | null | undefined): AppRole | null => (role ? (APP_ROLE[role as UserRole] ?? null) : null);
 
 export const APP_ROLES: { key: AppRole; label: string; summary: string; can: string[] }[] = [
+  {
+    key: "employee",
+    label: "Employee",
+    summary: "Follows the bills they asked for: where each one is, who approved it, when it was paid. Changes nothing.",
+    can: ["See the bills you requested and where each one is", "Who checked, approved and paid each one, and when", "Read-only: suppliers send bills to AP, not to you"],
+  },
   {
     key: "clerk",
     label: "AP Clerk",

@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FailureCode } from "@/contracts/payment";
-import { usingDemoDb } from "@/server/demo/database";
 import { paymentsDb } from "@/server/pipeline";
 import { getViewer } from "@/server/session/current-user";
 import { ActionForm } from "../_components/ActionForm";
 import { inputClass } from "../_lib/styles";
 import { Card, Notice, PageHeader } from "../_components/ui";
-import { resetDemo, sendToApprovalDemo, settleAction } from "../payments/actions";
+import { sendToApprovalDemo, settleAction } from "../payments/actions";
+import { ResetDemoButton } from "../_components/ResetDemoButton";
+import { demoResetMode } from "@/server/demo/reset";
 
 export const metadata: Metadata = { title: "Demo controls" };
 
@@ -59,13 +60,9 @@ export default async function DemoPage() {
       <Card title="Shortcut: send a few clean bills to approval" description="Does what an AP Clerk does on Checks for up to 3 bills with no open flags — sets the requester, confirms the coding, submits — as the clerk, every step in the audit trail. Then sign in as a manager to approve.">
         <ActionForm action={sendToApprovalDemo} label="Send 3 clean bills to approval" pendingLabel="Working…" />
       </Card>
-      <Card title="Start again" description={usingDemoDb() ? "Rebuilds the in-process demo database from the dataset: 10 months of history, the AP inbox run through intake, every audit row. Takes about 5 seconds." : "The app is on a real database (DATABASE_URL); reset it with npm run db:reset."}>
-        {usingDemoDb() && viewer?.role !== "admin" && <p className="text-sm text-slate-500">Only the Admin can reset the demo (sign in as Marcus Webb or Priya Raman).</p>}
-        {usingDemoDb() && viewer?.role === "admin" && (
-          <form action={resetDemo}>
-            <button className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-700 ring-1 ring-inset ring-rose-300 hover:bg-rose-50">Reset demo data</button>
-          </form>
-        )}
+      <Card title="Start again" description={demoResetMode() ? "Rebuilds the demo from the dataset, exactly as it starts: 10 months of history, the AP inbox run through intake (the clerk's Checks queue), every audit row. Everything done in the app is erased: uploads, Gmail bills, checks, approvals, releases, bank answers, journal exports. Then takes you home. A few seconds." : "This database has no reset (only the demo and local Docker do); use npm run db:reset."}>
+        {demoResetMode() && viewer?.role !== "admin" && <p className="text-sm text-slate-500">Only the Admin can reset the demo (sign in as Marcus Webb).</p>}
+        {demoResetMode() && viewer?.role === "admin" && <ResetDemoButton />}
       </Card>
     </>
   );

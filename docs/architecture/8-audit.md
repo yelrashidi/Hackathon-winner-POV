@@ -1,6 +1,6 @@
 # 8 — Audit trail + database foundation
 
-**Owner:** Andrew · **Code as of:** `2170288` (2026-11-21)
+**Owner:** Andrew · **Code as of:** `9ab81d4` (2026-11-22)
 
 ## What it does
 Every change to an invoice, flag, approval, payment or bank account writes one row to
@@ -56,7 +56,7 @@ await withAction(actor /* from the session, never the browser */, async (ctx) =>
 | Screen | Who | Code |
 |---|---|---|
 | Audit log `/audit` — every event, before/after, control checks, export | Auditor ("read-only everything, audit export") and Controller/Admin ("full audit log") | `features/audit`, `audit.view` / `audit.export` |
-| Invoice records `/invoices` — invoice, PDF, coding, flags, payment, who did what | everyone, scoped by the "View invoices" row: employee own, manager own department, others all | `features/invoices`, `invoice.view` + `inScope` |
+| Invoice records `/invoices` — invoice, PDF, coding, flags, payment, who did what | everyone, scoped by the "View invoices" row: employee own (the bills they requested: "My bills"), manager own department, others all | `features/invoices`, `invoice.view` + `inScope` |
 | Who did what (requested → checked → approved → scheduled → released) | the audit page, the invoice record, and live on Checks / Approvals / Payments | `features/audit/who-did-what.ts` |
 
 Everyone else's home screen shows only their own recent actions. History never guesses: a step the dataset did not record (who checked an old invoice) says "not recorded".

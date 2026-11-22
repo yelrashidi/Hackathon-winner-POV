@@ -4,6 +4,7 @@ import { listInvoiceRecords } from "@/server/features/invoices";
 import { getViewer } from "@/server/session/current-user";
 import { NotForYourRole } from "../_components/NotForYourRole";
 import { Day, EmptyState, InvoiceStatus, Money, PageHeader, Table, td } from "../_components/ui";
+import { WhereItIs } from "../_components/WhereItIs";
 import { first } from "../_lib/format";
 import { canSee } from "../_lib/nav";
 import { fieldClass } from "../_lib/styles";
@@ -14,7 +15,8 @@ const STATUSES = ["ManualEntry", "InReview", "OnHold", "PendingApproval", "Appro
 const PAGE_SIZE = 50;
 
 // Read-only invoice records, history included, scoped by role (roles matrix "View invoices"):
-// managers see their department's, everyone else in finance sees all. The full audit log is /audit.
+// employees see the bills they requested ("My bills"), managers their department's, everyone else
+// in finance all. The full audit log is /audit.
 export default async function InvoicesPage({ searchParams }: PageProps<"/invoices">) {
   const viewer = await getViewer();
   if (!canSee(viewer?.role ?? null, "invoices")) return <NotForYourRole sectionKey="invoices" viewer={viewer} />;
@@ -36,13 +38,21 @@ export default async function InvoicesPage({ searchParams }: PageProps<"/invoice
     return s ? `/invoices?${s}` : "/invoices";
   };
   const scopeText = list.scope.kind === "department" ? "Your department's invoices" : list.scope.kind === "own" ? "Invoices you requested" : "Every invoice";
+  const myBills = viewer!.role === "employee";
 
   return (
     <>
-      <PageHeader
-        title="Invoices"
-        description={`${scopeText}, in progress and paid, history included. Open one to see the document, the coding, the approvals, the payment, and who did what. Read-only.`}
-      />
+      {myBills ? (
+        <PageHeader
+          title="My bills"
+          description="The supplier bills you asked for, newest first, and where each one is. Open one to see who checked it, who approved it and when it was paid. Suppliers send bills to AP; the AP Clerk records you as the requester."
+        />
+      ) : (
+        <PageHeader
+          title="Invoices"
+          description={`${scopeText}, in progress and paid, history included. Open one to see the document, the coding, the approvals, the payment, and who did what. Read-only.`}
+        />
+      )}
       <form className="flex flex-wrap gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm" action="/invoices">
         <input name="q" defaultValue={q.search} placeholder="Invoice, number or vendor" aria-label="Search" className={`min-w-56 flex-1 ${fieldClass}`} />
         <select name="status" defaultValue={q.status ?? ""} aria-label="Status" className={fieldClass}>
@@ -59,7 +69,32 @@ export default async function InvoicesPage({ searchParams }: PageProps<"/invoice
       </form>
 
       {list.rows.length === 0 ? (
-        <EmptyState title="No invoices match." />
+        <EmptyState title={myBills ? "No bills found." : "No invoices match."}>{myBills && !q.search && !q.status ? "When the AP Clerk records you as the requester on a supplier's bill, it shows up here." : undefined}</EmptyState>
+      ) : myBills ? (
+        <Table head={["Bill", "Vendor", "Date", "Total", "Where it is"]}>
+          {list.rows.map((r) => (
+            <tr key={r.invoiceId} className="hover:bg-slate-50/70">
+              <td className={td}>
+                <Link href={`/invoices/${encodeURIComponent(r.invoiceId)}`} className="whitespace-nowrap font-mono text-xs font-semibold text-(--brim-link) hover:underline">
+                  {r.invoiceId}
+                </Link>
+                <p className="font-mono text-xs text-slate-500">{r.invoiceNumber ?? "—"}</p>
+              </td>
+              <td className={`${td} max-w-56`}>
+                <p className="truncate text-slate-900">{r.vendorName ?? "—"}</p>
+              </td>
+              <td className={td}>
+                <Day value={r.invoiceDate} />
+              </td>
+              <td className={`${td} whitespace-nowrap`}>
+                <Money cents={r.totalCents} currency={r.currency} cadCents={r.totalCadCents} />
+              </td>
+              <td className={td}>
+                <WhereItIs text={list.where[r.invoiceId] ?? r.status} />
+              </td>
+            </tr>
+          ))}
+        </Table>
       ) : (
         <Table head={["Invoice", "Vendor", "Date", "Total", "Status", "Approved by", "Payment"]}>
           {list.rows.map((r) => (
@@ -104,7 +139,11 @@ export default async function InvoicesPage({ searchParams }: PageProps<"/invoice
             {list.total} invoices · page {q.page} of {pages}
           </span>
           <span className="flex gap-3">
-            {q.page > 1 && <Link href={link(q.page - 1)} className="text-(--brim-link) hover:underline">← Previous</Link>}
+            {q.page > 1 && (
+              <Link href={link(q.page - 1)} className="text-(--brim-link) hover:underline">
+                ← Previous
+              </Link>
+            )}
             {q.page < pages && <Link href={link(q.page + 1)} className="text-(--brim-link) hover:underline">Next →</Link>}
           </span>
         </div>
