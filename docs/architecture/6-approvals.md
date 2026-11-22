@@ -1,5 +1,7 @@
 # 6 — Approvals
 
+> **On screen (2026-11-21):** route preview on Checks (`previewApproval`), the Approvals queue (`waitingOn`) and decision page, holds back to review (`releaseHold`), policy editor and on-leave delegates under People & policies — see [`dashboard.md`](dashboard.md).
+
 **Owner:** Youssef · **Code as of:** `a896a64` · Every edge case, with `file:line` and test:
 [`6-approvals-edge-cases.md`](6-approvals-edge-cases.md)
 

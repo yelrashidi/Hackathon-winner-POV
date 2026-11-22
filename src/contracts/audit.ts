@@ -51,13 +51,15 @@ export const AUDIT_ACTIONS = [
   "bank_account.closed",
   "policy.edited",
   "user.role_changed",
+  "user.status_changed", // on leave + delegate (P08), or back to active — the Admin's people screen
+  "journal.exported", // bonus: approved bills + settled payments exported to the books (who, which period, which ids)
   // security
   "authz.denied", // a refused attempt (written in its own transaction)
 ] as const;
 export const AuditAction = z.enum(AUDIT_ACTIONS);
 export type AuditAction = z.infer<typeof AuditAction>;
 
-export const AuditEntityType = z.enum(["invoice", "invoice_flag", "invoice_line", "approval_plan", "approval_step", "payment", "payment_flag", "vendor", "bank_account", "approval_policy", "user"]);
+export const AuditEntityType = z.enum(["invoice", "invoice_flag", "invoice_line", "approval_plan", "approval_step", "payment", "payment_flag", "vendor", "bank_account", "approval_policy", "user", "journal_export"]);
 export type AuditEntityType = z.infer<typeof AuditEntityType>;
 
 /** A JSON object snapshot (a row, or just the fields that matter). */

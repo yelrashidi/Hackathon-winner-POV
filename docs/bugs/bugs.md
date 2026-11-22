@@ -7,9 +7,16 @@ Grep both files for your own highest id before filing; ids are never reused.
 
 | ID | Severity | Feature (owner) | Summary |
 |---|---|---|---|
-| BUG-Katie-03 | Medium | 8 Audit + foundation (Andrew) | `.env.example` is referenced but not in the repo |
+| BUG-Arpan-08 | Low | tests (shared) | `npm test` workers crash ("Worker exited unexpectedly") at the default worker count; `--maxWorkers=2` passes |
 
 ---
+
+### BUG-Arpan-08
+**`npm test` workers crash under load** · Low · OPEN · found 2026-11-21 by Arpan
+
+**Symptom.** `npm test` on Arpan's Windows machine: 3–4 "Unhandled Error: [vitest-pool]: Worker forks emitted error … Worker exited unexpectedly", a different file each run; no assertion fails. `npx vitest run --maxWorkers=2` passes all 910 tests (33 files).
+**Cause.** Not confirmed. Likely memory: many test files each start an in-process Postgres (PGlite) in parallel forks.
+**Blocks.** A red `npm test` / `npm run check` locally that is not a real failure. Possible fix: `maxWorkers` in `vitest.config.ts`.
 
 <!-- Entry format:
 
@@ -20,10 +27,3 @@ Grep both files for your own highest id before filing; ids are never reused.
 **Cause.** If known.
 **Blocks.** What it breaks for whom.
 -->
-
-### BUG-Katie-03
-**`.env.example` is referenced but not in the repo** · Medium · OPEN · found 2026-11-21 by Katie
-
-**Symptom.** Without a `.env`, the app and `npm run db:reset` fail with "DATABASE_URL is not set (see .env.example)" (`src/server/db/client.ts:34`, `scripts/db-reset.ts:13`), and `tasks-completed.md` lists `.env.example` as landed, but no commit on any branch has the file (`git log --all -- .env.example` is empty).
-**Cause.** Probably created locally and never committed (`.gitignore` un-ignores it).
-**Blocks.** Everyone running the app on Postgres (now every payments page) has to guess the variable names; the local values are only in `docker-compose.yml` and `docker/init/`.

@@ -10,26 +10,53 @@ Accounts payable (AP) automation for the Brim hackathon. A web app that takes su
 
 ## Running locally
 
-Requires Node 20+. Pick one; each ends at http://localhost:3000.
+**Just want to see the demo?** Install Docker, clone the repo, run `docker compose up -d`, open
+http://localhost:3000. Step by step, with troubleshooting: [`docs/running-with-docker.md`](docs/running-with-docker.md).
 
-**Demo, no Docker** — an embedded Postgres (PGlite) in `.data/pglite`, created, migrated and
-seeded on the first run (~15 s), reused afterwards:
+The ways to run it are below. Each ends at http://localhost:3000, where you pick who you are (Employee, AP Clerk,
+Operations Manager, Finance Manager, Admin, Auditor — one person each). The no-Docker options need Node 22+.
+
+**Quick demo, no Docker, starts fresh every time** — with no `DATABASE_URL`, the app builds an
+in-process Postgres from the dataset on the first request (~5 s): 10 months of history plus the AP
+inbox run through intake. A restart, or **Demo controls → Reset** (Admin), starts again.
 
 ```bash
 npm install
+npm run dev
+```
+
+**Demo that keeps its data, no Docker** — an embedded Postgres (PGlite) in `.data/pglite`, created,
+migrated and seeded on the first run, reused afterwards (stop any other `npm run dev` first):
+
+```bash
 npm run demo                 # npm run demo -- --reset  starts from a fresh database
 ```
 
-Stop any other `npm run dev` first: only one process may open the embedded database.
-
-**Everything in Docker** — Postgres + migrations/seed + the app:
+**Everything in Docker** — Postgres, migrations + first-time seed, the app (frontend + backend) and
+the Gmail poller, one command → http://localhost:3000:
 
 ```bash
 docker compose up -d         # rebuild after code changes: docker compose up -d --build
+docker compose logs -f gmail-poller   # watch new mail being read and saved
+docker compose down -v       # stop and wipe the database (next up re-seeds)
 ```
+
+Data survives restarts; **Demo controls → Reset demo data** (Admin) starts over without the terminal.
+
+Secrets (`ANTHROPIC_API_KEY`, `GMAIL_*`) come from `.env.local`. Without the Gmail keys the poller
+prints why and stops; the rest still runs. Get the refresh token once on the host: `npm run gmail:auth`.
 
 **Developing against Docker Postgres:** `npm run db:up`, `npm run db:reset`, set `DATABASE_URL`
 (see `.env.example`), then `npm run dev`.
+
+| Setting | Effect |
+| --- | --- |
+| `ANTHROPIC_API_KEY` (in `.env.local`) | Uploaded invoices are read by Claude; without it they open for manual entry |
+| `DEMO_SCENARIO=3` | Quick demo starts with 3 clean bills already sent to approval |
+| `UPLOAD_DIR` | Where uploaded files are kept (default `.data/uploads`) |
+
+One-click sign-in on the quick demo: `/demo/as/U004?next=/checks`. Screens and roles:
+`docs/architecture/dashboard.md`; a 2-minute click-by-click demo: `docs/demo-script.md`.
 
 ## Repo layout
 
@@ -45,7 +72,8 @@ docker compose up -d         # rebuild after code changes: docker compose up -d 
 
 ## Status
 
-Early setup: the Next.js app is scaffolded (default starter page). See `docs/STATUS.md` for current progress.
+The app runs end to end: inbox → checks → approvals → payments → audit trail, per role. Duplicates
+(feature 5) has no screen yet. See `docs/STATUS.md` for current progress.
 
 ## Checks
 

@@ -81,8 +81,7 @@ covers, read that rule. They are short on purpose.
 7. **Stay in your feature folder.** Changing `src/contracts/`, `src/server/core/` or the schema
    affects teammates: say so in the PR title and in `STATUS.md`.
 8. **Never assume a decision.** Open ones are listed in `STATUS.md`. Ask with `AskUserQuestion`.
-9. **Never run `git commit` or `git push`.** `/commit-msg` writes the message; the human commits.
-10. **Three attempts without progress: stop and report** what you tried.
+9. **Three attempts without progress: stop and report** what you tried.
 
 ## Before a unit of work ends
 

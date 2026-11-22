@@ -14,7 +14,6 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 
 Reviewed main `39dc2ac` (including the findings first reproduced on `96bffe4`). These are open defects, not completed work.
 
-- [ ] P1 **High: require completed approvals at payment release.** `src/server/features/payments/deps.ts:267` returns an approved basis for any current plan, including one with pending or rejected steps; `src/server/features/payments/rules.ts:163` trusts that basis. Isolated probes released a scheduled payment with pending and rejected current plans. Require a payable invoice state, a current routed plan, and every required step approved; refuse pending, rejected, blocked, held and stale plans before sending EFT. [Katie, Youssef]
 - [ ] P1 **High: validate pay dates before writes.** `src/server/features/payments/rules.ts:297` only compares date strings, so `payDate: "2026-99-99"` passes the rules and the database insert then throws (a server error, not a reason). Atomic since 2026-11-21: payment, `fire()` and audit are one transaction, so nothing is written (checked: 0 rows, invoice still Approved). Still to do: parse the request with a real calendar-date schema and refuse with a reason. [Katie]
 - [ ] P1 **Medium: retain bank-account currency when changing details.** `src/server/features/payments/service.ts:542` hardcodes new accounts to CAD; replacing a USD account creates a verified CAD account and prevents USD release. Accept and validate the intended account currency through the server and UI contract, preserve it through verification, and cover USD replacement and retry. [Katie]
 - [ ] P1 **Medium: include the Next.js app in CI.** `.github/workflows/ci.yml:33` runs `typecheck`, but `tsconfig.json:19` includes only shared source and scripts; CI never builds the app. Add a production build (which generates and checks route types) or `next typegen` plus `tsc --noEmit -p tsconfig.next.json`, and lint. A type error in an app page must fail CI. [Andrew]
@@ -49,6 +48,8 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P1 Tests: idempotent re-run, rollback leaves nothing half-written, two-invoice email → two invoices, uncertain document → its own item, receipt PDF → `documents` row and no invoice. [Arpan]
 
 ### After step 3 [Arpan]
+- [ ] P0 Rehearse `docs/demo-workflow.md` end to end on live mail: Polar 000975 emailed → Paid; 000963 emailed → `DUPLICATE_INVOICE` (not yet run live). Pick and rehearse the $10k–$50k bill for the P11 twist. [Arpan]
+- [ ] P2 Test the first-run backfill (`GMAIL_BACKFILL`, `scripts/gmail-poll.ts:34`): move the choice into a small function in `intake/gmail/` and unit-test no cursor + env → backfill, cursor + env → incremental. [Arpan]
 - [ ] P1 Step 4: clerk inbox dashboard. Emails with decision + reason, each document's verdict, PDF viewer through `/api/documents/[id]` (`authorize()` before streaming), and a "Needs a decision" queue for uncertain documents. [Arpan]
 - [ ] P1 Upload → `documents` + draft invoice: same `readDocument` + `saveIntakeResult` path, source `upload`. [Arpan]
 - [ ] P1 Deployed polling: a cron route calls `pollGmail` (Vercel cron), cursor in the DB. [Arpan]
@@ -60,9 +61,6 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P2 Move `extraction/amounts.ts` into `core/money.ts` when the foundation exists. [Arpan]
 
 ## 3 Coding — owner: Youssef
-- [ ] P1 Persist `CodingResult` lines to `invoice_lines` (gl_account_code, department_id, coding_source, coding_reason) and rebuild `CodingIndex` from them. [Youssef]
-- [ ] P1 Code / accept API route calling `codeLine` / `acceptConfident`; submit guard `codingSubmitFlags` in `fire('submit')`. [Youssef]
-- [ ] P1 Review screen: suggestion + reason per line, alternatives, bulk-accept high, journal preview. [Youssef]
 - [ ] P2 Optional LLM fallback for lines with no evidence, once the provider is decided; output must pass the expense-account check. [Youssef]
 
 ## 4 Validation — owner: Andrew
@@ -76,28 +74,27 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P2 Store `card_transactions.vendor_id` once at import (merchant match), add an index on `(amount_cad_cents, posted_date)`. [Arpan]
 
 ## 6 Approvals — owner: Youssef
-- [ ] P1 One approval store per server, not per Next bundle: keep the in-memory default store on `globalThis`. Payments' half done 2026-11-21: payments reads approvals through `PostgresApprovalStore`, and its seed (`fake-data/approval-seed.ts`) is deleted. [Youssef]
-- [ ] P1 Postgres `ApprovalStore` (the 4 queries in `store.ts`) once the schema lands; schema owner to sequence the `approval_plans` proposal in `6-approvals.md`. [Youssef]
-- [ ] P1 Approve / reject API route: the flow at the top of `store.ts`, in one transaction with `fire()`. [Youssef]
-- [ ] P1 Approver queue screen (`waitingOn`) showing reasons, notes and exceptions to acknowledge. [Youssef]
-- [ ] P1 Admin policy editor over `ApprovalPolicy` rows (the schema already rejects bad rows). [Youssef]
 - [ ] P1 On invoice edit call `reapprovalReasons`; non-empty → bump `invoices.version`. [Youssef]
+- [ ] P2 Approval queue and Checks load every open invoice per request; paginate and push the reason calculation into SQL before volume grows. [Youssef]
 - [ ] P2 Daily `approvalAging` job: reminders and escalation notices. [Youssef]
 
 ## 7 Payments — owner: Youssef
 ## 7 Payments — owner: Katie
 
 ## 8 Audit + foundation — owner: Andrew
-- [ ] P1 Auditor pages `app/audit` (invoice table → invoice detail → CSV export) over `src/server/features/audit` (contracts `src/contracts/audit-view.ts`, fixtures `fixtures/audit/`). Auditor-only. [_name_ (dashboard)]
-- [ ] P1 Route handlers / server actions over `src/server/pipeline` (ingest, edit, code line, submit, decide), with the session's `Actor`. [_name_]
 - [ ] P1 Team decisions in `docs/architecture/8-audit.md`: Controller audit access, historical `rejected` → `Voided`, schema-merge owner. [_name_]
 - [ ] P2 Deploy the DB on Supabase: `db:migrate` + `db:seed` with the direct URL, `ALTER ROLE ap_app LOGIN PASSWORD …`, app uses the pooled URL. [Andrew]
 - [ ] P2 Apply the `data-model.md` column additions listed in `8-audit.md` ("To apply at merge"). [Andrew]
 - [ ] P3 Hash-chain `audit_events` (tamper evidence on top of the trigger + grants). [Andrew]
 
-## 9 Vendors — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Vendor list, onboard, hold; bank change request + verify by a second person. [_name_]
-- [ ] P1 Supply approvals `conflicts`: who onboarded the vendor and who requested / verified its last bank change. [_name_]
+## Dashboard — owner: Youssef
+- [ ] P2 Real sign-in instead of the demo cookie (server session stays the only source of the actor). [Youssef]
+- [ ] P2 Uploaded files to object storage (Supabase Storage) instead of `UPLOAD_DIR`; only `pipeline/documents.ts` changes. [Youssef]
+- [ ] P2 Needs-attention renders one payments state load per flag list; compute who can clear flags once per page. [Youssef]
+
+## 9 Vendors — owner: Andrew (server side)
+- [ ] P2 Bank changes exist in payments (Katie) and `features/vendors`, both on Postgres and compatible (same rows, statuses, audit names; verified both directions). The dashboard's Vendors screen calls `features/vendors` (2026-11-21, Youssef); payments' detail page still has its own form — switch it too, or drop payments' copy. [Katie / Andrew]
+- [ ] P2 Edit vendor fields after onboarding (name / tax number changes as a reviewed action). [Andrew]
 
 ## P3 — Bonus (only after 1–9 work)
 - [ ] Pick one at kickoff — candidates in [`../product.md`](../product.md#out-of-scope-until-19-work). [_name_]

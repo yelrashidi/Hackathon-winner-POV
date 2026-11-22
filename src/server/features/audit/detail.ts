@@ -30,6 +30,14 @@ export async function getPaymentAuditDetail(actor: Actor, paymentId: string, opt
   return buildDetail(db, p.invoiceId);
 }
 
+/**
+ * Everything about one invoice, with NO permission check — callers authorize first
+ * (getInvoiceAuditDetail for the audit trail, features/invoices for the role-scoped record view).
+ */
+export async function loadInvoiceDetail(db: Db, invoiceId: string): Promise<AuditInvoiceDetail> {
+  return buildDetail(db, invoiceId);
+}
+
 async function buildDetail(db: Db, invoiceId: string): Promise<AuditInvoiceDetail> {
   const [inv] = await db.select().from(invoices).where(eq(invoices.id, invoiceId));
   if (!inv) throw new AuditNotFound(`Invoice ${invoiceId} does not exist.`);

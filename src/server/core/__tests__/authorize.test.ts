@@ -5,22 +5,29 @@ import { ACTIONS, authorize, can, Forbidden, type Action } from "../authorize";
 /**
  * The role matrix from docs/architecture/roles-and-permissions.md, as a table. One row per action,
  * the roles that may do it. If the doc changes, this table and ACTIONS change together.
- * (Audit view/export is auditor-only by the team's 2026-11-21 decision; the doc also lists the
- * Controller for "view full audit log" — see docs/architecture/8-audit.md.)
+ * (Dashboard redesign, 2026-11-21: checks open to managers and the Finance Manager; the audit trail
+ * is read by every dashboard role; export by the Auditor and the Controller/Admin.)
  */
 const MATRIX: Record<Action, ActorRole[]> = {
-  "invoice.submit": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin"],
-  "invoice.review": ["ap_clerk", "controller_admin"],
-  "flag.resolve": ["ap_clerk", "controller_admin"],
-  "flag.override": ["ap_clerk", "controller_admin"],
+  "invoice.submit": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
+  "invoice.review": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
+  "flag.resolve": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
+  "flag.override": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "approval.decide": ["approver", "finance_manager", "controller_admin"],
   "payment.prepare": ["ap_clerk", "finance_manager", "controller_admin"],
   "payment.release": ["finance_manager", "controller_admin"],
+  "vendor.view": ["ap_clerk", "finance_manager", "controller_admin", "auditor"],
+  "vendor.onboard": ["ap_clerk", "finance_manager", "controller_admin"],
+  "vendor.approve": ["finance_manager", "controller_admin"],
+  "vendor.hold": ["ap_clerk", "finance_manager", "controller_admin"],
+  "vendor.release_hold": ["finance_manager", "controller_admin"],
   "vendor.bank_change.request": ["ap_clerk", "finance_manager", "controller_admin"],
   "vendor.bank_change.verify": ["finance_manager", "controller_admin"],
   "admin.edit": ["controller_admin"],
-  "audit.view": ["auditor"],
-  "audit.export": ["auditor"],
+  "invoice.view": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin", "auditor"],
+  "audit.view": ["controller_admin", "auditor"],
+  "audit.export": ["controller_admin", "auditor"],
+  "journal.export": ["finance_manager", "controller_admin"],
 };
 const ROLES: ActorRole[] = ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin", "auditor", "system"];
 
@@ -38,7 +45,8 @@ describe("authorize(): the role matrix", () => {
   });
 
   it("the auditor writes nothing (rule 6)", () => {
-    const writes = (Object.keys(MATRIX) as Action[]).filter((a) => !a.startsWith("audit."));
+    const reads: Action[] = ["audit.view", "audit.export", "vendor.view", "invoice.view"];
+    const writes = (Object.keys(MATRIX) as Action[]).filter((a) => !reads.includes(a));
     for (const a of writes) expect(can({ userId: "U-a", role: "auditor" }, a)).toBe(false);
   });
 

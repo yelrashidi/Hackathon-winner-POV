@@ -1,11 +1,13 @@
 import "server-only";
 
 // The one place the dashboard reads payment data: the real payments service, for the signed-in
-// person (it filters by role on the server). Shapes come from @/contracts/payment.
+// person (it filters by role on the server), on the database (src/server/pipeline/payments.ts).
+// Shapes come from @/contracts/payment.
 
 import { connection } from "next/server";
 import type { FlagUrgency, InvoiceRecord, PaymentFlag, PaymentRow, PaymentsView } from "@/contracts/payment";
-import { getPaymentDetail, listPayments } from "@/server/features/payments";
+import { ensureDb } from "@/server/demo/database";
+import { paymentsDb } from "@/server/pipeline";
 import { getCurrentUser } from "@/server/session/current-user";
 
 export type { PaymentRow, PaymentsView } from "@/contracts/payment";
@@ -13,18 +15,19 @@ export type { PaymentRow, PaymentsView } from "@/contracts/payment";
 async function viewerId(): Promise<string | null> {
   // Request time from here on: the database reads that follow must not run while Next.js prerenders.
   await connection();
+  await ensureDb();
   return (await getCurrentUser())?.id ?? null;
 }
 
 export async function getPayments(): Promise<PaymentsView> {
-  const view = await listPayments(await viewerId());
+  const view = await paymentsDb.list(await viewerId());
   // Dashboard order: newest scheduled date first.
   return { ...view, payments: [...view.payments].sort((a, b) => b.current.scheduledDate.localeCompare(a.current.scheduledDate)) };
 }
 
 /** An invoice the signed-in person may see (with a payment, or approved and waiting), or null. */
 export async function getInvoice(invoiceId: string): Promise<InvoiceRecord | null> {
-  const view = await listPayments(await viewerId());
+  const view = await paymentsDb.list(await viewerId());
   return (
     view.payments.find((p) => p.invoice.invoiceId === invoiceId)?.invoice ??
     view.awaitingPayment.find((i) => i.invoiceId === invoiceId) ??
@@ -34,7 +37,7 @@ export async function getInvoice(invoiceId: string): Promise<InvoiceRecord | nul
 
 /** One invoice's payment with all its attempts, or null if the invoice has no payment. */
 export async function getPaymentRow(invoiceId: string): Promise<PaymentRow | null> {
-  return getPaymentDetail(await viewerId(), invoiceId);
+  return paymentsDb.detail(await viewerId(), invoiceId);
 }
 
 export const URGENCY_ORDER: FlagUrgency[] = ["critical", "high", "low"];

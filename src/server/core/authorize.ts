@@ -15,24 +15,64 @@ import { Actor as ActorSchema, type Actor, type ActorRole } from "@/contracts/ac
  */
 
 export const ACTIONS = {
-  "invoice.submit": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin"],
-  /** Ingest inbox, review extraction, edit fields, code lines. */
-  "invoice.review": ["ap_clerk", "controller_admin"],
-  "flag.resolve": ["ap_clerk", "controller_admin"],
-  "flag.override": ["ap_clerk", "controller_admin"],
+  /**
+   * Send a checked bill to approval. Not the employee: bills reach AP from suppliers and the AP Clerk
+   * records the employee as the requester; the Employee role is read-only (team decision 2026-11-22,
+   * Andrew) — they follow their bills under "My bills".
+   */
+  "invoice.submit": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
+  /**
+   * Ingest inbox, review extraction, edit fields, code lines ("the checks"). The team's dashboard
+   * plan (2026-11-21): access widens with seniority — managers and the Finance Manager can do the
+   * clerk's checks too. Separation of duties still holds at approval: whoever submits an invoice is
+   * excluded from approving it (approvals' route.ts), so doing the checks never lets you approve your own work.
+   */
+  "invoice.review": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
+  "flag.resolve": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
+  "flag.override": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "approval.decide": ["approver", "finance_manager", "controller_admin"],
+  /**
+   * Scheduling: the AP Clerk's job (policy P09 "AP clerks prepare, they cannot release"; all 415
+   * historical payments were prepared by a clerk). The Finance Manager keeps it as a BACKUP when no
+   * clerk is available (the Controller too on the server, though the dashboard gives the Admin no
+   * scheduling page) — separation still holds, because whoever scheduled a payment
+   * can never release it (payments' SCHEDULED_IT check + the payments CHECK constraint), so a
+   * payment the FM schedules goes to the Controller to release. Decided 2026-11-21 (Andrew).
+   */
   "payment.prepare": ["ap_clerk", "finance_manager", "controller_admin"],
   "payment.release": ["finance_manager", "controller_admin"],
+  /**
+   * Feature 9 — vendor master. Anyone in finance may stop a vendor (hold, the safe direction);
+   * only a manager lets one be paid (approve, lift a hold, verify bank details). The "two people"
+   * rules (not the onboarder, not the requester) need data, so they live in features/vendors/rules.ts.
+   */
+  "vendor.view": ["ap_clerk", "finance_manager", "controller_admin", "auditor"],
+  "vendor.onboard": ["ap_clerk", "finance_manager", "controller_admin"],
+  "vendor.approve": ["finance_manager", "controller_admin"],
+  "vendor.hold": ["ap_clerk", "finance_manager", "controller_admin"],
+  "vendor.release_hold": ["finance_manager", "controller_admin"],
   "vendor.bank_change.request": ["ap_clerk", "finance_manager", "controller_admin"],
+  /** Verify or reject a pending bank change. */
   "vendor.bank_change.verify": ["finance_manager", "controller_admin"],
   "admin.edit": ["controller_admin"],
   /**
-   * The audit dashboard (invoice list + invoice detail) and its export. Auditor ONLY, as the team
-   * decided on 2026-11-21. Note: roles-and-permissions.md also lists the Controller for "view full
-   * audit log" — add "controller_admin" here if the team keeps that row.
+   * Read-only invoice records (the invoice, its document, coding, approvals, payments and who did
+   * what), per the matrix's "View invoices" row. Every role may ask; features/invoices narrows it:
+   * an employee sees their own submissions, an approver their own department, everyone else all.
    */
-  "audit.view": ["auditor"],
-  "audit.export": ["auditor"],
+  "invoice.view": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin", "auditor"],
+  /**
+   * The full audit log (every event with before / after, control checks) and its export: the
+   * Auditor ("read-only everything, audit export") and the Controller/Admin ("full audit log"),
+   * per product.md and the roles matrix. Nobody else reads the audit log itself.
+   */
+  "audit.view": ["controller_admin", "auditor"],
+  "audit.export": ["controller_admin", "auditor"],
+  /**
+   * Bonus: export approved bills + settled payments as an accounting journal (posting to the books).
+   * The people who own the books — Finance Manager and Controller/Admin — decide what is posted and when.
+   */
+  "journal.export": ["finance_manager", "controller_admin"],
 } as const satisfies Record<string, readonly ActorRole[]>;
 
 export type Action = keyof typeof ACTIONS;
@@ -45,11 +85,18 @@ const LABELS: Record<Action, string> = {
   "approval.decide": "approve or reject invoices",
   "payment.prepare": "schedule payments",
   "payment.release": "release payments",
+  "vendor.view": "view the vendor master",
+  "vendor.onboard": "onboard vendors",
+  "vendor.approve": "approve new vendors",
+  "vendor.hold": "put vendors on hold",
+  "vendor.release_hold": "lift a vendor hold",
   "vendor.bank_change.request": "request vendor bank changes",
   "vendor.bank_change.verify": "verify vendor bank changes",
   "admin.edit": "edit users, roles and policies",
+  "invoice.view": "view invoices",
   "audit.view": "view the audit log",
   "audit.export": "export the audit log",
+  "journal.export": "export the accounting journal",
 };
 
 export class Forbidden extends Error {

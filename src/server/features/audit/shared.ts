@@ -5,7 +5,7 @@ import { authorize, Forbidden, type Action } from "@/server/core/authorize";
 import type { Db, Executor } from "@/server/db/client";
 import { users } from "@/server/db/schema";
 
-/** Auditor-only gate for every read in this feature. A refused attempt is itself audited. */
+/** The audit-trail gate for every read in this feature (authorize: audit.view / audit.export). A refused attempt is itself audited. */
 export async function guard(actor: Actor, action: Extract<Action, "audit.view" | "audit.export">, db: Db, target?: { invoiceId?: string }) {
   try {
     return authorize(actor, action).actor;

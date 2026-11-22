@@ -1,6 +1,6 @@
 # 1 — Intake
 
-**Owner:** Arpan · **Code as of:** `b655a97` + PR #11 review fixes (2026-11-21; steps 1–2 of 4 done; step 3 in `docs/todo/TODO.md`)
+**Owner:** Arpan · **Code as of:** `949ce76` + Gmail → dashboard (2026-11-21; steps 1–2 of 4 done; step 3 mostly via `ingestFromIntake`, rest in `docs/todo/TODO.md`)
 
 ## What it does
 Watches a mailbox, turns every new email into one `InboxMessage`, classifies it (invoice / not an
@@ -25,7 +25,8 @@ Build order: **1 Gmail connector** (done) → **2 classifier** (done) → 3 inta
   or relabel mail (`src/server/features/intake/gmail/client.ts:10`). Refresh token in `.env.local`.
 - **Polling, not push:** `pollGmail` (`src/server/features/intake/gmail/poll.ts`) keeps Gmail's
   `historyId` as a cursor; `history.list` returns only messages added to INBOX since then.
-  First run records "now" — a personal inbox is never backfilled unless `--backfill 1d` is asked for.
+  First run records "now" — a personal inbox is never backfilled unless asked: `--backfill 1d`, or
+  `GMAIL_BACKFILL=1d` which applies only when there is no cursor yet (`scripts/gmail-poll.ts:34`, BUG-Arpan-07).
   Expired cursor (Gmail keeps ~7 days) → reset to now, reported.
 - Drain every history and backfill page and fetch every unique message before returning a cursor (`gmail/poll.ts:65`, `:102`). `maxMessages` sets the backfill page size, never a total delivery cap (BUG-Arpan-02). A failed fetch rejects the poll so no new cursor is returned to save.
 - Sent mail and drafts are skipped. A message failing the contract is returned in `rejected` with
@@ -78,6 +79,16 @@ One-time, ~10 minutes, per developer:
    coded, audited (`InReview`); unreadable bill → `ManualEntry`; each bill gets a `documents` row (sha256).
    Re-running is safe (no duplicates). `--no-save` only prints. Gmail's cursor advances only after every
    new email is saved.
+8. **In Docker:** `docker compose up -d` also starts the `gmail-poller` service (`docker-compose.yml`):
+   `gmail:poll --watch` every `GMAIL_POLL_SECONDS` (default 10) as `ap_app`, keys from `.env.local`, cursor
+   in the `intake-state` volume. Its first poll (no cursor) backfills `GMAIL_BACKFILL` (default `1d`), so
+   bills already in the inbox reach the dashboard; after that it is incremental. No Gmail keys → it logs why and
+   exits 0. `--watch` waits for each poll to finish before the next (`scripts/gmail-poll.ts`), so a slow
+   LLM read never overlaps the next poll on the same mail. Logs: `docker compose logs -f gmail-poller`.
+9. **On the dashboard:** a saved bill is an `InReview` (or `ManualEntry`) invoice, so it shows in **Checks**
+   and on Home's **Next checks**, marked "from email", with its open flag codes as tags
+   (`src/server/dashboard/checks.ts` `flagTags`; `CODING_NOT_CONFIRMED` is left out — the row text covers it).
+   Emails that are not bills stay in **Inbox** with intake's reason.
 
 Traps:
 - "Access blocked: … has not completed the Google verification process" → the signing-in account is
@@ -99,12 +110,14 @@ Step 3 adds `DOCUMENT_TYPE_UNCERTAIN` (warn) on an invoice created from an uncer
 - Attachment download fails → that document is `uncertain`, the email goes to review.
 - French subjects and bodies → accent-stripped EN+FR word lists.
 - Email text is data, never instructions (`docs/rules/backend.md`).
+- Mail that arrived before the poller's first run → read by the first-run backfill (`GMAIL_BACKFILL`); anything older needs a manual `--backfill` (BUG-Arpan-07).
 
 ## At 100× volume
 Polling one mailbox is cheap (O(new mail)). Many mailboxes or near-real-time → Gmail `watch` +
 Pub/Sub push into a queue table, same `pollGmail` code drains it. Attachment bytes fetched lazily,
 stored once by sha256.
 The current CLI drains a backlog serially. For large backlogs, persist a queue plus its cursor in one transaction, then classify bounded batches; never advance a cursor while discarding unfetched messages.
+A large `GMAIL_BACKFILL` window on a busy inbox means one classification (and possibly one Claude read) per email on first start; keep it at `1d`.
 
 ## Known gaps
 - Whole personal inbox is read (team decision 2026-11-21); the classifier must pre-filter

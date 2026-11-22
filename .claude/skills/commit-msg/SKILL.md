@@ -1,10 +1,11 @@
 ---
 name: commit-msg
-description: Write a git commit message for Brim AP (message only, never commits). Use when the user asks for a commit message, or at the end of /wrap-up.
+description: Write a git commit message for Brim AP, and commit or push it only when asked. Use when the user asks for a commit message, or at the end of /wrap-up.
 ---
 
-**Write the commit message only. Do not run `git add`, `git commit` or `git push`.** The user
-stages and commits themselves, on the branch they choose. Print the message in a code block so
+**Write the commit message. Commit or push only when the user asks for it** — then stage exactly
+the files listed for each commit (never `git add -A`), commit on the current branch (branch first
+if it is `main`), and push only the current branch. Otherwise print the message in a code block so
 it can be copied. If the changes are more than one logical change, give one message per commit
 and list which files belong to each. Never include `.env*` files in a suggested commit.
 

@@ -214,16 +214,27 @@ describe("fire(): the state machine writes its own audit trail", () => {
 });
 
 describe("auditor dashboard", () => {
-  it.each<Actor>([
-    { userId: "U004", role: "ap_clerk" },
-    { userId: "U003", role: "controller_admin" },
-    { userId: "U002", role: "finance_manager" },
-    { userId: "U010", role: "approver" },
-    { userId: "U020", role: "employee" },
-  ])("$role cannot open the audit log", async (actor) => {
+  it("an employee cannot open the audit trail", async () => {
+    const actor: Actor = { userId: "U020", role: "employee" };
     await expect(listAuditInvoices(actor, {}, { db })).rejects.toBeInstanceOf(Forbidden);
     await expect(getInvoiceAuditDetail(actor, "AP-00001", { db })).rejects.toBeInstanceOf(Forbidden);
     await expect(exportAuditCsv(actor, {}, { db })).rejects.toBeInstanceOf(Forbidden);
+  });
+
+  it.each<Actor>([
+    { userId: "U004", role: "ap_clerk" },
+    { userId: "U003", role: "finance_manager" },
+    { userId: "U010", role: "approver" },
+  ])("$role cannot read or export the audit log (Auditor and Controller only)", async (actor) => {
+    await expect(listAuditInvoices(actor, { pageSize: 1 }, { db })).rejects.toBeInstanceOf(Forbidden);
+    await expect(getInvoiceAuditDetail(actor, "AP-00001", { db })).rejects.toBeInstanceOf(Forbidden);
+    await expect(exportAuditCsv(actor, {}, { db })).rejects.toBeInstanceOf(Forbidden);
+  });
+
+  it("the Controller reads and exports the audit log (product.md: \"full audit log\")", async () => {
+    const actor: Actor = { userId: "U002", role: "controller_admin" };
+    await expect(listAuditInvoices(actor, { pageSize: 1 }, { db })).resolves.toMatchObject({ page: 1 });
+    await expect(exportAuditCsv(actor, {}, { db })).resolves.toMatchObject({ fileName: expect.any(String) });
   });
 
   it("screen 1: lists every invoice with links-worth of summary, filterable", async () => {
