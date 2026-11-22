@@ -16,6 +16,7 @@ export type SectionKey =
   | "to-release"
   | "needs-attention"
   | "vendors"
+  | "invoices"
   | "audit"
   | "journal"
   | "admin";
@@ -55,8 +56,16 @@ export const SECTIONS: Section[] = [
     labelFor: { admin: "Admin releases" },
   },
   { key: "needs-attention", href: "/payments/needs-attention", label: "Needs attention", group: "Payments", roles: ["clerk", "finance"], forWhom: "AP Clerks and the Finance Manager" },
-  { key: "vendors", href: "/vendors", label: "Vendors", group: "Records", roles: ["clerk", "finance", "admin"], forWhom: "AP Clerks, the Finance Manager and the Admin" },
-  { key: "audit", href: "/audit", label: "Audit trail", group: "Records", roles: ["clerk", "manager", "finance", "admin", "auditor"], forWhom: "every role" },
+  { key: "vendors", href: "/vendors", label: "Vendors", group: "Records", roles: ["clerk", "finance", "admin", "auditor"], forWhom: "AP Clerks, the Finance Manager, the Admin and the Auditor (read-only)" },
+  {
+    key: "invoices",
+    href: "/invoices",
+    label: "Invoices",
+    group: "Records",
+    roles: ["clerk", "manager", "finance", "admin", "auditor"],
+    forWhom: "everyone — each person sees the invoices their role allows (managers: their department)",
+  },
+  { key: "audit", href: "/audit", label: "Audit trail", group: "Records", roles: ["admin", "auditor"], forWhom: "the Auditor and the Admin" },
   { key: "journal", href: "/journal", label: "Journal export", group: "Records", roles: ["finance", "admin"], forWhom: "the Finance Manager and the Admin (they own the books)" },
   { key: "admin", href: "/admin", label: "People & policies", group: "Admin", roles: ["admin"], forWhom: "the Admin" },
 ];

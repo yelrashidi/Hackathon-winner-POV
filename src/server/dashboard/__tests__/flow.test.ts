@@ -13,7 +13,7 @@ import { acceptConfidentLines, codeInvoiceLine, decideApproval, editInvoice, pay
 import { getApproval, listApprovals } from "../approvals";
 import { auditDetail, auditList, PAST_STATUSES } from "../audit";
 import { getCheck, listChecks } from "../checks";
-import { listInbox, listVendors } from "../records";
+import { getVendor, listInbox, listVendors, recentActivity } from "../records";
 
 /**
  * The redesigned dashboard, end to end, through the same functions its pages and buttons call — on
@@ -127,14 +127,25 @@ describe("the dashboard, role by role", () => {
     expect(trail.controls.find((c) => c.id === "APPROVER_NOT_REQUESTER")?.result).toBe("pass");
   });
 
-  it("the auditor sees past invoices only; every other role sees the whole trail", async () => {
-    const past = await auditList(AUDITOR, { pageSize: 200 }, { db });
-    expect(past.rows.every((r) => PAST_STATUSES.includes(r.status))).toBe(true);
-    const all = await auditList(CLERK, { pageSize: 200 }, { db });
-    expect(all.total).toBeGreaterThan(past.total);
+  it("only the auditor (and the admin) read the audit trail; the auditor sees every invoice — in progress too", async () => {
+    const all = await auditList(AUDITOR, { pageSize: 200 }, { db });
+    expect(all.rows.some((r) => !PAST_STATUSES.includes(r.status))).toBe(true);
+    await expect(auditList(CLERK, { pageSize: 200 }, { db })).rejects.toBeInstanceOf(Forbidden);
     const [inReview] = await q<{ id: string }>("SELECT id FROM invoices WHERE status = 'InReview' LIMIT 1");
-    expect(await auditDetail(AUDITOR, inReview!.id, { db })).toBeNull();
-    expect(await auditDetail(CLERK, inReview!.id, { db })).not.toBeNull();
+    expect(await auditDetail(AUDITOR, inReview!.id, { db })).toMatchObject({ invoice: { invoiceId: inReview!.id } });
+    await expect(auditDetail(CLERK, inReview!.id, { db })).rejects.toBeInstanceOf(Forbidden);
+  });
+
+  it("the auditor reads the vendor master (read-only)", async () => {
+    await expect(listVendors(AUDITOR, { db })).resolves.not.toHaveLength(0);
+    await expect(getVendor(AUDITOR, "V001", { db })).resolves.toMatchObject({ vendor: { id: "V001" } });
+  });
+
+  it("recent activity: the auditor sees everyone's actions, anyone else only their own", async () => {
+    const all = await recentActivity(AUDITOR, { db, limit: 50 });
+    const mine = await recentActivity(CLERK, { db, limit: 50 });
+    expect(mine.every((e) => e.actor?.userId === CLERK.userId)).toBe(true);
+    expect(all.length).toBeGreaterThanOrEqual(mine.length);
   });
 
   it("delegation: the Admin puts an approver on leave and the delegate's queue shows it, on behalf of", async () => {

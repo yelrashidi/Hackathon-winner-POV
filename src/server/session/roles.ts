@@ -9,7 +9,7 @@ import type { UserRole } from "./users";
  *   finance   Finance Manager   + approves above $10,000 and flagged / new-vendor bills, releases payments ≤ $100,000
  *   admin     Admin             everything except payments: checks, approvals, vendors, users and policies;
  *                               releases only what the brief gives the Controller (P10/P11)
- *   auditor   Auditor           past invoices and their audit trail, read-only, plus the export
+ *   auditor   Auditor           every invoice and its audit trail, read-only, plus the export
  *
  * The role always comes from the employee record on the server; this file only names and groups it.
  */
@@ -53,8 +53,8 @@ export const APP_ROLES: { key: AppRole; label: string; summary: string; can: str
   {
     key: "auditor",
     label: "Auditor",
-    summary: "Reads past invoices and their full audit trail. Changes nothing.",
-    can: ["Every past invoice and its audit trail", "Export the audit log", "Read-only"],
+    summary: "Reads every invoice and its full audit trail. Changes nothing.",
+    can: ["Every invoice and its audit trail", "Export the audit log", "Read-only"],
   },
 ];
 

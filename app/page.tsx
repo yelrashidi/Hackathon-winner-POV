@@ -102,7 +102,7 @@ async function RoleHome({ viewer }: { viewer: Viewer }) {
         )}
         {canSee(role, "needs-attention") && <StatCard label="Payments needing attention" value={counts["needs-attention"]?.n ?? 0} href="/payments/needs-attention" tone={counts["needs-attention"]?.n ? "alert" : "default"} />}
         {role === "auditor" && <StatCard label="Invoices on record" value={past?.total ?? 0} hint="Every one opens to its full audit trail" href="/audit" />}
-        <StatCard label="Audit trail" value="Open" hint="Past invoices and who did what" href="/audit" />
+        {canSee(role, "audit") && <StatCard label="Audit trail" value="Open" hint="Every invoice and who did what" href="/audit" />}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
@@ -158,7 +158,7 @@ async function RoleHome({ viewer }: { viewer: Viewer }) {
           {role === "auditor" && (
             <Card title="Start here">
               <p className="text-sm text-slate-600">
-                Open <TextLink href="/audit">the audit trail</TextLink> to see every past invoice. Each one shows the original document, what extraction read, the GL coding, every flag and who
+                Open <TextLink href="/audit">the audit trail</TextLink> to see every invoice, in progress or finished. Each one shows the original document, what extraction read, the GL coding, every flag and who
                 closed it, the approval chain (delegates included), the payment and the exact bank account it went to, and automatic control checks.
               </p>
             </Card>
@@ -166,7 +166,11 @@ async function RoleHome({ viewer }: { viewer: Viewer }) {
           {mine.length === 0 && checks.length === 0 && role !== "auditor" && <EmptyState title="Nothing is waiting on you right now.">New bills arrive in the inbox and show up in Checks.</EmptyState>}
         </div>
 
-        <Card title="Recent activity" description="Live actions in the app (history imported from the dataset is in the audit trail)." padded={false}>
+        <Card
+          title={canSee(role, "audit") ? "Recent activity" : "Your recent activity"}
+          description={canSee(role, "audit") ? "Live actions in the app (history imported from the dataset is in the audit trail)." : "What you did lately. Every invoice you can see is under Invoices."}
+          padded={false}
+        >
           {activity.length === 0 ? (
             <p className="px-5 py-4 text-sm text-slate-500">Nothing yet. Actions people take appear here.</p>
           ) : (
@@ -182,7 +186,7 @@ async function RoleHome({ viewer }: { viewer: Viewer }) {
                     {e.invoiceId ? (
                       <>
                         {" · "}
-                        <TextLink href={`/audit/${e.invoiceId}`}>{e.invoiceId}</TextLink>
+                        <TextLink href={canSee(role, "audit") ? `/audit/${e.invoiceId}` : `/invoices/${e.invoiceId}`}>{e.invoiceId}</TextLink>
                       </>
                     ) : null}
                   </p>

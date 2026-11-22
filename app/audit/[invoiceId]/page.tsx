@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import type { AuditInvoiceDetail } from "@/contracts/audit-view";
 import { can } from "@/server/core/authorize";
 import { auditDetail } from "@/server/dashboard/audit";
+import { whoDidWhat } from "@/server/features/audit";
 import { stepRoleLabel } from "@/server/dashboard/approvals";
 import { getViewer } from "@/server/session/current-user";
 import { DocumentViewer, FlagEvidence } from "../../_components/invoice";
 import { NotForYourRole } from "../../_components/NotForYourRole";
+import { WhoDidWhat } from "../../_components/WhoDidWhat";
 import { Card, Day, InvoiceStatus, KeyValues, Money, PageHeader, Pill, SeverityBadge, TextLink } from "../../_components/ui";
 import { formatWhen } from "../../_lib/format";
 import { canSee } from "../../_lib/nav";
@@ -59,6 +61,8 @@ export default async function AuditDetailPage({ params }: PageProps<"/audit/[inv
           {canSee(viewer!.role, "approvals") && inv.status === "PendingApproval" && <TextLink href={`/approvals/${inv.invoiceId}`}>Open in Approvals →</TextLink>}
         </div>
       </PageHeader>
+
+      <WhoDidWhat steps={whoDidWhat(d, { stepLabel: stepRoleLabel })} />
 
       <Card title="Control checks" description={failed ? `${failed} failed — recomputed from the stored records every time this page opens.` : "Recomputed from the stored records every time this page opens."}>
         <ul className="grid gap-2 md:grid-cols-2">

@@ -55,7 +55,7 @@ export async function listInbox(actor: Actor, opts: Opts = {}): Promise<InboxRow
 // Vendors (feature 9): the vendor master, bank details by version, what is open with each
 // ---------------------------------------------------------------------------------------------
 
-const canSeeVendors = (actor: Actor) => can(actor, "vendor.bank_change.request") || can(actor, "admin.edit");
+// Vendor master reads: `vendor.view` — AP Clerk, Finance Manager, Admin, and the Auditor (read-only).
 
 export interface VendorRow {
   vendorId: string;
@@ -73,7 +73,7 @@ export interface VendorRow {
 }
 
 export async function listVendors(actor: Actor, opts: Opts = {}): Promise<VendorRow[]> {
-  if (!canSeeVendors(actor)) allow(actor, "vendor.bank_change.request");
+  allow(actor, "vendor.view");
   const db = dbOf(opts);
   const [vrows, banks, open, paid, flags] = await Promise.all([
     db.select().from(vendors).orderBy(asc(vendors.legalName)),
@@ -118,7 +118,7 @@ export interface VendorDetail {
 }
 
 export async function getVendor(actor: Actor, vendorId: string, opts: Opts = {}): Promise<VendorDetail | null> {
-  if (!canSeeVendors(actor)) allow(actor, "vendor.bank_change.request");
+  allow(actor, "vendor.view");
   const db = dbOf(opts);
   const [v] = await db.select().from(vendors).where(eq(vendors.id, vendorId));
   if (!v) return null;
@@ -150,17 +150,19 @@ export async function getVendor(actor: Actor, vendorId: string, opts: Opts = {})
 }
 
 // ---------------------------------------------------------------------------------------------
-// Recent activity (home screen): the latest audit events the person may read
+// Recent activity (home screen). The audit trail is the Auditor's alone (`audit.view`), so the
+// Auditor sees everyone's latest actions; every other role sees only their OWN recent actions.
 // ---------------------------------------------------------------------------------------------
 
 export async function recentActivity(actor: Actor, opts: Opts & { limit?: number } = {}) {
-  allow(actor, "audit.view");
+  const everyone = can(actor, "audit.view");
   const db = dbOf(opts);
+  const live = sql`coalesce((${auditEvents.metadata}->>'imported')::boolean, false) = false AND ${auditEvents.actorRole} <> 'system'`;
   const [rows, who] = await Promise.all([
     db
       .select()
       .from(auditEvents)
-      .where(sql`coalesce((${auditEvents.metadata}->>'imported')::boolean, false) = false AND ${auditEvents.actorRole} <> 'system'`)
+      .where(everyone ? live : and(live, eq(auditEvents.actorId, actor.userId)))
       .orderBy(desc(auditEvents.occurredAt), desc(auditEvents.id))
       .limit(opts.limit ?? 8),
     people(db),

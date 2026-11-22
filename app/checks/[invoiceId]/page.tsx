@@ -9,6 +9,7 @@ import { NotForYourRole } from "../../_components/NotForYourRole";
 import { Card, ConfidenceBadge, Day, InvoiceStatus, KeyValues, Money, Notice, PageHeader, Pill, SeverityBadge, TextLink } from "../../_components/ui";
 import { centsToInput, formatWhen } from "../../_lib/format";
 import { canSee } from "../../_lib/nav";
+import { InvoiceProgress } from "../../_components/InvoiceProgress";
 import { acceptConfidentAction, codeLineAction, editFieldsAction, flagAction, releaseHoldAction, submitAction } from "../actions";
 import { ManualEntryForm } from "./ManualEntryForm";
 
@@ -62,8 +63,10 @@ export default async function CheckPage({ params }: PageProps<"/checks/[invoiceI
           </span>
         }
       >
-        <TextLink href={`/audit/${inv.invoiceId}`}>Audit trail →</TextLink>
+        {canSee(viewer!.role, "audit") ? <TextLink href={`/audit/${inv.invoiceId}`}>Audit trail →</TextLink> : <TextLink href={`/invoices/${inv.invoiceId}`}>Invoice record →</TextLink>}
       </PageHeader>
+
+      <InvoiceProgress actor={viewer!.actor} invoiceId={inv.invoiceId} />
 
       <Banners check={check} />
 
@@ -341,7 +344,8 @@ function FlagsCard({ check, editable }: { check: CheckDetail; editable: boolean 
               <p className="mt-1 text-sm text-slate-800">{f.message}</p>
               {f.relatedInvoiceId && (
                 <p className="mt-0.5 text-xs text-slate-500">
-                  Related invoice: <TextLink href={`/audit/${f.relatedInvoiceId}`}>{f.relatedInvoiceId}</TextLink>
+                  Related invoice:{" "}
+                  <TextLink href={canSee(viewer!.role, "audit") ? `/audit/${f.relatedInvoiceId}` : `/invoices/${f.relatedInvoiceId}`}>{f.relatedInvoiceId}</TextLink>
                 </p>
               )}
               <FlagEvidence evidence={f.evidence} />

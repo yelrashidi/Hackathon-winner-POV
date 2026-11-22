@@ -225,10 +225,16 @@ describe("auditor dashboard", () => {
     { userId: "U004", role: "ap_clerk" },
     { userId: "U003", role: "finance_manager" },
     { userId: "U010", role: "approver" },
-  ])("$role reads the audit trail but cannot export it", async (actor) => {
-    await expect(listAuditInvoices(actor, { pageSize: 1 }, { db })).resolves.toMatchObject({ page: 1 });
-    await expect(getInvoiceAuditDetail(actor, "AP-00001", { db })).resolves.toMatchObject({ invoice: { invoiceId: "AP-00001" } });
+  ])("$role cannot read or export the audit log (Auditor and Controller only)", async (actor) => {
+    await expect(listAuditInvoices(actor, { pageSize: 1 }, { db })).rejects.toBeInstanceOf(Forbidden);
+    await expect(getInvoiceAuditDetail(actor, "AP-00001", { db })).rejects.toBeInstanceOf(Forbidden);
     await expect(exportAuditCsv(actor, {}, { db })).rejects.toBeInstanceOf(Forbidden);
+  });
+
+  it("the Controller reads and exports the audit log (product.md: \"full audit log\")", async () => {
+    const actor: Actor = { userId: "U002", role: "controller_admin" };
+    await expect(listAuditInvoices(actor, { pageSize: 1 }, { db })).resolves.toMatchObject({ page: 1 });
+    await expect(exportAuditCsv(actor, {}, { db })).resolves.toMatchObject({ fileName: expect.any(String) });
   });
 
   it("screen 1: lists every invoice with links-worth of summary, filterable", async () => {

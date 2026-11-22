@@ -6,6 +6,7 @@ import { ApprovalRoute, DocumentViewer, JournalTable } from "../../_components/i
 import { NotForYourRole } from "../../_components/NotForYourRole";
 import { Card, ConfidenceBadge, Day, InvoiceStatus, KeyValues, Money, Notice, PageHeader, Pill, SeverityBadge, TextLink } from "../../_components/ui";
 import { canSee } from "../../_lib/nav";
+import { InvoiceProgress } from "../../_components/InvoiceProgress";
 import { DecisionForm } from "./DecisionForm";
 
 export const metadata: Metadata = { title: "Approve invoice" };
@@ -37,8 +38,10 @@ export default async function ApprovalPage({ params }: PageProps<"/approvals/[in
           </span>
         }
       >
-        <TextLink href={`/audit/${inv.invoiceId}`}>Audit trail →</TextLink>
+        {canSee(viewer!.role, "audit") ? <TextLink href={`/audit/${inv.invoiceId}`}>Audit trail →</TextLink> : <TextLink href={`/invoices/${inv.invoiceId}`}>Invoice record →</TextLink>}
       </PageHeader>
+
+      <InvoiceProgress actor={viewer!.actor} invoiceId={inv.invoiceId} />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="xl:sticky xl:top-20 xl:self-start">

@@ -13,6 +13,20 @@ import { guard, iso, loadPeople } from "./shared";
 export async function listAuditInvoices(actor: Actor, query: Query = {}, opts: { db?: Db } = {}): Promise<AuditInvoiceList> {
   const db = opts.db ?? getDb();
   await guard(actor, "audit.view", db);
+  return queryInvoiceList(db, query);
+}
+
+/** Limits a list to one department's invoices, or to one person's own requests (features/invoices). */
+export interface InvoiceListScope {
+  departmentId?: string;
+  requesterId?: string;
+}
+
+/**
+ * The list query itself, with NO permission check — callers authorize first (listAuditInvoices for
+ * the audit trail, features/invoices for the role-scoped invoice records).
+ */
+export async function queryInvoiceList(db: Db, query: Query = {}, scope: InvoiceListScope = {}): Promise<AuditInvoiceList> {
   const q = AuditInvoiceListQuery.parse(query);
 
   const flagCount = (cond: string) =>
@@ -29,6 +43,8 @@ export async function listAuditInvoices(actor: Actor, query: Query = {}, opts: {
     q.to ? lte(invoices.invoiceDate, q.to) : undefined,
     q.hasOverrides ? sql`${overrides} > 0` : undefined,
     q.hasOpenBlocking ? sql`${openBlocking} > 0` : undefined,
+    scope.departmentId ? eq(invoices.departmentId, scope.departmentId) : undefined,
+    scope.requesterId ? eq(invoices.requesterId, scope.requesterId) : undefined,
   ];
   const filter = and(...where);
 

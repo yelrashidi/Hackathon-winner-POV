@@ -19,8 +19,8 @@ export default async function AuditPage({ searchParams }: PageProps<"/audit">) {
   const viewer = await getViewer();
   if (!canSee(viewer?.role ?? null, "audit")) return <NotForYourRole sectionKey="audit" viewer={viewer} />;
   const params = await searchParams;
-  const auditor = viewer!.role === "auditor";
-  const statuses = auditor ? PAST_STATUSES : ALL_STATUSES;
+  // The Auditor sees every invoice, in progress or finished (the brief: "read-only, sees everything").
+  const statuses = ALL_STATUSES;
   const q = {
     search: first(params.q) || undefined,
     status: statuses.includes(first(params.status)) ? first(params.status) : undefined,
@@ -47,11 +47,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/audit">) {
     <>
       <PageHeader
         title="Audit trail"
-        description={
-          auditor
-            ? "Every past invoice — approved, paid, closed or voided. Open one to see its full trail: the original, what was read, the coding, every flag and who closed it, the approval chain, the payment and the account it went to."
-            : "Every invoice, history and new. Open one to see who did what, when, on whose behalf, and what changed. Read-only for everyone."
-        }
+        description="Every invoice, in progress or finished, history and new. Open one to see its full trail: the original, what was read, the coding, every flag and who closed it, the approval chain, the payment and the account it went to. Read-only."
       >
         {canExport && (
           <a href={exportHref} className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">
@@ -68,7 +64,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/audit">) {
         <label className="text-xs font-medium text-slate-600">
           Status
           <select name="status" defaultValue={q.status ?? ""} className={`mt-1 ${fieldClass}`}>
-            <option value="">{auditor ? "All past" : "All"}</option>
+            <option value="">All</option>
             {statuses.map((s) => (
               <option key={s} value={s}>
                 {invoiceStatusLabel(s)}

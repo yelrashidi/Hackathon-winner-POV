@@ -1,6 +1,6 @@
 # 8 — Audit trail + database foundation
 
-**Owner:** Andrew · **Code as of:** `114cc24` (2026-11-21)
+**Owner:** Andrew · **Code as of:** `2170288` (2026-11-21)
 
 ## What it does
 Every change to an invoice, flag, approval, payment or bank account writes one row to
@@ -52,6 +52,15 @@ await withAction(actor /* from the session, never the browser */, async (ctx) =>
 `features/payments/deps.ts` can swap to `audit()` without renaming. A delegate passes
 `actor = { userId: delegate, role, onBehalfOf: absentApprover }`.
 
+## Who sees what (per the brief)
+| Screen | Who | Code |
+|---|---|---|
+| Audit log `/audit` — every event, before/after, control checks, export | Auditor ("read-only everything, audit export") and Controller/Admin ("full audit log") | `features/audit`, `audit.view` / `audit.export` |
+| Invoice records `/invoices` — invoice, PDF, coding, flags, payment, who did what | everyone, scoped by the "View invoices" row: employee own, manager own department, others all | `features/invoices`, `invoice.view` + `inScope` |
+| Who did what (requested → checked → approved → scheduled → released) | the audit page, the invoice record, and live on Checks / Approvals / Payments | `features/audit/who-did-what.ts` |
+
+Everyone else's home screen shows only their own recent actions. History never guesses: a step the dataset did not record (who checked an old invoice) says "not recorded".
+
 ## The pipeline on the database (features 3 → 4 → 6 → 8)
 `src/server/pipeline/` wires each teammate's **pure** engine to Postgres. It doesn't edit their files; it only calls their public `index.ts`. Every call follows authorize → one transaction → audit rows → `fire()`.
 
@@ -80,7 +89,7 @@ pipeline test drives clean invoices to Approved, a rejection to resubmission, an
 - **5 duplicates:** nothing raises duplicate flags yet. The DB unique index stops two invoices with the same vendor and number from both being approved or paid.
 
 ## The auditor dashboard (for whoever builds `app/audit`)
-Every function checks `authorize(actor, "audit.view" | "audit.export")`, which lets the **auditor only** through. A refused
+Every function checks `authorize(actor, "audit.view" | "audit.export")`, which lets the **Auditor and the Controller/Admin** through (product.md: "full audit log"). Everyone else reads invoices through `src/server/features/invoices/` (role-scoped records + `whoDidWhat`), not the audit log. A refused
 attempt throws `Forbidden` (403 with a reason) and is itself written as `authz.denied`.
 
 | Screen | Call | Returns |

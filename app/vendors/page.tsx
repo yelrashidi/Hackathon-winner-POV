@@ -7,6 +7,7 @@ import { fieldClass } from "../_lib/styles";
 import { NotForYourRole } from "../_components/NotForYourRole";
 import { Card, Money, PageHeader, Pill, Table, td } from "../_components/ui";
 import { first } from "../_lib/format";
+import { can } from "@/server/core/authorize";
 import { canSee } from "../_lib/nav";
 import { createVendorAction } from "./actions";
 import { vendorTone } from "./tone";
@@ -75,6 +76,7 @@ export default async function VendorsPage({ searchParams }: PageProps<"/vendors"
         ))}
       </Table>
 
+      {can(viewer!.actor, "vendor.onboard") && (
       <Card title="Onboard a new vendor" description="It starts as pending review: its bills can be checked and get an extra Finance Manager approval step (P05), and someone other than you approves the vendor.">
         <ActionForm action={createVendorAction} label="Add vendor" layout="stacked" size="md">
           <div className="grid gap-3 sm:grid-cols-3">
@@ -90,6 +92,7 @@ export default async function VendorsPage({ searchParams }: PageProps<"/vendors"
           </label>
         </ActionForm>
       </Card>
+      )}
     </>
   );
 }
