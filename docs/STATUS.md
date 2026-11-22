@@ -12,7 +12,7 @@ the top block is updated by whoever finishes a shared piece.
 |---|---|---|
 | Arpan | 1 Intake, 2 Extraction, 5 Duplicates | |
 | Youssef | 3 Coding, 6 Approvals | |
-| Andrew | 4 Validation, 8 Audit + foundation (schema, `core/`, `src/server/pipeline/`) | |
+| Andrew | 4 Validation, 8 Audit + foundation (schema, `core/`, `src/server/pipeline/`), 9 Vendors (server side) | |
 | Katie | 7 Payments, payments dashboard | |
 | shared | foundation (`core/`) | schema merges: _name_ |
 
@@ -87,13 +87,16 @@ the top block is updated by whoever finishes a shared piece.
 - **Pipeline:** `src/server/pipeline/` runs ingest → validation + coding → review → `submitForApproval` / `decideApproval` (Postgres `ApprovalStore`), each step audited in the same transaction.
 - **Auditor dashboard services:** `listAuditInvoices`, `getInvoiceAuditDetail` (incl. control checks) and `exportAuditCsv`, auditor-only, with fixtures in `fixtures/audit/`.
 
-**Stubbed:** no `app/audit` pages yet; payments (7) not on the DB; uncertain scans make no invoice yet (Arpan's TODO).
+**Stubbed:** no `app/audit` pages yet; uncertain scans make no invoice yet (Arpan's TODO). Payments (7) is on the DB since PR #15 (Katie).
 **Next:** the auditor pages (dashboard owner); Supabase deploy.
 **Waiting on:** team decisions: Controller audit access, historical `rejected` → `Voided`, schema-merge owner (`docs/architecture/8-audit.md`).
 **Contract + core + schema change:** new `src/contracts/{actor,audit,audit-view}.ts`, `src/server/core/`, `src/server/db/`. Affects Youssef (coding and approvals on the DB through his public API) and Katie (payments tables, audit names).
 
-### 9 Vendors — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 9 Vendors — Andrew (server side)
+**Works (on `andrew-audit-db` at `114cc24`, merged with main; tested on PGlite, the embedded demo DB and Docker Postgres):** `src/server/features/vendors/` — vendor list + detail (`vendor.view`: clerk, FM, controller, auditor read-only), onboard (duplicate check, prefill from an unknown-vendor invoice), approve by a second person, hold / lift hold, bank change request → verify by a second person / reject. Each change re-checks the vendor's open invoices, so `VENDOR_*` / `BANK_*` flags follow it. `vendorConflicts` feeds approvals.
+**Stubbed:** no screens (dashboard owner: `src/contracts/vendor.ts`, `fixtures/vendors/`).
+**Next:** screens (dashboard owner). Bank changes: payments (Katie) and vendors write the same `vendor_bank_accounts` rows the same way — verified both directions on Docker; the UI may call either.
+**Contract + core change:** new `src/contracts/vendor.ts`; 5 new `vendor.*` actions in `core/authorize.ts`; approvals now receives `conflicts`. No schema change, no migration. Affects Katie (bank changes) and Youssef (conflicts reach his router).
 
 ## Watch out
 

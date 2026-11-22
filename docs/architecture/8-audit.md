@@ -1,6 +1,6 @@
 # 8 — Audit trail + database foundation
 
-**Owner:** Andrew · **Code as of:** `b8ef1fe` + intake-script wiring on `andrew-audit-db` (2026-11-21)
+**Owner:** Andrew · **Code as of:** `114cc24` (2026-11-21)
 
 ## What it does
 Every change to an invoice, flag, approval, payment or bank account writes one row to
