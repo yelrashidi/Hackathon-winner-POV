@@ -11,6 +11,7 @@ import { ACTIONS, authorize, can, Forbidden, type Action } from "../authorize";
 const MATRIX: Record<Action, ActorRole[]> = {
   "invoice.submit": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "invoice.review": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
+  "invoice.upload": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin"],
   "flag.resolve": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "flag.override": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "approval.decide": ["approver", "finance_manager", "controller_admin"],

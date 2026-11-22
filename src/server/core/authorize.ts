@@ -17,8 +17,9 @@ import { Actor as ActorSchema, type Actor, type ActorRole } from "@/contracts/ac
 export const ACTIONS = {
   /**
    * Send a checked bill to approval. Not the employee: bills reach AP from suppliers and the AP Clerk
-   * records the employee as the requester; the Employee role is read-only (team decision 2026-11-22,
-   * Andrew) — they follow their bills under "My bills".
+   * records the employee as the requester (team decision 2026-11-22, Andrew) — they follow their
+   * bills under "My bills". An employee may hand in a bill they received ("invoice.upload"), but
+   * it goes to Checks first; only reviewers send it on to approval.
    */
   "invoice.submit": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   /**
@@ -28,6 +29,13 @@ export const ACTIONS = {
    * excluded from approving it (approvals' route.ts), so doing the checks never lets you approve your own work.
    */
   "invoice.review": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
+  /**
+   * Drop a supplier's PDF on the upload screen and send it to AP. Wider than "invoice.review": an
+   * employee who got a bill directly may hand it in (2026-11-22, Arpan). For an employee the upload
+   * records THEM as requester and their department — they cannot pick someone else — and the bill
+   * lands in Checks for an AP Clerk; the employee never reviews, codes or submits it for approval.
+   */
+  "invoice.upload": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin"],
   "flag.resolve": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "flag.override": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "approval.decide": ["approver", "finance_manager", "controller_admin"],
@@ -80,6 +88,7 @@ export type Action = keyof typeof ACTIONS;
 const LABELS: Record<Action, string> = {
   "invoice.submit": "submit invoices",
   "invoice.review": "review and code invoices",
+  "invoice.upload": "upload invoices",
   "flag.resolve": "resolve flags",
   "flag.override": "override flags",
   "approval.decide": "approve or reject invoices",

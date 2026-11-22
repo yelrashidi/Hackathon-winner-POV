@@ -67,11 +67,15 @@ export function UploadWorkbench({
   people,
   departments,
   taxCodes,
+  self,
 }: {
   people: Option[];
   departments: Option[];
   taxCodes: Option[];
+  /** An employee handing in their own bill: requester and department are fixed to them (the server enforces it too). */
+  self?: { requesterId: string; departmentId: string };
 }) {
+  const withSelf = (form: UploadForm): UploadForm => (self ? { ...form, ...self } : form);
   const [items, setItems] = useState<Item[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
   const [savedMessage, setSavedMessage] = useState<{ text: string; invoiceId: string } | null>(null);
@@ -96,7 +100,7 @@ export function UploadWorkbench({
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "The upload failed.");
       const result = data as ExtractionResult & { documentId?: string };
-      update(item.id, { status: "ready", extraction: result, form: formFrom(result, item.file.name, result.documentId) });
+      update(item.id, { status: "ready", extraction: result, form: withSelf(formFrom(result, item.file.name, result.documentId)) });
       setActiveId((current) => current ?? item.id);
     } catch (error) {
       update(item.id, { status: "rejected", problem: error instanceof Error ? error.message : "The upload failed." });
@@ -115,7 +119,7 @@ export function UploadWorkbench({
         url,
         status: problem ? "rejected" : "waiting",
         problem: problem ?? undefined,
-        form: emptyForm(file.name),
+        form: withSelf(emptyForm(file.name)),
         errors: {},
       };
     });
@@ -178,8 +182,8 @@ export function UploadWorkbench({
       {savedMessage && (
         <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800" role="status">
           {savedMessage.text}{" "}
-          <Link href={`/checks/${savedMessage.invoiceId}`} className="font-semibold text-(--brim-link) underline">
-            Open it in Checks →
+          <Link href={self ? `/invoices/${savedMessage.invoiceId}` : `/checks/${savedMessage.invoiceId}`} className="font-semibold text-(--brim-link) underline">
+            {self ? "Follow it in My bills →" : "Open it in Checks →"}
           </Link>
         </p>
       )}
@@ -238,6 +242,7 @@ export function UploadWorkbench({
             departments={departments}
             taxCodes={taxCodes}
             saving={saving}
+            confirmLabel={self ? "Submit to AP" : "Confirm invoice"}
             onChange={(patch) => update(shown.id, { form: { ...shown.form, ...patch } })}
             onConfirm={() => {
               setActiveId(shown.id);
@@ -270,6 +275,7 @@ function InvoiceForm({
   departments,
   taxCodes,
   saving,
+  confirmLabel,
   onChange,
   onConfirm,
   onRemove,
@@ -279,6 +285,7 @@ function InvoiceForm({
   departments: Option[];
   taxCodes: Option[];
   saving: boolean;
+  confirmLabel: string;
   onChange: (patch: Partial<UploadForm>) => void;
   onConfirm: () => void;
   onRemove: () => void;
@@ -400,7 +407,7 @@ function InvoiceForm({
           onClick={onConfirm}
           className="rounded-lg bg-(--brim-accent) px-4 py-2 text-sm font-semibold text-(--brim-on-accent) hover:bg-(--brim-accent-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brim-link) focus-visible:ring-offset-2 disabled:opacity-60"
         >
-          {saving ? "Saving…" : "Confirm invoice"}
+          {saving ? "Saving…" : confirmLabel}
         </button>
         <button
           type="button"

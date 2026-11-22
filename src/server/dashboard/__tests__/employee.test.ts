@@ -16,11 +16,12 @@ import { appRoleOf, APP_ROLES } from "@/server/session/roles";
 import { demoRoster } from "@/server/session/roster";
 import { canSee, sectionsFor, SECTIONS } from "../../../../app/_lib/nav";
 import { getApproval, listApprovals } from "../approvals";
-import { getCheck, listChecks, REQUESTER_ROLES, reviewOptions } from "../checks";
+import { getCheck, listChecks, REQUESTER_ROLES, reviewOptions, uploadOptions } from "../checks";
 
 /**
- * The sixth role (docs/brief.md: six roles). The Employee is read-only: "My bills" — the bills they
- * requested and where each one is. The AP Clerk records them as the requester on Checks; the bill then
+ * The sixth role (docs/brief.md: six roles). The Employee follows "My bills" — the bills they
+ * requested and where each one is — and may upload a bill they received (always as themselves, into
+ * Checks); everything else is read-only. The AP Clerk records them as the requester on Checks; the bill then
  * routes to their department's manager. Every mutating action refuses them on the server.
  * Nothing names a dataset person or invoice: they are picked by rule, like the roster does.
  */
@@ -74,10 +75,21 @@ describe("the employee role", () => {
     expect(appRoleOf("employee")).toBe("employee");
   });
 
-  it("sees only Home and Invoices (labelled My bills); every other screen is not for their role", () => {
-    expect(sectionsFor("employee").map((s) => s.key)).toEqual(["home", "invoices"]);
+  it("sees only Home, Upload a bill and Invoices (labelled My bills); every other screen is not for their role", () => {
+    expect(sectionsFor("employee").map((s) => s.key)).toEqual(["home", "upload", "invoices"]);
     expect(SECTIONS.find((s) => s.key === "invoices")!.labelFor?.employee).toBe("My bills");
-    for (const s of SECTIONS.filter((x) => !["home", "invoices"].includes(x.key))) expect(canSee("employee", s.key), s.key).toBe(false);
+    expect(SECTIONS.find((s) => s.key === "upload")!.labelFor?.employee).toBe("Upload a bill");
+    for (const s of SECTIONS.filter((x) => !["home", "upload", "invoices"].includes(x.key))) expect(canSee("employee", s.key), s.key).toBe(false);
+  });
+
+  it("upload: offered only themselves as requester and their own department; a clerk gets the full lists", async () => {
+    const mine = await uploadOptions(EMP, { db });
+    expect(mine.people.map((p) => p.value)).toEqual([EMP.userId]);
+    expect(mine.departments.map((d) => d.value)).toEqual([empDept]);
+    expect(mine.taxCodes.length).toBeGreaterThan(0);
+    const clerk = await uploadOptions(CLERK, { db });
+    expect(clerk.people.length).toBeGreaterThan(1);
+    expect(await refused(() => uploadOptions(as("U-aud", "auditor"), { db }))).toBe(true);
   });
 
   it("My bills: exactly the invoices they requested, newest first, each in plain words", async () => {

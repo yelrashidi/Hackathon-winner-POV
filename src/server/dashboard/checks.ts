@@ -345,6 +345,28 @@ export async function reviewOptions(actor: Actor, opts: Opts = {}): Promise<Revi
   };
 }
 
+/**
+ * The choices on the upload screen. Reviewers get the full review options. An employee
+ * ("invoice.upload" but not "invoice.review") gets only themselves as requester and their own
+ * department; confirmUpload enforces the same on the server.
+ */
+export async function uploadOptions(actor: Actor, opts: Opts = {}): Promise<Pick<ReviewOptions, "people" | "departments" | "taxCodes">> {
+  allow(actor, "invoice.upload");
+  if (can(actor, "invoice.review")) return reviewOptions(actor, opts);
+  const db = dbOf(opts);
+  const [[me], tc] = await Promise.all([
+    db.select({ id: users.id, fullName: users.fullName, title: users.title, role: users.role, departmentId: users.departmentId }).from(users).where(eq(users.id, actor.userId)),
+    db.select().from(taxCodes).orderBy(asc(taxCodes.code)),
+  ]);
+  const [dept] = me?.departmentId ? await db.select().from(departments).where(eq(departments.id, me.departmentId)) : [];
+  const deptName = dept?.name ?? "No department";
+  return {
+    people: me ? [{ value: me.id, label: `${me.fullName} · ${me.title || me.role}`, departmentId: me.departmentId, role: me.role, group: deptName }] : [],
+    departments: dept ? [{ value: dept.id, label: dept.name }] : [],
+    taxCodes: tc.map((t) => ({ value: t.code, label: t.description, ratePct: Number(t.rate) * 100 })),
+  };
+}
+
 /** Roles that can be recorded as a bill's requester on Checks (employee and ap_clerk per the dataset, plus managers). */
 export const REQUESTER_ROLES = ["employee", "ap_clerk", "approver"];
 

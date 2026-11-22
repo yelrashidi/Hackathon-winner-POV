@@ -41,8 +41,14 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 export async function confirmUpload(form: UploadForm): Promise<ConfirmResult> {
   const db = await ensureDb();
   const viewer = await getViewer();
-  if (!viewer || !can(viewer.actor, "invoice.review")) {
-    return { ok: false, errors: { form: "Only people who do the checks can confirm invoices." } };
+  if (!viewer || !can(viewer.actor, "invoice.upload")) {
+    return { ok: false, errors: { form: `Your role (${viewer?.actor.role ?? "signed out"}) cannot upload invoices.` } };
+  }
+  // An employee hands in their own bill: the requester and department are always them, whatever the
+  // form says — they cannot raise a bill in someone else's name.
+  const reviewer = can(viewer.actor, "invoice.review");
+  if (!reviewer) {
+    form = { ...form, requesterId: viewer.user.id, departmentId: viewer.user.departmentId };
   }
 
   const errors: Record<string, string> = {};
@@ -120,7 +126,10 @@ export async function confirmUpload(form: UploadForm): Promise<ConfirmResult> {
       { source: "upload", actor: viewer.actor, documentId, today, provenance: { fileName: form.fileName, uploadedBy: viewer.user.id } },
     );
     const flags = result.result.flags.length;
-    return { ok: true, invoiceId, message: `Saved. ${vendorName} ${invoiceNumber} is in Checks: ${flags} flag(s), ${result.coding.lines.length} line(s) coded.` };
+    const message = reviewer
+      ? `Saved. ${vendorName} ${invoiceNumber} is in Checks: ${flags} flag(s), ${result.coding.lines.length} line(s) coded.`
+      : `Submitted. ${vendorName} ${invoiceNumber} has gone to Accounts Payable to be checked.`;
+    return { ok: true, invoiceId, message };
   } catch (err) {
     if (err instanceof IngestError) return { ok: false, errors: { form: err.message } };
     throw err;
