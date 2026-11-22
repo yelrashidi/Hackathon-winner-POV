@@ -4,6 +4,7 @@ import "server-only";
 // person (it filters by role on the server), on the database (src/server/pipeline/payments.ts).
 // Shapes come from @/contracts/payment.
 
+import { connection } from "next/server";
 import type { FlagUrgency, InvoiceRecord, PaymentFlag, PaymentRow, PaymentsView } from "@/contracts/payment";
 import { ensureDb } from "@/server/demo/database";
 import { paymentsDb } from "@/server/pipeline";
@@ -12,6 +13,8 @@ import { getCurrentUser } from "@/server/session/current-user";
 export type { PaymentRow, PaymentsView } from "@/contracts/payment";
 
 async function viewerId(): Promise<string | null> {
+  // Request time from here on: the database reads that follow must not run while Next.js prerenders.
+  await connection();
   await ensureDb();
   return (await getCurrentUser())?.id ?? null;
 }
