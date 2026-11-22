@@ -11,6 +11,7 @@ Format:
 
 ---
 
+- [x] **Bonus: journal export** — 2026-11-21 · Youssef · `journal-export`. `/journal` (Finance Manager + Admin, `journal.export`): bills (coding's own journal, in CAD) + settled payments (AP vs bank / Brim card / discount / FX) as a balanced CSV; every export audited with the ids it contained, so "only new" never posts twice. All history: 414 bills + 377 payments, balanced, nothing excluded. The chart of accounts has no bank / card / discount account: mapped in `features/journal/config.ts`.
 - [x] **Dashboard for five roles (redesign)** — 2026-11-21 · Youssef · `dashboard-redesign`. One app: Home, Inbox, Checks (+ upload, manual entry), Approvals, Payments, Vendors, Audit trail, People & policies, Demo controls. Switcher limited to AP Clerk / Operations Manager / Finance Manager / Admin / Auditor. Runs with no Docker (in-process Postgres built from the dataset). `docs/architecture/dashboard.md`.
 - [x] **Coding review screen + code / accept actions** — 2026-11-21 · Youssef · `dashboard-redesign`. Checks shows each line's suggestion, confidence, reason and alternatives; accept / change with a note; bulk-accept; journal preview. Persistence was Andrew's `pipeline/coding.ts`.
 - [x] **Approver queue, decision page, policy editor** — 2026-11-21 · Youssef · `dashboard-redesign`. Queue = `waitingOn` per person (delegates see "on behalf of"); acknowledgements; route preview before submit (`previewApproval`); policy edits are new version rows; on leave + delegate from People. The Postgres `ApprovalStore` was Andrew's.

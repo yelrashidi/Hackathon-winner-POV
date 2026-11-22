@@ -38,6 +38,7 @@ control. A refusal is a 403 with a reason the UI shows (`You approved this invoi
 | Edit users, roles, approval policies | — | — | — | — | ✓ | — |
 | View the full audit log (`/audit`) | — | — | — | — | ✓ | ✓ (every invoice) |
 | Export the audit log | — | — | — | — | ✓ | ✓ |
+| Export the accounting journal (bonus) | — | — | — | ✓ | ✓ | — |
 
 ¹ **Who schedules (decided 2026-11-21):** the AP Clerk schedules and the Finance Manager releases (P09;
 every historical payment was prepared by a clerk). The Finance Manager may schedule as a backup when

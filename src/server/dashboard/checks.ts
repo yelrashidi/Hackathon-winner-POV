@@ -49,6 +49,8 @@ export interface CheckRow {
   departmentName: string | null;
   requester: PersonRef | null;
   flags: { block: number; warn: number; info: number };
+  /** Open flags as tags (most severe first), e.g. DUPLICATE_INVOICE — coding's own CODING_NOT_CONFIRMED is the lines count, not a tag. */
+  flagTags: { code: string; severity: "block" | "warn" | "info" }[];
   lines: { total: number; confirmed: number; unsure: number };
   reasons: CheckReason[];
 }
@@ -76,6 +78,7 @@ export async function listChecks(actor: Actor, opts: Opts = {}): Promise<CheckRo
         block: count("f.severity = 'block' AND f.source <> 'coding'"),
         warn: count("f.severity = 'warn'"),
         info: count("f.severity = 'info'"),
+        flagTags: sql<unknown>`(SELECT coalesce(json_agg(json_build_object('code', t.code, 'severity', t.severity) ORDER BY CASE t.severity WHEN 'block' THEN 0 WHEN 'warn' THEN 1 ELSE 2 END, t.code), '[]'::json) FROM (SELECT DISTINCT f.code, f.severity FROM invoice_flags f WHERE f.invoice_id = ${invoices.id} AND f.status = 'open' AND f.code <> 'CODING_NOT_CONFIRMED') t)`,
         linesTotal: lineCount("true"),
         linesConfirmed: lineCount("l.coding_source IN ('accepted','changed')"),
         linesUnsure: lineCount("l.coding_source = 'suggested' AND coalesce(l.coding_reason->'account'->>'confidence', 'none') <> 'high'"),
@@ -131,6 +134,7 @@ export async function listChecks(actor: Actor, opts: Opts = {}): Promise<CheckRo
       departmentName: i.departmentId ? (depts.get(i.departmentId) ?? i.departmentId) : null,
       requester: who(i.requesterId),
       flags: { block: r.block, warn: r.warn, info: r.info },
+      flagTags: (typeof r.flagTags === "string" ? JSON.parse(r.flagTags) : (r.flagTags ?? [])) as CheckRow["flagTags"],
       lines: { total: r.linesTotal, confirmed: r.linesConfirmed, unsure: r.linesUnsure },
       reasons,
     };

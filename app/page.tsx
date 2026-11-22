@@ -11,6 +11,8 @@ import { countsFor } from "./_lib/counts";
 import { ago, initials } from "./_lib/format";
 import { canSee } from "./_lib/nav";
 
+const FLAG_TONE = { block: "red", warn: "amber", info: "slate" } as const;
+
 export default async function HomePage() {
   const viewer = await getViewer();
   return viewer ? <RoleHome viewer={viewer} /> : <ChooseWhoYouAre />;
@@ -132,8 +134,19 @@ async function RoleHome({ viewer }: { viewer: Viewer }) {
                   <li key={c.invoiceId}>
                     <Link href={`/checks/${c.invoiceId}`} className="flex items-center gap-4 px-5 py-3 hover:bg-slate-50">
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-slate-900">{c.vendorName ?? "Unread document"}</span>
+                        <span className="block truncate text-sm font-medium text-slate-900">
+                          {c.vendorName ?? "Unread document"}
+                          {c.source === "email" && <span className="ml-2 text-xs font-normal text-slate-400">from email · {c.receivedDate}</span>}
+                        </span>
                         <span className="block truncate text-xs text-slate-500">{c.reasons[0]?.label}</span>
+                        {c.flagTags.length > 0 && (
+                          <span className="mt-1 flex flex-wrap gap-1">
+                            {c.flagTags.slice(0, 4).map((f) => (
+                              <Pill key={f.code} tone={FLAG_TONE[f.severity]}>{f.code}</Pill>
+                            ))}
+                            {c.flagTags.length > 4 && <Pill>+{c.flagTags.length - 4}</Pill>}
+                          </span>
+                        )}
                       </span>
                       <InvoiceStatus status={c.status} />
                     </Link>

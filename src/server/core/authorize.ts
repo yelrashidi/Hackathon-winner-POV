@@ -63,6 +63,11 @@ export const ACTIONS = {
    */
   "audit.view": ["controller_admin", "auditor"],
   "audit.export": ["controller_admin", "auditor"],
+  /**
+   * Bonus: export approved bills + settled payments as an accounting journal (posting to the books).
+   * The people who own the books — Finance Manager and Controller/Admin — decide what is posted and when.
+   */
+  "journal.export": ["finance_manager", "controller_admin"],
 } as const satisfies Record<string, readonly ActorRole[]>;
 
 export type Action = keyof typeof ACTIONS;
@@ -86,6 +91,7 @@ const LABELS: Record<Action, string> = {
   "invoice.view": "view invoices",
   "audit.view": "view the audit log",
   "audit.export": "export the audit log",
+  "journal.export": "export the accounting journal",
 };
 
 export class Forbidden extends Error {

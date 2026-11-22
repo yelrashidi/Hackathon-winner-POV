@@ -40,9 +40,10 @@ the top block is updated by whoever finishes a shared piece.
 
 ### 1 Intake — Arpan
 **Works (standalone, PR #11):** Gmail connector and dataset adapter → `InboxMessage`; per-document classifier; history and backfill drain every page before returning a cursor (`gmail/poll.ts:65`, `:102`, BUG-Arpan-02). Frozen message/classification fixtures in `fixtures/intake/`; `npm run fixtures:intake` replays offline. Full check: 644 tests plus batch/history pass on 2026-11-21.
-**Stubbed:** nothing is persisted (cursor in `.intake/`); vendor domains and tax codes read from the CSVs.
-**Next:** step 3 — intake tables + PDF store + `saveIntakeResult()`; uncertain documents as their own dashboard item (see `TODO.md` § 1–2).
-**Waiting on:** foundation (schema owner, `fire()`, `authorize()`, `audit.emit`) — or agreement that Arpan writes the intake tables first.
+**Gmail → dashboard works end to end (2026-11-21, branch `arpan/gmail-integration`):** the `gmail-poller` container saves through `ingestFromIntake`; bills land in **Checks** and on Home's **Next checks** with their open flag codes as tags. The first run (no cursor) now backfills `GMAIL_BACKFILL` (default `1d`) instead of only recording "now" — that is why emailed bills were missing (`scripts/gmail-poll.ts:34`). Live demo run sheet: [`demo-workflow.md`](demo-workflow.md).
+**Stubbed:** cursor still in `.intake/` (a Docker volume); vendor domains and tax codes read from the CSVs; uncertain documents stay on the email (no `DOCUMENT_TYPE_UNCERTAIN` item yet).
+**Next:** cursor in a DB row; uncertain documents as their own dashboard item (see `TODO.md` § 1–2); rehearse the duplicate catch on live mail.
+**Shared changes — Youssef please review:** `dashboard/checks.ts` adds `flagTags` to `CheckRow`; `app/page.tsx` shows them on Home. `docker-compose.yml` adds `GMAIL_BACKFILL`.
 
 ### 2 Extraction — Arpan
 **Works (standalone, PR #11):** document type + extraction; each credit-note amount normalized independently (BUG-Arpan-03); missing line values have explicit warnings and zero confidence (BUG-Arpan-04). `fixtures/extraction/` contains real invoice, scan and credit-note runs plus safe fallbacks; replay tests check `ValidationInput` and `lineType`. Shared contracts unchanged.
@@ -78,6 +79,7 @@ the top block is updated by whoever finishes a shared piece.
 - **Katie:** payments stay her Postgres service; `pipeline/payments.ts` only adds the Admin release rule. `deps.ts`: only a fully approved plan approves a payee (review finding, fixed). Payments pages sit in the shared frame; upload moved to `/checks/upload` and saves through `ingestInvoice`.
 - **Arpan:** `pipeline/intake.ts` stores intake's reason on emails the seed loaded; Duplicates is in the shared sidebar; `duplicates/__tests__/db.test.ts` now shows the refusal with the Auditor (managers may do checks).
 - `@electric-sql/pglite` is a dependency; the quick demo (`npm run dev`, no `DATABASE_URL`) runs as `ap_app` like `npm run demo`.
+**Bonus (branch `journal-export`):** Records → Journal export — approved bills + settled payments as a balanced CSV journal, Finance Manager + Admin only, never posted twice ([`journal-export.md`](architecture/journal-export.md)).
 **Next:** real auth; uploads to object storage; live mailbox polling from the Inbox (Gmail connector exists as a script).
 
 ### 7 Payments — Katie
