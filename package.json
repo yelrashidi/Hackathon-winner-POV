@@ -26,10 +26,13 @@
     "gmail:auth": "tsx scripts/gmail-auth.ts",
     "gmail:poll": "tsx --env-file-if-exists=.env scripts/gmail-poll.ts",
     "intake:dataset": "tsx --env-file-if-exists=.env scripts/intake-dataset.ts",
-    "fixtures:intake": "tsx scripts/generate-intake-fixtures.ts"
+    "fixtures:intake": "tsx scripts/generate-intake-fixtures.ts",
+    "duplicates:batch": "tsx scripts/duplicates-batch.ts",
+    "demo": "tsx --env-file-if-exists=.env.local scripts/demo.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.4.0",
+    "@electric-sql/pglite": "0.5.15",
     "@googleapis/gmail": "22.0.2",
     "drizzle-orm": "0.45.4",
     "next": "16.4.6",
@@ -40,7 +43,6 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "0.5.15",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",

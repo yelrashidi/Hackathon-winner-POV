@@ -13,6 +13,7 @@ const ICONS: Record<PageKey, string> = {
   "to-schedule": "M6 3v2m8-2v2M4 7h12M5 5h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm3 6h4m-2-2v4",
   "to-release": "M3 10h11m-4-4 4 4-4 4M17 4v12",
   "needs-attention": "M10 7v4m0 3h.01M8.6 3.8 2.9 14a1.6 1.6 0 0 0 1.4 2.4h11.4a1.6 1.6 0 0 0 1.4-2.4L11.4 3.8a1.6 1.6 0 0 0-2.8 0Z",
+  duplicates: "M7 7V4.5A1.5 1.5 0 0 1 8.5 3h7A1.5 1.5 0 0 1 17 4.5v7a1.5 1.5 0 0 1-1.5 1.5H13M4.5 7h7A1.5 1.5 0 0 1 13 8.5v7a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 15.5v-7A1.5 1.5 0 0 1 4.5 7Z",
 };
 
 export function SidebarNav({ items }: { items: NavItem[] }) {

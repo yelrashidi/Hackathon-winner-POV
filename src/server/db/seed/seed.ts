@@ -2,8 +2,12 @@ import { randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { eq } from "drizzle-orm";
-import { SYSTEM_USER_ID } from "@/contracts/actor";
+import { SYSTEM_ACTOR, SYSTEM_USER_ID } from "@/contracts/actor";
+import { withAction } from "@/server/core/audit";
 import { policiesFromCsv, type PolicyCsvRow } from "@/server/features/approvals";
+import { checkDuplicates } from "@/server/features/duplicates/engine";
+import { checkDuplicatesWithin } from "@/server/features/duplicates/db/run";
+import { loadFullDuplicateContext } from "@/server/features/duplicates/db/load-context";
 import { validateAndPersist } from "@/server/features/validation/db/run";
 import { DATA_DIR, DATASET_AS_OF, DATASET_DIR, readCsv } from "@/server/features/validation/dataset/csv";
 import { historicalInputs } from "@/server/features/validation/dataset/history";
@@ -57,6 +61,8 @@ export interface SeedOptions {
   dataDir?: string;
   /** Run validation over history (≈ 426 transactions). Default true. */
   validateHistory?: boolean;
+  /** Run the duplicate check over history (one shared context; flags the live 000804 pair). Default true. */
+  checkDuplicates?: boolean;
   log?: (msg: string) => void;
 }
 
@@ -451,6 +457,20 @@ export async function seedDatabase(db: Db, opts: SeedOptions = {}): Promise<Reco
       if (++n % 100 === 0) log(`validated ${n}/${inputs.length}`);
     }
     counts.validated = n;
+  }
+
+  // --- duplicates over history: one context for all, flags persisted through the real path ----------
+  if (opts.checkDuplicates !== false) {
+    const ctx = await loadFullDuplicateContext(db);
+    let flagged = 0;
+    for (const inv of ctx.invoices) {
+      // Only invoices with something to say get a transaction; the rest have no flags to sync.
+      if (!checkDuplicates(inv, ctx).flags.length) continue;
+      await withAction(SYSTEM_ACTOR, (action) => checkDuplicatesWithin(action, inv.invoiceId, { ctx, metadata: { replay: "historical" } }), { db });
+      flagged++;
+    }
+    counts.duplicatesFlagged = flagged;
+    log(`duplicates: ${flagged} historical invoices flagged`);
   }
   return counts;
 }

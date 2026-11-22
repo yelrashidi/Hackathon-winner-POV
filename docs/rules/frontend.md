@@ -21,3 +21,4 @@ paths:
 - **Data loads on the server** (server components or route handlers) through `src/server`
   services. No database client or secret in client components.
 - **Delegate actions read as such everywhere**: *Approved by Priya Shah on behalf of Tom Lee*.
+- **Database reads in a page or layout go after `await connection()`** (or after a cookie read is awaited). With `cacheComponents`, a read that starts during prerender fails on anything time-based, e.g. the embedded demo DB (BUG-Arpan-06).
