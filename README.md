@@ -10,14 +10,26 @@ Accounts payable (AP) automation for the Brim hackathon. A web app that takes su
 
 ## Running locally
 
-Requires Node 20+.
+Requires Node 20+. Pick one; each ends at http://localhost:3000.
+
+**Demo, no Docker** — an embedded Postgres (PGlite) in `.data/pglite`, created, migrated and
+seeded on the first run (~15 s), reused afterwards:
 
 ```bash
 npm install
-npm run dev
+npm run demo                 # npm run demo -- --reset  starts from a fresh database
 ```
 
-Then open http://localhost:3000.
+Stop any other `npm run dev` first: only one process may open the embedded database.
+
+**Everything in Docker** — Postgres + migrations/seed + the app:
+
+```bash
+docker compose up -d         # rebuild after code changes: docker compose up -d --build
+```
+
+**Developing against Docker Postgres:** `npm run db:up`, `npm run db:reset`, set `DATABASE_URL`
+(see `.env.example`), then `npm run dev`.
 
 ## Repo layout
 

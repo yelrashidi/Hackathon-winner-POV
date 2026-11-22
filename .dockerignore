@@ -1,0 +1,12 @@
+# Not sent to `docker build`. Secrets stay out of the image: the app gets them at runtime
+# from .env.local through docker-compose.yml (env_file).
+node_modules
+.next
+.git
+.env*
+!.env.example
+.intake
+.claude
+.agents
+coverage
+*.log

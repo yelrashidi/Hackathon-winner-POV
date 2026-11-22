@@ -14,7 +14,7 @@ How the code works and why. One doc per feature, written by its owner from
 | [`3-coding.md`](3-coding.md) | smart coding: evidence ladder, departments, journal preview, backtest, edge cases, Q&A | Youssef |
 | [`4-validation.md`](4-validation.md) | validation: checks, flags, bad input, 100× | Andrew |
 | [`4-validation-plan.md`](4-validation-plan.md) | validation plan: design, every check, tests, open questions | Andrew |
-| `5-duplicates.md` | *to write* | |
+| [`5-duplicates.md`](5-duplicates.md) | duplicates: canonical numbers, second-copy rule, card merchant matching, human decision on the dashboard, 100× | Arpan |
 | [`6-approvals.md`](6-approvals.md) | approval routing, separation of duties, the approve/reject gate | Youssef |
 | [`6-approvals-edge-cases.md`](6-approvals-edge-cases.md) | every approvals edge case with `file:line` + test, what was left out, defaults to confirm | Youssef |
 | [`6-approvals-study-guide.md`](6-approvals-study-guide.md) | Q&A prep: every function, the logic traced on a real invoice, design reasons, likely questions | Youssef |

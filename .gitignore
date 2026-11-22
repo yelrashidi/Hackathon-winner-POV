@@ -49,3 +49,6 @@ next-env.d.ts
 __pycache__/
 .venv/
 .intake/
+
+# embedded demo database (npm run demo)
+/.data/

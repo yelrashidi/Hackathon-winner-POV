@@ -1,6 +1,16 @@
-# Local Postgres for Harborline AP. `npm run db:up`, then `npm run db:reset`.
-# Two roles: `postgres` (owner — migrations + seed, DATABASE_URL_ADMIN) and `ap_app` (the app,
-# DATABASE_URL), which cannot change or backdate audit history (migration 0001_audit_guards.sql).
+# Harborline AP, everything in one command:   docker compose up -d   →   http://localhost:3000
+#
+#   db     Postgres 16. Two roles: `postgres` (owner — migrations + seed, DATABASE_URL_ADMIN) and
+#          `ap_app` (the app, DATABASE_URL), which cannot change or backdate audit history
+#          (migration 0001_audit_guards.sql).
+#   setup  one-shot: migrations, then the dataset seed ONLY on an empty database (scripts/docker-setup.ts).
+#          Exits when done; the app waits for it. Data survives restarts.
+#   app    Next.js: pages (frontend) + src/server (backend), as ap_app. Secrets (Anthropic, Gmail)
+#          come from .env.local if it exists.
+#
+# Only the database (for `npm run dev` on your machine): npm run db:up
+# Rebuild after code changes:                           docker compose up -d --build
+# Start over with a fresh database:                    docker compose down -v && docker compose up -d
 services:
   db:
     image: postgres:16
@@ -19,5 +29,32 @@ services:
       interval: 2s
       timeout: 3s
       retries: 20
+
+  setup:
+    build: .
+    image: harborline-ap
+    command: ["npx", "tsx", "scripts/docker-setup.ts"]
+    environment:
+      DATABASE_URL_ADMIN: postgres://postgres:postgres@db:5432/harborline
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  app:
+    build: .
+    image: harborline-ap
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+    env_file:
+      - path: .env.local
+        required: false
+    environment:
+      DATABASE_URL: postgres://ap_app:ap_app_local@db:5432/harborline
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    restart: unless-stopped
+
 volumes:
   pgdata:

@@ -731,7 +731,8 @@ describe("invariants", () => {
     expect(routed).toBeGreaterThan(350);
   });
 
-  it("holds under random org chaos: no crash, no self-approval, no double signature, enough authority", () => {
+  // Deterministic but CPU-heavy: 5 s is too tight when the whole suite (incl. PGlite DB tests) runs in parallel.
+  it("holds under random org chaos: no crash, no self-approval, no double signature, enough authority", { timeout: 30_000 }, () => {
     // Deterministic PRNG so a failure reproduces.
     let seed = 20261121;
     const rand = () => ((seed = (seed * 1_103_515_245 + 12_345) % 2_147_483_648) / 2_147_483_648);

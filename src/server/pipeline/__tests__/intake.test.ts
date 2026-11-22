@@ -59,7 +59,7 @@ describe("intake → pipeline adapter", () => {
     const lines = await db.select().from(invoiceLines).where(eq(invoiceLines.invoiceId, id));
     expect(lines.length).toBe(c.readings[0]!.extracted!.lines.length);
     expect(lines.every((l) => l.codingSource === "suggested")).toBe(true);
-    const [created] = await db.select().from(auditEvents).where(eq(auditEvents.entityId, id));
+    const [created] = await db.select().from(auditEvents).where(eq(auditEvents.entityId, id)).orderBy(auditEvents.id).limit(1);
     expect(created!.action).toBe("invoice.created");
     expect(created!.metadata).toMatchObject({ inboxMessageId: c.message.externalId, sourceRef: c.readings[0]!.sourceRef });
   });
@@ -83,7 +83,7 @@ describe("intake → pipeline adapter", () => {
     expect(o!.outcome).toBe("manual_entry");
     const [inv] = await db.select().from(invoices).where(eq(invoices.id, (o as { invoiceId: string }).invoiceId));
     expect(inv).toMatchObject({ status: "ManualEntry", totalCents: null, vendorId: null });
-    const actions = (await db.select({ a: auditEvents.action, after: auditEvents.after }).from(auditEvents).where(eq(auditEvents.invoiceId, inv!.id))).map((e) => e.a);
+    const actions = (await db.select({ a: auditEvents.action, after: auditEvents.after }).from(auditEvents).where(eq(auditEvents.invoiceId, inv!.id)).orderBy(auditEvents.id)).map((e) => e.a);
     expect(actions).toEqual(["invoice.created", "invoice.status_changed"]);
   });
 
@@ -121,7 +121,7 @@ describe("intake → pipeline adapter", () => {
     const [inv] = await db.select().from(invoices).where(eq(invoices.id, id));
     const [doc] = await db.select().from(documents).where(eq(documents.id, inv!.documentId!));
     expect(doc).toMatchObject({ inboxMessageId: "EM-T-DOC", sha256: createHash("sha256").update(bytes).digest("hex"), storageKey: `incoming_invoices/${c.readings[0]!.sourceRef}`, mime: "application/pdf" });
-    const [created] = await db.select().from(auditEvents).where(eq(auditEvents.entityId, id));
+    const [created] = await db.select().from(auditEvents).where(eq(auditEvents.entityId, id)).orderBy(auditEvents.id).limit(1);
     expect(created!.metadata).toMatchObject({ documentId: doc!.id });
     const detail = await getInvoiceAuditDetail({ userId: "U040", role: "auditor" }, id, { db });
     expect(detail.document).toMatchObject({ documentId: doc!.id, sha256: doc!.sha256 });
