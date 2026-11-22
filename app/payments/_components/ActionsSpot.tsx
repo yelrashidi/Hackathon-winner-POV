@@ -32,18 +32,18 @@ export function PaymentAction({
 /** Which button belongs in a row for this role, or null for none. */
 export function actionFor(role: DashboardRole, status: PaymentStatus | "awaiting"): ActionLabel | null {
   const releaser = role === "finance_manager" || role === "controller";
-  const finance = role === "clerk" || releaser;
+  const preparer = role === "clerk" || role === "finance_manager";
   switch (status) {
     case "awaiting":
-      // The Finance Manager doesn't schedule: whoever schedules can't release, and they release.
-      return role === "clerk" || role === "controller" ? "Schedule" : null;
+      // AP Clerks prepare (P09 note). The Finance Manager doesn't schedule: whoever schedules can't release, and they release.
+      return role === "clerk" ? "Schedule" : null;
     case "scheduled":
       return releaser ? "Release" : null;
     case "failed":
-      return finance ? "Retry" : null;
+      return preparer ? "Retry" : null;
     case "cancelled":
       // A cancelled payment didn't fail, so it isn't a "retry".
-      return finance ? "Schedule again" : null;
+      return preparer ? "Schedule again" : null;
     default:
       return null;
   }

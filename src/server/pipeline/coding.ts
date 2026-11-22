@@ -342,3 +342,16 @@ export async function acceptConfidentLines(actor: Actor, invoiceId: string, opts
   );
 }
 
+
+/**
+ * The review screen's view of an invoice's coding: every line as coding sees it (suggestion, reason,
+ * alternatives, what will be posted, who confirmed it) and the journal entry it would post.
+ */
+export async function invoiceCoding(db: Executor, invoiceId: string, opts: { ctx?: CodingContext } = {}): Promise<{ lines: LineCoding[]; journal: ReturnType<typeof buildJournal>["journal"] | null }> {
+  const rows = await db.select().from(invoiceLines).where(eq(invoiceLines.invoiceId, invoiceId)).orderBy(asc(invoiceLines.lineNo));
+  const lines = rows.map(storedLine).filter((l): l is LineCoding => l !== null);
+  if (lines.length === 0 || lines.length !== rows.length) return { lines, journal: null };
+  const ctx = opts.ctx ?? (await loadCodingContext(db));
+  const input = await invoiceInputFromDb(db, invoiceId);
+  return { lines, journal: buildJournal(input, lines, ctx).journal };
+}

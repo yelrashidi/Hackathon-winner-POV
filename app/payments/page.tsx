@@ -6,7 +6,8 @@ import { PageHeader } from "./_components/PageHeader";
 import { PaymentsTable } from "./_components/PaymentsTable";
 import { statusLabel } from "./_components/StatusBadge";
 import { SummaryCards } from "./_components/SummaryCards";
-import { canSeePage, dashboardRole } from "./_lib/access";
+import { NotForYourRole } from "./_components/NotForYourRole";
+import { canSeePage, dashboardRole, pageByKey } from "./_lib/access";
 import { getPayments } from "./_lib/data";
 import { todayIso } from "./_lib/format";
 import type { PaymentStatus } from "@/contracts/payment";
@@ -18,8 +19,10 @@ const STATUSES: PaymentStatus[] = ["scheduled", "released", "settled", "failed",
 export default async function OverviewPage({ searchParams }: PageProps<"/payments">) {
   // "Next 7 days" depends on today's date, so read it per request, not at build time.
   await connection();
-  const [user, view, params] = await Promise.all([getCurrentUser(), getPayments(), searchParams]);
+  const user = await getCurrentUser();
   const role = dashboardRole(user);
+  if (!canSeePage(role, "overview")) return <NotForYourRole page={pageByKey("overview")} user={user} />;
+  const [view, params] = await Promise.all([getPayments(), searchParams]);
 
   const vendors = [...new Map(view.payments.map((p) => [p.invoice.vendorId, p.invoice.vendorName])).entries()]
     .map(([value, label]) => ({ value, label }))

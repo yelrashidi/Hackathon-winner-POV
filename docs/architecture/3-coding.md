@@ -1,5 +1,7 @@
 # 3 — Smart coding
 
+> **On screen (2026-11-21):** Checks → one invoice shows every line's suggestion, confidence, reason and alternatives, accept / change, bulk-accept and the journal preview — see [`dashboard.md`](dashboard.md).
+
 **Owner:** Youssef · **Written:** 2026-11-21 · **Code as of:** `5d3ec67`
 
 Code paths below are under `src/server/features/coding/` unless they start with `src/`.

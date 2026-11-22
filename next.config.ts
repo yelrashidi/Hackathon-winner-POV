@@ -4,7 +4,9 @@ const nextConfig: NextConfig = {
   // tsconfig.json is the shared TypeScript setup (src/, scripts/); the app's pages add their
   // Next.js settings on top of it in tsconfig.next.json.
   typescript: { tsconfigPath: "tsconfig.next.json" },
-  /* config options here */
+  // PGlite (the in-process Postgres the demo runs on without DATABASE_URL) loads its WebAssembly
+  // and data files at runtime; bundling would break those paths, so Node loads it natively.
+  serverExternalPackages: ["@electric-sql/pglite"],
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {

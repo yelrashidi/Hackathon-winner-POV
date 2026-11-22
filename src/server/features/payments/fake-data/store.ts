@@ -1,6 +1,7 @@
 // TEMP: db — one in-memory state for the whole server process. It resets when the server
 // restarts. Kept on globalThis so Next's dev reloads don't wipe it between requests.
 
+import { AsyncLocalStorage } from "node:async_hooks";
 import type { PaymentsState } from "../types";
 import { ensureApprovalsSeeded, reseedApprovals } from "./approval-seed";
 import { loadDatasetState } from "./load";
@@ -8,7 +9,19 @@ import { loadDatasetState } from "./load";
 const KEY = Symbol.for("harborline.payments.state");
 type Holder = { [KEY]?: PaymentsState };
 
+/**
+ * On the database (src/server/pipeline/payments.ts) each request gets its own state, loaded from
+ * Postgres and saved back after the action; the rules and service code below never notice.
+ */
+const scoped = new AsyncLocalStorage<PaymentsState>();
+
+export function runWithState<T>(state: PaymentsState, fn: () => T): T {
+  return scoped.run(state, fn);
+}
+
 export function getState(): PaymentsState {
+  const own = scoped.getStore();
+  if (own) return own;
   const g = globalThis as Holder;
   g[KEY] ??= loadDatasetState();
   return g[KEY];

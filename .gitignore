@@ -49,3 +49,6 @@ next-env.d.ts
 __pycache__/
 .venv/
 .intake/
+
+# demo uploads (src/server/pipeline/documents.ts)
+/.data/

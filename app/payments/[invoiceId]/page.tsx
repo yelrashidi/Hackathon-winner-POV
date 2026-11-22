@@ -9,10 +9,11 @@ import { actionFor, PaymentAction, type ActionLabel } from "../_components/Actio
 import { describeAttempt } from "../_components/PaymentsTable";
 import { FlagList } from "../_components/Flags";
 import { StatusBadge } from "../_components/StatusBadge";
-import { canAct, dashboardRole } from "../_lib/access";
+import { canAct, canSeePage, dashboardRole } from "../_lib/access";
 import { canRetry, getInvoice, getPaymentRow } from "../_lib/data";
 import { formatDate, formatMoney, formatMoneyWithCode } from "../_lib/format";
-import { eligibleReleasers, getPaymentAudit, getSupplierBank, type AuditEvent as PaymentAuditEvent } from "@/server/features/payments";
+import type { AuditEvent as PaymentAuditEvent } from "@/server/features/payments";
+import { paymentsDb } from "@/server/pipeline";
 import type { InvoiceRecord, PaymentRecord } from "@/contracts/payment";
 
 export const metadata: Metadata = { title: "Payment details" };
@@ -29,18 +30,25 @@ export default async function PaymentDetailsPage({ params }: PageProps<"/payment
   const current = row?.current ?? null;
   const status = current?.status ?? "awaiting";
   const action = canAct(role) ? actionFor(role, status) : null;
-  const releasers = row ? (await eligibleReleasers(id)).map((p) => p.name) : [];
-  const bank = getSupplierBank(user?.id ?? null, invoice.vendorId);
-  const audit = getPaymentAudit(user?.id ?? null, id);
+  const [releasers, bank, audit] = await Promise.all([
+    row ? paymentsDb.eligibleReleasers([id]).then(([people]) => (people ?? []).map((p) => p.name)) : Promise.resolve([] as string[]),
+    paymentsDb.supplierBank(user?.id ?? null, invoice.vendorId),
+    paymentsDb.audit(user?.id ?? null, id),
+  ]);
   const names = new Map([invoice.requestedBy, ...invoice.approvedBy, ...(row?.attempts ?? []).flatMap((a) => [a.preparedBy, a.releasedBy, a.cancelledBy])]
     .filter((p): p is NonNullable<typeof p> => p !== null)
     .map((p) => [p.userId, p.name]));
 
   return (
     <>
-      <Link href="/payments" className="text-sm font-medium text-(--brim-link) hover:underline">
-        ← All payments
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+        <Link href={canSeePage(role, "overview") ? "/payments" : "/payments/to-release"} className="font-medium text-(--brim-link) hover:underline">
+          ← {canSeePage(role, "overview") ? "All payments" : "Release queue"}
+        </Link>
+        <Link href={`/audit/${invoice.invoiceId}`} className="font-medium text-(--brim-link) hover:underline">
+          Full audit trail →
+        </Link>
+      </div>
 
       <section className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div>
@@ -389,7 +397,7 @@ function AuditTrail({ invoice, events, names }: { invoice: InvoiceRecord; events
   );
 }
 
-type BankVersion = ReturnType<typeof getSupplierBank>[number];
+type BankVersion = Awaited<ReturnType<typeof paymentsDb.supplierBank>>[number];
 
 /** The supplier's bank account versions (last 4 digits only), and the controlled change: enter, then a second person verifies. */
 function BankCard({ bank, vendorId, canAct, needsNewDetails }: { bank: BankVersion[]; vendorId: string; canAct: boolean; needsNewDetails: boolean }) {

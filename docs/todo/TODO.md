@@ -14,9 +14,8 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 
 Reviewed main `39dc2ac` (including the findings first reproduced on `96bffe4`). These are open defects, not completed work.
 
-- [ ] P1 **High: protect demo reset and audit history.** `app/payments/actions.ts:89` exposes `resetDemo()` without checking the signed-in actor or role; `src/server/features/payments/fake-data/store.ts:21` replaces the whole state, including audit history. Restrict reset to an authorized demo administrator, disable it outside the demo, and preserve an append-only record of the reset. Verify signed-out users, employees and auditors cannot reset data. [Katie]
-- [ ] P1 **High: require completed approvals at payment release.** `src/server/features/payments/deps.ts:40` returns an approved basis for any current plan, including one with pending or rejected steps; `src/server/features/payments/rules.ts:163` trusts that basis. Isolated probes released a scheduled payment with pending and rejected current plans. Require a payable invoice state, a current routed plan, and every required step approved; refuse pending, rejected, blocked, held and stale plans before sending EFT. [Katie, Youssef]
-- [ ] P1 **High: validate pay dates before writes and make scheduling atomic.** `src/server/features/payments/rules.ts:297` only compares date strings; `src/server/features/payments/service.ts:282` writes the attempt, invoice status and audit before output parsing rejects an invalid date. A request with `payDate: "2026-99-99"` threw after leaving an invalid payment and `PaymentScheduled` invoice in state. Parse the request with a real calendar-date schema before mutation, then commit payment, `fire()` and audit together; rejection must leave all state unchanged. [Katie]
+- [ ] P1 **High: protect demo reset and audit history.** `app/payments/actions.ts:89` exposes `resetDemo()` without checking the signed-in actor or role; `src/server/features/payments/fake-data/store.ts:21` replaces the whole state, including audit history. Restrict reset to an authorized demo administrator, disable it outside the demo, and preserve an append-only record of the reset. Verify signed-out users, employees and auditors cannot reset data. [Katie] *(2026-11-21, Youssef, `dashboard-redesign`: reset now rebuilds the demo database, Admin only, demo database only, logged to the server log; an append-only record that survives the reset is still open.)*
+- [ ] P1 **High: validate pay dates before writes and make scheduling atomic.** `src/server/features/payments/rules.ts:297` only compares date strings; `src/server/features/payments/service.ts:282` writes the attempt, invoice status and audit before output parsing rejects an invalid date. A request with `payDate: "2026-99-99"` threw after leaving an invalid payment and `PaymentScheduled` invoice in state. Parse the request with a real calendar-date schema before mutation, then commit payment, `fire()` and audit together; rejection must leave all state unchanged. [Katie] *(2026-11-21, Youssef: on the database every payment action is one transaction, so a throw now leaves nothing behind; the calendar-date check is still open.)*
 - [ ] P1 **Medium: retain bank-account currency when changing details.** `src/server/features/payments/service.ts:510` hardcodes new accounts to CAD; replacing a USD account creates a verified CAD account and prevents USD release. Accept and validate the intended account currency through the server and UI contract, preserve it through verification, and cover USD replacement and retry. [Katie]
 - [ ] P1 **Medium: include the Next.js app in CI.** `.github/workflows/ci.yml:33` runs `typecheck`, but `tsconfig.json:19` includes only shared source and scripts; CI never builds the app. Add a production build (which generates and checks route types) or `next typegen` plus `tsc --noEmit -p tsconfig.next.json`, and lint. A type error in an app page must fail CI. [Andrew]
 
@@ -61,9 +60,6 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P2 Move `extraction/amounts.ts` into `core/money.ts` when the foundation exists. [Arpan]
 
 ## 3 Coding — owner: Youssef
-- [ ] P1 Persist `CodingResult` lines to `invoice_lines` (gl_account_code, department_id, coding_source, coding_reason) and rebuild `CodingIndex` from them. [Youssef]
-- [ ] P1 Code / accept API route calling `codeLine` / `acceptConfident`; submit guard `codingSubmitFlags` in `fire('submit')`. [Youssef]
-- [ ] P1 Review screen: suggestion + reason per line, alternatives, bulk-accept high, journal preview. [Youssef]
 - [ ] P2 Optional LLM fallback for lines with no evidence, once the provider is decided; output must pass the expense-account check. [Youssef]
 
 ## 4 Validation — owner: Andrew
@@ -77,12 +73,8 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P1 Dataset has a live duplicate: AP-00394 and AP-00407 (Summit Packaging, invoice `000804`, same date, lines, PO and $2,457.19) both have a scheduled payment. Duplicates must flag it before release; payments blocks on an open `block` flag once `getOpenInvoiceFlags` reads stored flags. [_name_]
 
 ## 6 Approvals — owner: Youssef
-- [ ] P1 One approval store per server, not per Next bundle: keep the in-memory default store on `globalThis`, and seed it once (Katie's `fake-data/approval-seed.ts` seeds per module copy today). Do both together before the approvals screen writes decisions, or payments may read a different copy. [Youssef, Katie]
-- [ ] P1 Postgres `ApprovalStore` (the 4 queries in `store.ts`) once the schema lands; schema owner to sequence the `approval_plans` proposal in `6-approvals.md`. [Youssef]
-- [ ] P1 Approve / reject API route: the flow at the top of `store.ts`, in one transaction with `fire()`. [Youssef]
-- [ ] P1 Approver queue screen (`waitingOn`) showing reasons, notes and exceptions to acknowledge. [Youssef]
-- [ ] P1 Admin policy editor over `ApprovalPolicy` rows (the schema already rejects bad rows). [Youssef]
 - [ ] P1 On invoice edit call `reapprovalReasons`; non-empty → bump `invoices.version`. [Youssef]
+- [ ] P2 Approval queue and Checks load every open invoice per request; paginate and push the reason calculation into SQL before volume grows. [Youssef]
 - [ ] P2 Daily `approvalAging` job: reminders and escalation notices. [Youssef]
 
 ## 7 Payments — owner: Youssef
@@ -91,13 +83,16 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P1 Release checks against approvals: P11 via `approversOf(...allPlans)`; amount ≤ `plan.basis.totalCents`, payee = `plan.basis.vendorId`. [Katie]
 
 ## 8 Audit + foundation — owner: Andrew
-- [ ] P1 Auditor pages `app/audit` (invoice table → invoice detail → CSV export) over `src/server/features/audit` (contracts `src/contracts/audit-view.ts`, fixtures `fixtures/audit/`). Auditor-only. [_name_ (dashboard)]
-- [ ] P1 Route handlers / server actions over `src/server/pipeline` (ingest, edit, code line, submit, decide), with the session's `Actor`. [_name_]
-- [ ] P1 Payments on the DB: make `features/payments/deps.ts` adapters async over `payments`, `payment_flags`, `vendor_bank_accounts`, `invoice_flags`, `core/audit` + `fire()`. [Katie]
 - [ ] P1 Team decisions in `docs/architecture/8-audit.md`: Controller audit access, historical `rejected` → `Voided`, schema-merge owner. [_name_]
 - [ ] P2 Deploy the DB on Supabase: `db:migrate` + `db:seed` with the direct URL, `ALTER ROLE ap_app LOGIN PASSWORD …`, app uses the pooled URL. [Andrew]
 - [ ] P2 Apply the `data-model.md` column additions listed in `8-audit.md` ("To apply at merge"). [Andrew]
 - [ ] P3 Hash-chain `audit_events` (tamper evidence on top of the trigger + grants). [Andrew]
+
+## Dashboard — owner: Youssef
+- [ ] P1 Duplicates screen (side-by-side match) once feature 5 has an owner and stores its flags. [Youssef]
+- [ ] P2 Real sign-in instead of the demo cookie (server session stays the only source of the actor). [Youssef]
+- [ ] P2 Uploaded files to object storage (Supabase Storage) instead of `UPLOAD_DIR`; only `pipeline/documents.ts` changes. [Youssef]
+- [ ] P2 Needs-attention renders one payments state load per flag list; compute who can clear flags once per page. [Youssef]
 
 ## 9 Vendors — owner: _Arpan / Youssef / Andrew / Katie_
 - [ ] P1 Vendor list, onboard, hold; bank change request + verify by a second person. [_name_]

@@ -1,6 +1,12 @@
 # Roles and permissions
 
-**Code as of:** never. Foundation doc; `src/server/core/authorize.ts` implements it.
+**Code as of:** `dashboard-redesign`. Foundation doc; `src/server/core/authorize.ts` implements it.
+
+> **Dashboard plan (2026-11-21):** access widens with seniority — managers and the Finance Manager can
+> do the clerk's checks, every dashboard role reads the audit trail (the Auditor: past invoices only).
+> Doing the checks never lets you approve your own work: the submitter is excluded from the approval.
+> The Admin's release limits are enforced in `src/server/pipeline/payments.ts` (`adminReleaseGuard`).
+> Screens per role: [`dashboard.md`](dashboard.md).
 
 ## One function decides
 
@@ -18,14 +24,15 @@ control. A refusal is a 403 with a reason the UI shows (`You approved this invoi
 |---|---|---|---|---|---|---|
 | Submit invoice (own dept) | ✓ | ✓ | ✓ | ✓ | ✓ | — |
 | View invoices | own submissions | all | own dept | all | all | all |
-| Ingest inbox, review extraction, code, resolve flags | — | ✓ | — | — | ✓ | — |
+| Ingest inbox, review extraction, code, resolve flags ("checks") | — | ✓ | ✓ | ✓ | ✓ | — |
 | Approve / reject a step | — | — | own dept, ≤ limit | above dept limits, flagged, new vendor | ✓ | — |
-| Prepare (schedule) payment | — | ✓ | — | ✓ | ✓ | — |
-| Release payment | — | — | — | ≤ $100,000 CAD | any amount | — |
+| Prepare (schedule) payment | — | ✓ | — | ✓ | — (dashboard: the Admin does not prepare) | — |
+| Release payment | — | — | — | ≤ $100,000 CAD | only what the Finance Manager can't (> $100k, or she approved it) | — |
 | Request vendor bank change | — | ✓ | — | ✓ | ✓ | — |
 | Verify vendor bank change / approve new vendor | — | — | — | ✓ | ✓ | — |
 | Edit users, roles, approval policies | — | — | — | — | ✓ | — |
-| View full audit log / export | — | — | — | — | ✓ | ✓ (export) |
+| View the audit trail | — | ✓ | ✓ | ✓ | ✓ | ✓ (past invoices only) |
+| Export the audit log | — | — | — | — | ✓ | ✓ |
 
 ## The rules that apply to everyone — the ones judges will test
 

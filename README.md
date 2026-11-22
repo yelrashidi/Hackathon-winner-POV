@@ -10,14 +10,27 @@ Accounts payable (AP) automation for the Brim hackathon. A web app that takes su
 
 ## Running locally
 
-Requires Node 20+.
+Requires Node 22+. No Docker needed for the demo.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Then open http://localhost:3000.
+Then open http://localhost:3000 and pick who you are (AP Clerk, Operations Manager, Finance
+Manager, Admin, Auditor). With no `DATABASE_URL`, the app builds an in-process Postgres from the
+dataset on the first request (~5 s): 10 months of history plus the AP inbox run through intake.
+A restart, or **Demo controls → Reset** (Admin), starts again from the dataset.
+
+| Setting | Effect |
+| --- | --- |
+| `DATABASE_URL` | Use a real Postgres instead (`npm run db:up && npm run db:reset`, see `.env.example`) |
+| `ANTHROPIC_API_KEY` | Uploaded invoices are read by Claude; without it they open for manual entry |
+| `DEMO_SCENARIO=3` | Start with 3 clean bills already sent to approval (same as the Demo controls button) |
+| `UPLOAD_DIR` | Where uploaded files are kept (default `.data/uploads`) |
+
+One-click sign-in for a demo: `/demo/as/U004?next=/checks` (demo database only). The app's
+screens and roles are described in `docs/architecture/dashboard.md`.
 
 ## Repo layout
 
@@ -33,7 +46,8 @@ Then open http://localhost:3000.
 
 ## Status
 
-Early setup: the Next.js app is scaffolded (default starter page). See `docs/STATUS.md` for current progress.
+The app runs end to end: inbox → checks → approvals → payments → audit trail, per role. Duplicates
+(feature 5) has no screen yet. See `docs/STATUS.md` for current progress.
 
 ## Checks
 

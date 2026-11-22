@@ -11,11 +11,16 @@
  *             decideApproval(actor, id, body)                 approve / reject a step
  *   8         features/audit                                  the auditor's view of all of it
  *
- * Not here yet: 5 duplicates (no owner) and 7 payments (Katie's service still runs on its in-memory
- * adapters in features/payments/deps.ts; the tables it needs exist — see docs/architecture/8-audit.md).
+ *   7         paymentsDb.*                                    Katie's payments service, state loaded from and saved to Postgres
+ *
+ * Not here yet: 5 duplicates (no owner).
  */
 export { ingestInvoice, revalidateInvoice, editInvoice, IngestError, type IngestOptions, type AnalysisResult, type InvoicePatch } from "./ingest";
-export { codeWithin, codeInvoiceLine, acceptConfidentLines, loadCodingContext, CodingError } from "./coding";
-export { submitForApproval, decideApproval, loadApprovalContext, PostgresApprovalStore, ApprovalFlowError } from "./approvals";
+export { codeWithin, codeInvoiceLine, acceptConfidentLines, loadCodingContext, invoiceCoding, CodingError } from "./coding";
+export { submitForApproval, decideApproval, previewApproval, releaseHold, loadApprovalContext, PostgresApprovalStore, ApprovalFlowError } from "./approvals";
 export { invoiceInputFromDb } from "./input";
 export { ingestFromIntake, readingToValidationInput, intakeInvoiceId, inboxMessageId, type IntakeOutcome, type IntakeIngestResult, type IntakeIngestOptions, type IntakeAttachmentFile } from "./intake";
+export { paymentsDb, loadPaymentsState, openPaymentFlagsByVendor } from "./payments";
+export { enterInvoiceFields, ManualFields } from "./manual-entry";
+export { saveUploadedDocument, readDocumentFile, UPLOAD_DIR } from "./documents";
+export { listPolicies, updatePolicy, setUserAvailability, listDirectory, createVendor, setVendorStatus, AdminError, type PolicyPatch, type AvailabilityPatch, type NewVendor } from "./admin";

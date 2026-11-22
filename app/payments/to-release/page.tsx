@@ -6,7 +6,8 @@ import { PageHeader } from "../_components/PageHeader";
 import { ReleaseQueueTable, type ReleaseItem } from "../_components/ReleaseQueueTable";
 import { canSeePage, dashboardRole, pageByKey } from "../_lib/access";
 import { getPayments } from "../_lib/data";
-import { eligibleReleasers } from "@/server/features/payments";
+import { paymentsDb } from "@/server/pipeline";
+import { listSwitchableUsers } from "@/server/session/current-user";
 
 export const metadata: Metadata = { title: "Release queue" };
 
@@ -14,7 +15,7 @@ const DESCRIPTION = {
   finance_manager:
     "Scheduled payments waiting for the final OK. You can release up to $100,000 CAD, never a payment you approved, requested or scheduled.",
   controller:
-    "Every scheduled payment. You can release any amount, never a payment you approved, requested or scheduled.",
+    "Only the payments the Finance Manager can't release: over $100,000 CAD (P10), or ones the Finance Manager approved, scheduled or requested (P11). You never release one you approved yourself.",
   other: "Scheduled payments and who is allowed to release each one. View only.",
 };
 
@@ -24,8 +25,13 @@ export default async function ToReleasePage() {
   if (!canSeePage(role, "to-release")) return <NotForYourRole page={pageByKey("to-release")} user={user} />;
 
   const isReleaser = role === "finance_manager" || role === "controller";
-  const scheduled = view.payments.filter((p) => p.current.status === "scheduled");
-  const releasers = await Promise.all(scheduled.map((row) => eligibleReleasers(row.invoice.invoiceId)));
+  const all = view.payments.filter((p) => p.current.status === "scheduled");
+  const [allReleasers, people] = await Promise.all([paymentsDb.eligibleReleasers(all.map((row) => row.invoice.invoiceId)), listSwitchableUsers()]);
+  const fm = new Set(people.filter((u) => u.role === "finance_manager").map((u) => u.id));
+  // The Admin sees only what no Finance Manager may release (the list already leaves the Admin out otherwise).
+  const keep = all.map((_, i) => role !== "controller" || !(allReleasers[i] ?? []).some((p) => fm.has(p.userId)));
+  const scheduled = all.filter((_, i) => keep[i]);
+  const releasers = allReleasers.filter((_, i) => keep[i]);
   const items: ReleaseItem[] = scheduled
     .map((row, i) => ({ row, blockers: row.releaseCheck.reasons, releasers: releasers[i] ?? [] }))
     // Releasers see what they can release first; then by pay date.
@@ -44,7 +50,7 @@ export default async function ToReleasePage() {
   return (
     <>
       <PageHeader
-        title="Release queue"
+        title={role === "controller" ? "Releases for the Admin" : "Release queue"}
         description={role === "finance_manager" || role === "controller" ? DESCRIPTION[role] : DESCRIPTION.other}
       >
         {isReleaser && (

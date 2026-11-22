@@ -38,6 +38,8 @@ export function listInvoices(): InvoiceRec[] {
 // Approvals (Youssef) — A1, A3b: his real store and functions. Only the seed is TEMP: until the
 // approval flow fills his store, fake-data/approval-seed.ts loads the dataset's history into it.
 export async function getApprovalFacts(invoiceId: string): Promise<ApprovalFacts | undefined> {
+  const preloaded = getState().approvalFacts;
+  if (preloaded) return preloaded.get(invoiceId);
   await ensureApprovalsSeeded();
   const invoice = getInvoice(invoiceId);
   const plans = await getApprovalPlans(invoiceId);

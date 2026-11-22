@@ -136,4 +136,6 @@ export interface PaymentsState {
   /** Open validation / duplicate flags per invoice (A5). Nobody produces them yet. */
   invoiceFlags: Map<string, Flag[]>;
   seq: number;
+  /** On the database: approvals' answer per invoice, read from Postgres (A1, A3b). Absent → the in-memory approval store. */
+  approvalFacts?: Map<string, ApprovalFacts>;
 }
