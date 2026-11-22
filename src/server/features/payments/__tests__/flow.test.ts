@@ -135,23 +135,28 @@ describe("payments on the dataset", async () => {
   });
 
   it("Critical: a fraud hold stops every payment to the supplier until the Controller clears it", async () => {
-    // Summit Packaging (V011) has two scheduled payments: AP-00394 and AP-00407 (a duplicate of AP-00394).
-    const a = (await current("AP-00394"));
+    // Talentbridge (V048) has two scheduled payments: AP-00419 and AP-00422 (different invoices, not duplicates).
+    const a = (await current("AP-00419"));
     await ok(releasePayment("U003", { paymentId: a.paymentId }, opts));
     await ok(simulateSettlement("U004", { paymentId: a.paymentId, outcome: "FRAUD_HOLD" }, opts));
 
-    const b = (await current("AP-00407"));
+    const b = (await current("AP-00422"));
     expect(b.status).toBe("on_hold");
-    const refused = await releasePayment("U003", { paymentId: b.paymentId }, opts);
+    const refused = await releasePayment("U002", { paymentId: b.paymentId }, opts);
     expect(!refused.ok && refused.reasons.map((r) => r.message)).toContain("Stopped: fraud hold on this supplier. Controller must review.");
 
-    const flagId = (await detail("AP-00394")).flags[0]!.flagId;
+    const flagId = (await detail("AP-00419")).flags[0]!.flagId;
     expect(await refusedCodes(clearFlag("U003", { flagId, note: "looks fine" }, opts))).toEqual(["CONTROLLER_ONLY"]);
     expect(await refusedCodes(clearFlag("U002", { flagId, note: "" }, opts))).toEqual(["NOTE_REQUIRED"]);
-    await ok(clearFlag("U002", { flagId, note: "Called Summit on the number in the master file; transfer was genuine." }, opts));
-    expect((await current("AP-00407")).status).toBe("scheduled");
-    // Hold cleared; what still stops it is duplicates' blocking flag (release refuses any open block flag).
-    expect(await refusedCodes(releasePayment("U003", { paymentId: b.paymentId }, opts))).toEqual(["BLOCKING_FLAG"]);
+    await ok(clearFlag("U002", { flagId, note: "Called Talentbridge on the number in the master file; transfer was genuine." }, opts));
+    expect((await current("AP-00422")).status).toBe("scheduled");
+    // Elise approved AP-00422 (P11), so the Controller releases it.
+    await ok(releasePayment("U002", { paymentId: b.paymentId }, opts));
+  });
+
+  it("a duplicate invoice can't be released: AP-00407 repeats AP-00394 (same vendor invoice #000804)", async () => {
+    const dup = (await current("AP-00407"));
+    expect(await refusedCodes(releasePayment("U003", { paymentId: dup.paymentId }, opts))).toContain("BLOCKING_FLAG");
   });
 
   it("Low: a bank error flags only the failed payment and clears itself when the retry is scheduled", async () => {
