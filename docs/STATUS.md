@@ -97,6 +97,8 @@ the top block is updated by whoever finishes a shared piece.
 - **Invoice records** (`/invoices`, `features/invoices`): read-only, scoped per the matrix's "View invoices" row (employee own, manager own dept, everyone else all); invoice PDFs follow the same scope.
 - **Who did what** (`whoDidWhat`): requested → checked → approved → scheduled → released, on the audit page, the invoice record, and live on Checks / Approvals / Payments.
 
+- **Demo + Docker (2026-11-22, PR to main from `andrew-audit-db`):** sixth role Employee (read-only, `invoice.submit` refused in `core/authorize.ts`); Admin **Reset demo data** (`src/server/demo/reset.ts`), the same baseline `docker compose up` builds on an empty database; BUG-Andrew-09 (Docker sign-in, Gmail PDFs, uploads volume, TZ). A fresh clone with no `.env.local` runs the full demo from `docker compose up -d`: [`running-with-docker.md`](running-with-docker.md).
+
 **Stubbed:** uncertain scans make no invoice yet (Arpan's TODO); the demo DB has history only, so live chains show once invoices go through Checks.
 **Next:** Supabase deploy.
 **Waiting on:** team decisions: historical `rejected` → `Voided`, schema-merge owner (`docs/architecture/8-audit.md`).
