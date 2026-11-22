@@ -1,12 +1,18 @@
 # 1 — Intake
 
-**Owner:** Arpan · **Code as of:** `949ce76` + Gmail → dashboard (2026-11-21; steps 1–2 of 4 done; step 3 mostly via `ingestFromIntake`, rest in `docs/todo/TODO.md`)
+**Owner:** Arpan · **Code as of:** `138d11e` + employee upload (2026-11-22; steps 1–2 of 4 done; step 3 mostly via `ingestFromIntake`, rest in `docs/todo/TODO.md`)
 
 ## What it does
 Watches a mailbox, turns every new email into one `InboxMessage`, classifies it (invoice / not an
 invoice / no attachment, with a reason), and turns each invoice attachment into a **draft bill**
 (`Received`) for the clerk's inbox dashboard. Non-invoices are kept with their reason, out of the
 bill queue; emails with no attachment are routed to the clerk, not dropped.
+
+Second door: **upload** (`/checks/upload`). Reviewers (`invoice.review`) drop many files and confirm
+each into Checks. An **employee** (`invoice.upload` only) who got a bill directly drops the PDF and
+clicks **Submit to AP**; the server forces requester = them and department = theirs
+(`app/checks/upload/actions.ts`), and the bill lands in Checks like any other — the employee follows
+it in My bills and cannot review, code, submit or approve it.
 
 Build order: **1 Gmail connector** (done) → **2 classifier** (done) → 3 intake tables + draft bill → 4 inbox dashboard.
 
@@ -109,6 +115,8 @@ Step 3 adds `DOCUMENT_TYPE_UNCERTAIN` (warn) on an invoice created from an uncer
 - Logo / signature images (< 20 KB), .docx/.xlsx → not documents; named in the reason.
 - Attachment download fails → that document is `uncertain`, the email goes to review.
 - French subjects and bodies → accent-stripped EN+FR word lists.
+- Employee upload naming someone else as requester (crafted form/API call) → overwritten with the employee and their department, never trusted from the browser.
+- Auditor (or signed out) calling the upload endpoint/action → 403 "Your role (…) cannot upload invoices."
 - Email text is data, never instructions (`docs/rules/backend.md`).
 - Mail that arrived before the poller's first run → read by the first-run backfill (`GMAIL_BACKFILL`); anything older needs a manual `--backfill` (BUG-Arpan-07).
 

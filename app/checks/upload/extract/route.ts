@@ -10,8 +10,8 @@ import { fileProblem } from "../_lib/upload-rules";
 export async function POST(request: Request) {
   await ensureDb();
   const viewer = await getViewer();
-  if (!viewer || !can(viewer.actor, "invoice.review")) {
-    return Response.json({ error: "Only people who do the checks can upload invoices." }, { status: 403 });
+  if (!viewer || !can(viewer.actor, "invoice.upload")) {
+    return Response.json({ error: `Your role (${viewer?.actor.role ?? "signed out"}) cannot upload invoices.` }, { status: 403 });
   }
 
   const form = await request.formData();

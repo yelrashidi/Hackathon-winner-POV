@@ -29,7 +29,8 @@ control. A refusal is a 403 with a reason the UI shows (`You approved this invoi
 
 | Action | Employee | AP Clerk | Approver | Finance Mgr | Controller | Auditor |
 |---|---|---|---|---|---|---|
-| Send a checked bill to approval (`invoice.submit`) | — (read-only) | ✓ | ✓ | ✓ | ✓ | — |
+| Upload a bill PDF (`invoice.upload`, `/checks/upload`) — lands in Checks | own only: requester = themselves, their department (forced on the server, `app/checks/upload/actions.ts`) | ✓ | ✓ | ✓ | ✓ | — |
+| Send a checked bill to approval (`invoice.submit`) | — | ✓ | ✓ | ✓ | ✓ | — |
 | View invoices (`/invoices`, read-only, with who did what) | own: the bills they requested ("My bills") | all | own dept | all | all | all |
 | Ingest inbox, review extraction, code, resolve flags ("checks") | — | ✓ | ✓ | ✓ | ✓ | — |
 | Approve / reject a step | — | — | own dept, ≤ limit | above dept limits, flagged, new vendor | ✓ | — |

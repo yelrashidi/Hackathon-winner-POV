@@ -52,6 +52,7 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P2 Test the first-run backfill (`GMAIL_BACKFILL`, `scripts/gmail-poll.ts:34`): move the choice into a small function in `intake/gmail/` and unit-test no cursor + env → backfill, cursor + env → incremental. [Arpan]
 - [ ] P1 Step 4: clerk inbox dashboard. Emails with decision + reason, each document's verdict, PDF viewer through `/api/documents/[id]` (`authorize()` before streaming), and a "Needs a decision" queue for uncertain documents. [Arpan]
 - [ ] P1 Upload → `documents` + draft invoice: same `readDocument` + `saveIntakeResult` path, source `upload`. [Arpan]
+- [ ] P1 Click through employee **Upload a bill** in the Docker demo: drop a PDF as the Employee → Submit to AP → it shows in My bills ("in checks") and in the clerk's Checks with the employee as requester. [Arpan]
 - [ ] P1 Deployed polling: a cron route calls `pollGmail` (Vercel cron), cursor in the DB. [Arpan]
 - [ ] P2 Lookalike sender: validation already flags it (`src/server/features/validation/rules/vendor.ts:131`). Intake only has to pass `fromAddress` through as `senderEmail`. Check it end to end. [Arpan]
 
