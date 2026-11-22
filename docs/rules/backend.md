@@ -33,3 +33,4 @@ paths:
 - **Authorize (and `recordDenied`) before `withAction` opens the transaction** — logging a refusal from inside it waits on its own connection (BUG-Andrew-04).
 - **A mailbox cursor may advance only after every covered page and message is fetched**; a page size must never become a silent delivery cap (BUG-Arpan-02).
 - **A new entry point is not done until it calls the persistence path**: run it against Postgres and count rows, not just the service's tests. A mailbox cursor advances only after every email is saved (BUG-Andrew-06).
+- **A mailbox baseline skips everything already in the inbox**: a fresh poller (new container, wiped volume) must backfill a window first (`GMAIL_BACKFILL`), or mail that arrived before it started never reaches the dashboard (BUG-Arpan-07).

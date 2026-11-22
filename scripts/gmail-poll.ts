@@ -8,6 +8,10 @@
  *   npm run gmail:poll -- --no-save          classify and print only
  *   npm run gmail:poll -- --backfill 1d      one-off: also show inbox mail from the last day
  *   npm run gmail:poll -- --watch 30         poll every 30 s
+ *
+ * GMAIL_BACKFILL=1d (env): on the very FIRST run only (no cursor yet), read the inbox back that far
+ * instead of starting from "now" — so bills that arrived before the poller started (e.g. a fresh
+ * `docker compose up`) still reach the dashboard. Saving is idempotent, so overlap is harmless.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createClaudeExtractor } from "../src/server/features/extraction/claude";
@@ -27,11 +31,14 @@ const STATE_DIR = ".intake";
 const STATE_FILE = `${STATE_DIR}/gmail-state.json`;
 const args = process.argv.slice(2);
 const argValue = (flag: string) => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : undefined; };
-const backfill = argValue("--backfill");
+const firstRunBackfill = loadCursor() === null ? process.env.GMAIL_BACKFILL || undefined : undefined;
+const backfill = argValue("--backfill") ?? firstRunBackfill;
+if (firstRunBackfill && !argValue("--backfill")) console.log(`First run: backfilling inbox mail newer than ${firstRunBackfill} (GMAIL_BACKFILL).`);
 const watchSeconds = Number(argValue("--watch") ?? 0);
 
-const loadCursor = (): string | null =>
-  existsSync(STATE_FILE) ? (JSON.parse(readFileSync(STATE_FILE, "utf8")).cursor ?? null) : null;
+function loadCursor(): string | null {
+  return existsSync(STATE_FILE) ? (JSON.parse(readFileSync(STATE_FILE, "utf8")).cursor ?? null) : null;
+}
 const saveCursor = (cursor: string) => {
   mkdirSync(STATE_DIR, { recursive: true });
   writeFileSync(STATE_FILE, JSON.stringify({ cursor, savedAt: new Date().toISOString() }, null, 2));
