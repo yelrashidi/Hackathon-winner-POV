@@ -164,7 +164,7 @@ sign-in cast):
 | Why can't the scheduler release? | `src/server/features/payments/rules.ts:156` (`SCHEDULED_IT`) |
 | Why can't an approver release? | `src/server/features/payments/rules.ts:153` (`APPROVED_IT`, policy P11) |
 | Finance Manager release limit? | `src/server/features/payments/rules.ts:144` (`OVER_RELEASE_LIMIT`, from the policies CSV) |
-| What may the Admin release? | `src/server/pipeline/payments.ts` (`adminReleaseGuard`) |
+| What may the Admin release? | Any amount, except what they approved: `src/server/features/payments/rules.ts` (`checkRelease`) |
 | Who may do what? | `src/server/core/authorize.ts`, `docs/architecture/roles-and-permissions.md` |
 | Default pay date? | `src/server/features/payments/rules.ts:426` (`defaultPayDate`) |
 | How does Gmail mail become a bill? | `scripts/gmail-poll.ts` → `src/server/pipeline/intake.ts` (`ingestFromIntake`) |

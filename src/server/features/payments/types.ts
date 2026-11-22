@@ -81,6 +81,8 @@ export interface PaymentRec {
   amountCadCents: number;
   fxRateToCad: string;
   scheduledDate: string;
+  /** When the attempt was scheduled (payments.created_at); absent on rows not read from the database. */
+  scheduledAt?: string;
   bankVersion: number;
   bankLast4: string;
   releasedAt: string | null;

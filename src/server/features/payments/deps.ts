@@ -157,6 +157,7 @@ async function loadAttempts(exec: Executor, invoiceIds: string[]): Promise<Payme
       amountCadCents: p.amountCadCents,
       fxRateToCad: p.fxRate ?? "1",
       scheduledDate: p.scheduledDate ?? "",
+      scheduledAt: iso(p.createdAt) ?? undefined,
       bankVersion,
       bankLast4,
       releasedAt: iso(p.releasedAt),

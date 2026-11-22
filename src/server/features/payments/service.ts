@@ -119,6 +119,7 @@ function toRecord(d: PaymentsData, p: PaymentRec): PaymentRecord {
     amountCadCents: p.amountCadCents,
     fxRateToCad: p.fxRateToCad,
     scheduledDate: p.scheduledDate,
+    scheduledAt: p.scheduledAt,
     bankAccount: { vendorId: p.vendorId, version: p.bankVersion, last4: p.bankLast4 },
     releasedAt: p.releasedAt,
     settledAt: p.settledAt,

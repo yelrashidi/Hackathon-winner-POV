@@ -8,7 +8,7 @@
 > control checks, export) is for the Auditor ("read-only everything, audit export") and the
 > Controller/Admin ("full audit log"), per `product.md`; others see their own recent actions on the home screen.
 > Doing the checks never lets you approve your own work: the submitter is excluded from the approval.
-> The Admin's release limits are enforced in `src/server/pipeline/payments.ts` (`adminReleaseGuard`).
+> **The Controller (Admin) releases payments of any amount (2026-11-22, decided by Andrew)**; the Finance Manager up to $100,000 CAD. Nobody releases what they approved (P11, `features/payments/rules.ts` `checkRelease`).
 > **Employee (2026-11-22): read-only.** Their screens are Home and **My bills** (`/invoices`, scoped to
 > the bills they requested, each with where it is in plain words). Bills reach AP from suppliers and the
 > AP Clerk records the employee as the requester on Checks, so employees submit nothing: `invoice.submit`
@@ -35,7 +35,7 @@ control. A refusal is a 403 with a reason the UI shows (`You approved this invoi
 | Ingest inbox, review extraction, code, resolve flags ("checks") | — | ✓ | ✓ | ✓ | ✓ | — |
 | Approve / reject a step | — | — | own dept, ≤ limit | above dept limits, flagged, new vendor | ✓ | — |
 | Prepare (schedule) payment | — | ✓ (the normal path, P09) | — | ✓ backup¹ | — (dashboard: the Admin does not prepare) | — |
-| Release payment | — | — | — | ≤ $100,000 CAD | only what the Finance Manager can't (> $100k, or she approved it) | — |
+| Release payment | — | — | — | ≤ $100,000 CAD | any amount (> $100k: only the Controller) | — |
 | View the vendor master | — | ✓ | — | ✓ | ✓ | ✓ (read-only) |
 | Onboard a vendor, put a vendor on hold | — | ✓ | — | ✓ | ✓ | — |
 | Request vendor bank change | — | ✓ | — | ✓ | ✓ | — |
