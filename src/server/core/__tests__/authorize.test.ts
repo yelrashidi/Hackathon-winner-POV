@@ -26,6 +26,7 @@ const MATRIX: Record<Action, ActorRole[]> = {
   "admin.edit": ["controller_admin"],
   "audit.view": ["ap_clerk", "approver", "finance_manager", "controller_admin", "auditor"],
   "audit.export": ["auditor", "controller_admin"],
+  "journal.export": ["finance_manager", "controller_admin"],
 };
 const ROLES: ActorRole[] = ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin", "auditor", "system"];
 

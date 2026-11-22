@@ -17,6 +17,7 @@ export type SectionKey =
   | "needs-attention"
   | "vendors"
   | "audit"
+  | "journal"
   | "admin";
 
 export type NavGroup = "Work" | "Payments" | "Records" | "Admin";
@@ -56,6 +57,7 @@ export const SECTIONS: Section[] = [
   { key: "needs-attention", href: "/payments/needs-attention", label: "Needs attention", group: "Payments", roles: ["clerk", "finance"], forWhom: "AP Clerks and the Finance Manager" },
   { key: "vendors", href: "/vendors", label: "Vendors", group: "Records", roles: ["clerk", "finance", "admin"], forWhom: "AP Clerks, the Finance Manager and the Admin" },
   { key: "audit", href: "/audit", label: "Audit trail", group: "Records", roles: ["clerk", "manager", "finance", "admin", "auditor"], forWhom: "every role" },
+  { key: "journal", href: "/journal", label: "Journal export", group: "Records", roles: ["finance", "admin"], forWhom: "the Finance Manager and the Admin (they own the books)" },
   { key: "admin", href: "/admin", label: "People & policies", group: "Admin", roles: ["admin"], forWhom: "the Admin" },
 ];
 
