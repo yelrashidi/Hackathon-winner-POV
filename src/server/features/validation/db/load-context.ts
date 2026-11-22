@@ -99,12 +99,7 @@ export async function loadDbContext(
       };
     });
 
-  const thresholds = new Set<number>();
-  for (const p of policyRows) {
-    const c = p.conditions as { kind?: string; cadCents?: number };
-    const s = p.steps as { type?: string };
-    if (p.ruleType === "approval" && s.type === "chain" && (c.kind === "amount_over" || c.kind === "amount_up_to") && typeof c.cadCents === "number") thresholds.add(c.cadCents);
-  }
+  const thresholds = approvalThresholdsFromPolicyRows(policyRows);
 
   return {
     today: opts.today,
@@ -155,6 +150,21 @@ export async function loadDbContext(
     })),
     fxRates: fxRows.map((f) => ({ date: f.date, usdToCad: f.usdToCad })).sort((a, b) => a.date.localeCompare(b.date)),
     offices: HARBORLINE_OFFICES,
-    approvalThresholdsCadCents: [...thresholds].sort((a, b) => a - b),
+    approvalThresholdsCadCents: thresholds,
   };
+}
+
+/**
+ * Amount-tier boundaries (CAD cents, ascending) from the active approval policies: every
+ * `amount_over` / `amount_up_to` condition of a chain rule. Shared with duplicates (5), which
+ * reports a probable split for pairs this rule set leaves out of its own split check.
+ */
+export function approvalThresholdsFromPolicyRows(policyRows: readonly { ruleType: string; conditions: unknown; steps: unknown }[]): number[] {
+  const thresholds = new Set<number>();
+  for (const p of policyRows) {
+    const c = p.conditions as { kind?: string; cadCents?: number };
+    const s = p.steps as { type?: string };
+    if (p.ruleType === "approval" && s.type === "chain" && (c.kind === "amount_over" || c.kind === "amount_up_to") && typeof c.cadCents === "number") thresholds.add(c.cadCents);
+  }
+  return [...thresholds].sort((a, b) => a - b);
 }
