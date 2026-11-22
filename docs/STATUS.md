@@ -10,7 +10,7 @@ the top block is updated by whoever finishes a shared piece.
 
 | Owner | Features | Also owns |
 |---|---|---|
-| Arpan | 1 Intake, 2 Extraction | |
+| Arpan | 1 Intake, 2 Extraction, 5 Duplicates | |
 | Youssef | 3 Coding, 6 Approvals | |
 | Andrew | 4 Validation, 8 Audit + foundation (schema, `core/`, `src/server/pipeline/`) | |
 | Katie | 7 Payments, payments dashboard | |
@@ -62,8 +62,11 @@ the top block is updated by whoever finishes a shared piece.
 **Next:** `validateBankForRelease` for payments.
 **Waiting on:** Katie (payments reading stored flags instead of `deps.ts`).
 
-### 5 Duplicates — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 5 Duplicates — Arpan
+**Works (uncommitted on `arpan/feature/duplicate-check`, 2026-11-21):** `src/server/features/duplicates/`: same file, same number after reformatting, number variants, same amount ≤ 7 days, already paid by employee card (merchant name → vendor), and `SPLIT_IF_NOT_DUPLICATE` beside same-number pairs. Runs in `analyse()` after validation and over history in the seed; incoming 5 flagged, history every same-number pair incl. live AP-00394/AP-00407, no monthly-fee false positives. **A person decides every one** on `/payments/duplicates` (void/close via `fire()`, or override with a note). 34 tests; `npm run duplicates:batch`.
+**Also:** `npm run demo` runs the app on embedded PGlite (no Docker); `docker compose up -d` = db + setup + app (built, not run end to end — Docker disk on full C:).
+**Next / waiting on:** void or hold after approval (state machine, TODO P0); payments reading stored block flags at release (Katie); approvals routing on `SPLIT_IF_NOT_DUPLICATE` after "not a duplicate" (Youssef).
+**Shared changes:** `contracts/audit.ts` + `invoice.duplicates_checked`; `db/client.ts` accepts `pglite:`; seed + `pipeline/ingest.ts`; validation exports (`approvalThresholdsFromPolicyRows` extracted, same behaviour); Duplicates tab in Katie's dashboard; Youssef's chaos test timeout 30 s.
 
 ### 6 Approvals — Youssef
 **Works** (tested): routing from `approval_policies` P01–P13 with delegation, escalation and separation of duties; the approve/reject gate `checkDecision`; re-approval on edits; aging; saving and loading plans and decisions (`saveApprovalPlan`, `getApprovalPlans`, `getCurrentApprovalPlan`, `saveDecision`). 137 tests; fixtures in `fixtures/approvals/`.
@@ -95,4 +98,5 @@ Not started.
 ## Watch out
 
 - Rules in `docs/rules/` do not auto-load; read the one for the files you touch.
+- No Docker? `npm run demo` (embedded Postgres in `.data/pglite`). Stop other dev servers first: one process per folder.
 - The state machine in `docs/explainers/brim-ap-diagrams.md` has open gaps (credit notes, release-time holds) — see `TODO.md` P0.

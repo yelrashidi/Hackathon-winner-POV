@@ -70,10 +70,10 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P2 `validateBankForRelease(vendorId, bankAccountId)` for payments (7) at release time. [Andrew]
 - [ ] P2 Add the incoming fixtures' expected flags to the shared `fixtures/golden/` + `npm run eval`. [Andrew]
 
-## 5 Duplicates — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Exact (sha256, vendor + normalized number), near (amount + date window), reformatted numbers. [_name_]
-- [ ] P1 Already paid by card (card_transactions by vendor, amount, date). [_name_]
-- [ ] P1 Dataset has a live duplicate: AP-00394 and AP-00407 (Summit Packaging, invoice `000804`, same date, lines, PO and $2,457.19) both have a scheduled payment. Duplicates must flag it before release; payments blocks on an open `block` flag once `getOpenInvoiceFlags` reads stored flags. [_name_]
+## 5 Duplicates — owner: Arpan
+- [ ] P1 Payments: call `checkDuplicatesAndPersist(invoiceId)` at release and block on open `duplicates` block flags once `getOpenInvoiceFlags` reads stored flags (AP-00407 is scheduled with an open DUPLICATE_INVOICE). [Katie, Arpan]
+- [ ] P2 Approvals: after "not a duplicate", route on `SPLIT_IF_NOT_DUPLICATE.evidence.combinedCadCents` like `SPLIT_INVOICE_SUSPECTED` (today only a visible warning). [Youssef]
+- [ ] P2 Store `card_transactions.vendor_id` once at import (merchant match), add an index on `(amount_cad_cents, posted_date)`. [Arpan]
 
 ## 6 Approvals — owner: Youssef
 - [ ] P1 One approval store per server, not per Next bundle: keep the in-memory default store on `globalThis`. Payments' half done 2026-11-21: payments reads approvals through `PostgresApprovalStore`, and its seed (`fake-data/approval-seed.ts`) is deleted. [Youssef]
