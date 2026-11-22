@@ -14,6 +14,9 @@ type Obj = Record<string, unknown> | null;
 
 const str = (o: Obj, k: string) => (o && o[k] !== undefined && o[k] !== null ? String(o[k]) : "");
 
+/** "V043#3 (••5964)" — the bank account version, last 4 digits only. */
+const bankLabel = (entityId: string, after: Obj) => `${entityId}${str(after, "last4") ? ` (••${str(after, "last4")})` : ""}`;
+
 export function describeEvent(e: Row, people: People): string {
   const who = people(e.actorId);
   const actor = `${who?.name ?? e.actorId} (${e.actorRole})`;
@@ -75,14 +78,18 @@ export function describeEvent(e: Row, people: People): string {
       return `${actor} cleared payment flag ${str(before, "reasonCode") || e.entityId}${why}`;
     case "payment_flag.cleared_automatically":
       return `Payment flag ${str(before, "reasonCode") || e.entityId} cleared automatically${why}`;
+    case "vendor.created":
+      return `${actor} onboarded vendor ${str(after, "legalName")} (${e.entityId}) — pending review until a second person approves it`;
+    case "vendor.status_changed":
+      return `${actor} changed vendor ${e.entityId} ${str(before, "status").replace(/_/g, " ")} → ${str(after, "status").replace(/_/g, " ")}${why}`;
     case "bank_account.change_requested":
-      return `${actor} requested a bank-account change${why}`;
+      return `${actor} entered new bank details ${bankLabel(e.entityId, after)} — waiting for a second person${why}`;
     case "bank_account.verified":
-      return `${actor} verified a bank account${why}`;
+      return `${actor} verified bank account ${bankLabel(e.entityId, after)}${why}`;
     case "bank_account.rejected":
-      return `${actor} rejected a bank-account change${why}`;
+      return `${actor} rejected bank account ${bankLabel(e.entityId, after)}${why}`;
     case "bank_account.closed":
-      return `${actor} closed a bank account${why}`;
+      return `${actor} closed bank account ${bankLabel(e.entityId, after)}${why}`;
     case "authz.denied":
       return `${actor} was REFUSED: ${e.reason ?? ""}`;
     default:

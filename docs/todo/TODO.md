@@ -95,9 +95,10 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P2 Apply the `data-model.md` column additions listed in `8-audit.md` ("To apply at merge"). [Andrew]
 - [ ] P3 Hash-chain `audit_events` (tamper evidence on top of the trigger + grants). [Andrew]
 
-## 9 Vendors — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Vendor list, onboard, hold; bank change request + verify by a second person. [_name_]
-- [ ] P1 Supply approvals `conflicts`: who onboarded the vendor and who requested / verified its last bank change. [_name_]
+## 9 Vendors — owner: Andrew (server side)
+- [ ] P1 Vendor screens (list, detail, onboard form, hold / approve / verify buttons) from `src/contracts/vendor.ts` + `fixtures/vendors/`. [dashboard owner]
+- [ ] P2 Bank changes exist in payments (Katie) and `features/vendors`, both on Postgres and compatible (same rows, statuses, audit names; verified both directions). Pick which one the screens call, or have payments' form call vendors'. [Katie / Andrew]
+- [ ] P2 Edit vendor fields after onboarding (name / tax number changes as a reviewed action). [Andrew]
 
 ## P3 — Bonus (only after 1–9 work)
 - [ ] Pick one at kickoff — candidates in [`../product.md`](../product.md#out-of-scope-until-19-work). [_name_]
