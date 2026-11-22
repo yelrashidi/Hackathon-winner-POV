@@ -410,6 +410,16 @@ function weekdayName(isoDate: string): string {
 }
 
 /**
+ * An invoice without a due date is due on its invoice date plus the supplier's payment terms;
+ * without either of those, today (decided 2026-11-21).
+ */
+export function dueDateFor(dueDate: string | null, invoiceDate: string | null, termsDays: number | null | undefined, today: string): string {
+  if (dueDate) return dueDate;
+  if (invoiceDate && termsDays !== null && termsDays !== undefined) return addDays(invoiceDate, termsDays);
+  return today;
+}
+
+/**
  * The due date, or today if it has passed. A Saturday or Sunday moves back to the Friday before;
  * if that Friday is already past, forward to the next Monday instead.
  */
