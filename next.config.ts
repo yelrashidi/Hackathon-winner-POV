@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   // and data files at runtime; bundling would break those paths, so Node loads it natively.
   serverExternalPackages: ["@electric-sql/pglite"],
   cacheComponents: true,
+  // Embedded Postgres for the no-Docker demo (DATABASE_URL=pglite:…): load it from node_modules
+  // at runtime instead of bundling its WebAssembly and data files.
+  serverExternalPackages: ["@electric-sql/pglite"],
   partialPrefetching: true,
   turbopack: {
     rules: {

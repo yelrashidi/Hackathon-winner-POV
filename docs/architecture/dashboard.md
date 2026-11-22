@@ -1,6 +1,6 @@
 # Dashboard — one app, five roles
 
-**Owner:** Youssef · **Code as of:** `dashboard-redesign` (on `cfde335`)
+**Owner:** Youssef · **Code as of:** `dashboard-redesign` (merged with main `e4ecc52`)
 
 ## What it does
 One Next.js app with a screen per job, on top of the real pipeline in Postgres. A bill goes
@@ -46,15 +46,14 @@ Enforced in three places that agree: `app/_lib/nav.ts` (what the sidebar shows a
 - **Read side** `src/server/dashboard/*`: one query module per screen (checks, approvals, audit,
   records = inbox/vendors/activity), each checks `authorize` like the writes do.
 - **Write side** `app/**/actions.ts` → `src/server/pipeline/*`. The actor is always the session's.
-- **Payments on Postgres** `src/server/pipeline/payments.ts`: Katie's service + rules unchanged; each
-  call loads its state from the tables (AsyncLocalStorage-scoped), runs the action, then writes the
-  diff (payments, payment_flags, bank accounts) and replays its invoice events through `fire()` and
-  its audit events into `audit_events` — one transaction. Only a fully approved plan approves a
-  payee and amount (TODO review finding).
+- **Payments** are Katie's service on Postgres (PR #15); `src/server/pipeline/payments.ts` is a thin
+  wrapper that adds the brief's Admin release rule. **Vendors** buttons call Andrew's
+  `features/vendors` (feature 9); **Duplicates** is Arpan's screen (`/payments/duplicates`) in the
+  shared sidebar. Only a fully approved plan approves a payee and amount (`payments/deps.ts`).
 - **New pipeline pieces:** `previewApproval` (the route submit *would* make — same input builder as
   `submitForApproval`), `releaseHold`, `enterInvoiceFields` (manual entry), documents store +
   `/documents/[id]`, Admin `updatePolicy` (new version row) / `setUserAvailability` (on leave +
-  delegate) / `createVendor` / `setVendorStatus`.
+  delegate).
 
 ## Flags it raises
 None of its own: it shows validation's, coding's and payments' flags. Closing one needs a note
@@ -72,6 +71,6 @@ paginate and push the reason calculation into SQL. Payments loads only open work
 PGlite is single-connection: production runs on Postgres (`DATABASE_URL`).
 
 ## Known gaps
-Duplicates (feature 5) has no screen (no owner). Demo sign-in is a cookie, not real auth.
+Demo sign-in is a cookie, not real auth.
 Uploads are stored on local disk (`UPLOAD_DIR`); deployed, use object storage. Payments loads EFT
 only (cheque/card in `payment-todo.md`).

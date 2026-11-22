@@ -7,10 +7,7 @@ import { authorize, Forbidden } from "@/server/core/authorize";
 import { fire } from "@/server/core/fire";
 import { getDb, type Db } from "@/server/db/client";
 import { departments, invoiceLines, invoiceTaxes, invoices, purchaseOrders, users } from "@/server/db/schema";
-import { validateWithin } from "@/server/features/validation";
-import { codeWithin } from "./coding";
-import { IngestError, type AnalysisResult } from "./ingest";
-import { invoiceInputFromDb } from "./input";
+import { IngestError, reanalyseWithin, type AnalysisResult } from "./ingest";
 
 /**
  * Manual entry (state machine: ManualEntry —fieldsEntered→ InReview, "re-runs analysis").
@@ -112,10 +109,8 @@ export async function enterInvoiceFields(actor: Actor, invoiceId: string, raw: M
       });
       await fire(action, invoiceId, "fieldsEntered");
 
-      const input = await invoiceInputFromDb(tx, invoiceId, today);
-      const { result, summary } = await validateWithin(action, input, { today });
-      const coding = await codeWithin(action, input, result.vendorId);
-      return { invoiceId, status: "InReview", result, summary, coding };
+      // Validation (4), duplicates (5) and coding (3), exactly as for an extracted invoice.
+      return { invoiceId, status: "InReview", ...(await reanalyseWithin(action, invoiceId, today)) };
     },
     { db },
   );

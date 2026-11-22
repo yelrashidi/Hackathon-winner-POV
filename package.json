@@ -26,7 +26,9 @@
     "gmail:auth": "tsx scripts/gmail-auth.ts",
     "gmail:poll": "tsx --env-file-if-exists=.env scripts/gmail-poll.ts",
     "intake:dataset": "tsx --env-file-if-exists=.env scripts/intake-dataset.ts",
-    "fixtures:intake": "tsx scripts/generate-intake-fixtures.ts"
+    "fixtures:intake": "tsx scripts/generate-intake-fixtures.ts",
+    "duplicates:batch": "tsx scripts/duplicates-batch.ts",
+    "demo": "tsx --env-file-if-exists=.env.local scripts/demo.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.4.0",

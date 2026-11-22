@@ -12,6 +12,7 @@ const ICONS: Record<SectionKey, string> = {
   inbox: "M3 11h4l1.5 2h3L13 11h4M4 5h12l1 6v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4l1-6Z",
   checks: "M7 10l2 2 4-4M5 3h10a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z",
   upload: "M10 13V3m0 0L6 7m4-4 4 4M4 13v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2",
+  duplicates: "M7 7V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M4 7h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z",
   approvals: "M4 10.5 8 14l8-8M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z",
   payments: "M3 6h14v9H3zM3 9h14M6 13h3",
   "to-schedule": "M6 3v2m8-2v2M4 7h12M5 5h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm3 6h4m-2-2v4",
@@ -24,7 +25,7 @@ const ICONS: Record<SectionKey, string> = {
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
-  if (href === "/payments" || href === "/checks") return pathname === href || (pathname.startsWith(`${href}/`) && !/\/(to-|needs-|upload)/.test(pathname.slice(href.length)));
+  if (href === "/payments" || href === "/checks") return pathname === href || (pathname.startsWith(`${href}/`) && !/\/(to-|needs-|upload|duplicates)/.test(pathname.slice(href.length)));
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

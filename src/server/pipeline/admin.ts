@@ -1,10 +1,10 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 import type { Actor } from "@/contracts/actor";
 import { ApprovalPolicy } from "@/contracts/approvals";
 import { recordDenied, withAction } from "@/server/core/audit";
 import { authorize, Forbidden } from "@/server/core/authorize";
 import { getDb, type Db, type Executor } from "@/server/db/client";
-import { approvalPolicies, auditEvents, users, vendors } from "@/server/db/schema";
+import { approvalPolicies, users } from "@/server/db/schema";
 
 /**
  * The Admin's controls (Controller / CFO, `admin.edit`):
@@ -162,99 +162,4 @@ export async function listDirectory(db: Executor = getDb()) {
     .from(users)
     .where(sql`${users.role} <> 'system'`)
     .orderBy(asc(users.id));
-}
-
-// ---------------------------------------------------------------------------------------------
-// Vendor master (feature 9): onboard a vendor, approve / hold it
-// ---------------------------------------------------------------------------------------------
-
-export interface NewVendor {
-  legalName: string;
-  category: string;
-  provinceOrState?: string | null;
-  country?: string | null;
-  gstHstNumber?: string | null;
-  apContactEmail?: string | null;
-  paymentTermsDays?: number | null;
-  requiresPo?: boolean;
-}
-
-/**
- * Onboard a vendor. It starts as `pending_review`: invoices from it can be checked, but approvals adds
- * the Finance Manager step (policy P05) and payments won't pay it until someone else approves it.
- * Anyone who may request bank changes may onboard (clerk, Finance Manager, Admin).
- */
-export async function createVendor(actor: Actor, v: NewVendor, opts: { db?: Db; today?: string } = {}) {
-  const db = opts.db ?? getDb();
-  let who;
-  try {
-    who = authorize(actor, "vendor.bank_change.request").actor;
-  } catch (err) {
-    if (err instanceof Forbidden) await recordDenied(actor, { attempted: "vendor.create", reason: err.reason, entityType: "vendor", entityId: "-" }, { db });
-    throw err;
-  }
-  const legalName = v.legalName?.trim();
-  const category = v.category?.trim();
-  if (!legalName || !category) throw new AdminError("A vendor needs a legal name and a category.", 400);
-  const today = opts.today ?? new Date().toISOString().slice(0, 10);
-  return withAction(
-    who,
-    async ({ tx, audit }) => {
-      const [dupe] = await tx.select({ id: vendors.id }).from(vendors).where(sql`lower(${vendors.legalName}) = lower(${legalName})`);
-      if (dupe) throw new AdminError(`${legalName} is already in the vendor master (${dupe.id}).`, 409);
-      const [{ n }] = (await tx.select({ n: sql<number>`count(*)::int` }).from(vendors)) as [{ n: number }];
-      let id = `V${String(Number(n) + 1).padStart(3, "0")}`;
-      for (let k = Number(n) + 2; (await tx.select({ id: vendors.id }).from(vendors).where(eq(vendors.id, id))).length; k++) id = `V${String(k).padStart(3, "0")}`;
-      const row = {
-        id,
-        legalName,
-        category,
-        provinceOrState: v.provinceOrState?.trim() || null,
-        country: v.country?.trim() || "CA",
-        gstHstNumber: v.gstHstNumber?.trim() || null,
-        apContactEmail: v.apContactEmail?.trim() || null,
-        paymentTermsDays: v.paymentTermsDays ?? 30,
-        requiresPo: v.requiresPo ?? false,
-        status: "pending_review",
-        onboardedAt: today,
-      };
-      await tx.insert(vendors).values(row);
-      await audit({ action: "vendor.created", entityType: "vendor", entityId: id, after: row, reason: "Onboarded in the app; pending review by a second person." });
-      return row;
-    },
-    { db },
-  );
-}
-
-/** Approve a pending vendor, put one on hold, or release a hold. A second person (not who onboarded it) approves. */
-export async function setVendorStatus(actor: Actor, vendorId: string, status: "active" | "on_hold" | "pending_review", note: string, opts: { db?: Db } = {}) {
-  const db = opts.db ?? getDb();
-  let who;
-  try {
-    who = authorize(actor, "vendor.bank_change.verify").actor;
-  } catch (err) {
-    if (err instanceof Forbidden) await recordDenied(actor, { attempted: "vendor.status", reason: err.reason, entityType: "vendor", entityId: vendorId }, { db });
-    throw err;
-  }
-  const reason = note?.trim();
-  if (!reason) throw new AdminError("Say why; the note goes into the audit trail.", 400);
-  return withAction(
-    who,
-    async ({ tx, audit }) => {
-      const [v] = await tx.select().from(vendors).where(eq(vendors.id, vendorId)).for("update");
-      if (!v) throw new AdminError(`Vendor ${vendorId} does not exist.`, 404);
-      if (v.status === status) throw new AdminError(`${v.legalName} is already ${status.replace("_", " ")}.`, 409);
-      if (v.status === "pending_review" && status === "active") {
-        const [created] = await tx
-          .select({ actorId: auditEvents.actorId })
-          .from(auditEvents)
-          .where(and(eq(auditEvents.action, "vendor.created"), eq(auditEvents.entityId, vendorId)));
-        if (created?.actorId === who.userId) throw new AdminError("You onboarded this vendor, so someone else must approve it (two people).", 409);
-      }
-      await tx.update(vendors).set({ status }).where(eq(vendors.id, vendorId));
-      await audit({ action: "vendor.status_changed", entityType: "vendor", entityId: vendorId, before: { status: v.status }, after: { status }, reason });
-      return { vendorId, status };
-    },
-    { db },
-  );
 }

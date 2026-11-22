@@ -14,9 +14,8 @@ Bugs: [`../bugs/bugs.md`](../bugs/bugs.md).
 
 Reviewed main `39dc2ac` (including the findings first reproduced on `96bffe4`). These are open defects, not completed work.
 
-- [ ] P1 **High: protect demo reset and audit history.** `app/payments/actions.ts:89` exposes `resetDemo()` without checking the signed-in actor or role; `src/server/features/payments/fake-data/store.ts:21` replaces the whole state, including audit history. Restrict reset to an authorized demo administrator, disable it outside the demo, and preserve an append-only record of the reset. Verify signed-out users, employees and auditors cannot reset data. [Katie] *(2026-11-21, Youssef, `dashboard-redesign`: reset now rebuilds the demo database, Admin only, demo database only, logged to the server log; an append-only record that survives the reset is still open.)*
-- [ ] P1 **High: validate pay dates before writes and make scheduling atomic.** `src/server/features/payments/rules.ts:297` only compares date strings; `src/server/features/payments/service.ts:282` writes the attempt, invoice status and audit before output parsing rejects an invalid date. A request with `payDate: "2026-99-99"` threw after leaving an invalid payment and `PaymentScheduled` invoice in state. Parse the request with a real calendar-date schema before mutation, then commit payment, `fire()` and audit together; rejection must leave all state unchanged. [Katie] *(2026-11-21, Youssef: on the database every payment action is one transaction, so a throw now leaves nothing behind; the calendar-date check is still open.)*
-- [ ] P1 **Medium: retain bank-account currency when changing details.** `src/server/features/payments/service.ts:510` hardcodes new accounts to CAD; replacing a USD account creates a verified CAD account and prevents USD release. Accept and validate the intended account currency through the server and UI contract, preserve it through verification, and cover USD replacement and retry. [Katie]
+- [ ] P1 **High: validate pay dates before writes.** `src/server/features/payments/rules.ts:297` only compares date strings, so `payDate: "2026-99-99"` passes the rules and the database insert then throws (a server error, not a reason). Atomic since 2026-11-21: payment, `fire()` and audit are one transaction, so nothing is written (checked: 0 rows, invoice still Approved). Still to do: parse the request with a real calendar-date schema and refuse with a reason. [Katie]
+- [ ] P1 **Medium: retain bank-account currency when changing details.** `src/server/features/payments/service.ts:542` hardcodes new accounts to CAD; replacing a USD account creates a verified CAD account and prevents USD release. Accept and validate the intended account currency through the server and UI contract, preserve it through verification, and cover USD replacement and retry. [Katie]
 - [ ] P1 **Medium: include the Next.js app in CI.** `.github/workflows/ci.yml:33` runs `typecheck`, but `tsconfig.json:19` includes only shared source and scripts; CI never builds the app. Add a production build (which generates and checks route types) or `next typegen` plus `tsc --noEmit -p tsconfig.next.json`, and lint. A type error in an app page must fail CI. [Andrew]
 
 ## P0 — Foundation (everyone waits on these)
@@ -67,10 +66,10 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P2 `validateBankForRelease(vendorId, bankAccountId)` for payments (7) at release time. [Andrew]
 - [ ] P2 Add the incoming fixtures' expected flags to the shared `fixtures/golden/` + `npm run eval`. [Andrew]
 
-## 5 Duplicates — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Exact (sha256, vendor + normalized number), near (amount + date window), reformatted numbers. [_name_]
-- [ ] P1 Already paid by card (card_transactions by vendor, amount, date). [_name_]
-- [ ] P1 Dataset has a live duplicate: AP-00394 and AP-00407 (Summit Packaging, invoice `000804`, same date, lines, PO and $2,457.19) both have a scheduled payment. Duplicates must flag it before release; payments blocks on an open `block` flag once `getOpenInvoiceFlags` reads stored flags. [_name_]
+## 5 Duplicates — owner: Arpan
+- [ ] P1 Payments: call `checkDuplicatesAndPersist(invoiceId)` at release and block on open `duplicates` block flags once `getOpenInvoiceFlags` reads stored flags (AP-00407 is scheduled with an open DUPLICATE_INVOICE). [Katie, Arpan]
+- [ ] P2 Approvals: after "not a duplicate", route on `SPLIT_IF_NOT_DUPLICATE.evidence.combinedCadCents` like `SPLIT_INVOICE_SUSPECTED` (today only a visible warning). [Youssef]
+- [ ] P2 Store `card_transactions.vendor_id` once at import (merchant match), add an index on `(amount_cad_cents, posted_date)`. [Arpan]
 
 ## 6 Approvals — owner: Youssef
 - [ ] P1 On invoice edit call `reapprovalReasons`; non-empty → bump `invoices.version`. [Youssef]
@@ -79,8 +78,6 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 
 ## 7 Payments — owner: Youssef
 ## 7 Payments — owner: Katie
-- [ ] P1 Schedule, release (limits, separation of duties, verified bank account), status dashboard. [Katie]
-- [ ] P1 Release checks against approvals: P11 via `approversOf(...allPlans)`; amount ≤ `plan.basis.totalCents`, payee = `plan.basis.vendorId`. [Katie]
 
 ## 8 Audit + foundation — owner: Andrew
 - [ ] P1 Team decisions in `docs/architecture/8-audit.md`: Controller audit access, historical `rejected` → `Voided`, schema-merge owner. [_name_]
@@ -89,14 +86,13 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P3 Hash-chain `audit_events` (tamper evidence on top of the trigger + grants). [Andrew]
 
 ## Dashboard — owner: Youssef
-- [ ] P1 Duplicates screen (side-by-side match) once feature 5 has an owner and stores its flags. [Youssef]
 - [ ] P2 Real sign-in instead of the demo cookie (server session stays the only source of the actor). [Youssef]
 - [ ] P2 Uploaded files to object storage (Supabase Storage) instead of `UPLOAD_DIR`; only `pipeline/documents.ts` changes. [Youssef]
 - [ ] P2 Needs-attention renders one payments state load per flag list; compute who can clear flags once per page. [Youssef]
 
-## 9 Vendors — owner: _Arpan / Youssef / Andrew / Katie_
-- [ ] P1 Vendor list, onboard, hold; bank change request + verify by a second person. [_name_]
-- [ ] P1 Supply approvals `conflicts`: who onboarded the vendor and who requested / verified its last bank change. [_name_]
+## 9 Vendors — owner: Andrew (server side)
+- [ ] P2 Bank changes exist in payments (Katie) and `features/vendors`, both on Postgres and compatible (same rows, statuses, audit names; verified both directions). The dashboard's Vendors screen calls `features/vendors` (2026-11-21, Youssef); payments' detail page still has its own form — switch it too, or drop payments' copy. [Katie / Andrew]
+- [ ] P2 Edit vendor fields after onboarding (name / tax number changes as a reviewed action). [Andrew]
 
 ## P3 — Bonus (only after 1–9 work)
 - [ ] Pick one at kickoff — candidates in [`../product.md`](../product.md#out-of-scope-until-19-work). [_name_]

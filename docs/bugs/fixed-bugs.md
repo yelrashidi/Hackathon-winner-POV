@@ -18,12 +18,16 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Andrew-04 | Medium | Andrew | 2026-11-21 | A refused coding attempt hung the request instead of returning 403 |
 | BUG-Andrew-05 | Low | Andrew | 2026-11-21 | Seeded history showed a payment "scheduled" after it was released |
 | BUG-Andrew-06 | High | Andrew | 2026-11-21 | Intake scripts never saved anything: the DB adapter existed but nothing called it |
+| BUG-Andrew-07 | Low | Andrew | 2026-11-21 | Intake scripts' shutdown crashed on the embedded demo database |
 | BUG-Arpan-01 | High | Arpan | 2026-11-21 | Any PDF in an email that said "invoice" became a draft bill |
 | BUG-Arpan-02 | High | Arpan | 2026-11-21 | Gmail advanced its cursor past messages excluded by the delivery cap |
 | BUG-Arpan-03 | High | Arpan | 2026-11-21 | Credit notes kept positive amounts when their total was missing or already negative |
 | BUG-Arpan-04 | Medium | Arpan | 2026-11-21 | Missing line values silently became zero amounts or quantity one |
+| BUG-Arpan-05 | Medium | Arpan | 2026-11-21 | DB tests picked "the first row" without ORDER BY and broke when the seed wrote more rows |
+| BUG-Arpan-06 | Medium | Arpan | 2026-11-21 | Duplicates page queried the DB while Next.js prerendered and the route errored on the embedded DB |
 | BUG-Katie-01 | High | Katie | 2026-11-21 | Release said "No approval record was found" in the app while tests passed |
 | BUG-Katie-02 | Medium | Katie | 2026-11-21 | `import "server-only"` made `npm run check` fail |
+| BUG-Katie-03 | Medium | Andrew | 2026-11-21 | `.env.example` was referenced but not in the repo |
 
 ---
 
@@ -183,3 +187,29 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 **Fix.** The queue's blocking count leaves out `source = 'coding'` (`src/server/dashboard/checks.ts`); coding's state is shown per line instead (confirmed / unsure).
 **Why it happened.** Coding stores its submit guard as an ordinary block flag on purpose (so `fire('submit')` needs no extra check); the screen must not treat it as a validation problem.
 
+### BUG-Arpan-05
+**Tests depended on heap order** · Medium · FIXED · found 2026-11-21 while adding the duplicates seed pass
+
+**Cause.** `audit-trail.test.ts` took "the first open flag" (`LIMIT 1`, no `ORDER BY`) and assumed it was on a new invoice; `intake.test.ts` compared audit actions and "the first audit event" in physical order. Once the seed also wrote duplicate flags, Postgres returned other rows first.
+**Fix.** Explicit filters and `ORDER BY id` (`src/server/db/__tests__/audit-trail.test.ts` override setup, `src/server/pipeline/__tests__/intake.test.ts:62`, `:87`, `:124`). Rule: db.md.
+
+### BUG-Arpan-06
+**DB read during prerender** · Medium · FIXED · found 2026-11-21 running `next start` on the embedded demo DB
+
+**Cause.** With `cacheComponents`, `/payments/duplicates` started its database read while Next.js was still prerendering the shell; PGlite reads the clock, and Next refuses `Date.now()` during prerender ("encountered the unstable value `Date.now()`").
+**Fix.** `await connection()` before the read (`app/payments/_lib/duplicates.ts`). Rule: frontend.md.
+
+### BUG-Andrew-07
+**Intake scripts' shutdown crashed on the embedded demo database** · Low · FIXED · found 2026-11-21 by Andrew (merging main's `npm run demo`)
+
+**Symptom.** `intake:dataset` with `DATABASE_URL=pglite:…` would throw at the end: `$client.end is not a function`.
+**Cause.** `scripts/intake-save.ts` closed the connection with postgres.js's `end()`; main added an embedded PGlite mode whose client closes with `close()`.
+**Fix.** Close with whichever the client has (`end` or `close`). Verified on the embedded demo DB and Docker.
+
+### BUG-Katie-03
+**`.env.example` is referenced but not in the repo** · Medium · FIXED · found 2026-11-21 by Katie
+
+**Symptom.** Without a `.env`, the app and `npm run db:reset` fail with "DATABASE_URL is not set (see .env.example)" (`src/server/db/client.ts:34`, `scripts/db-reset.ts:13`), and `tasks-completed.md` lists `.env.example` as landed, but no commit on any branch has the file (`git log --all -- .env.example` is empty).
+**Cause.** Probably created locally and never committed (`.gitignore` un-ignores it).
+**Blocks.** Everyone running the app on Postgres (now every payments page) has to guess the variable names; the local values are only in `docker-compose.yml` and `docker/init/`.
+**Fix.** Committed `.env.example` (2026-11-21, Andrew, `andrew-audit-db`): `DATABASE_URL` (ap_app) and `DATABASE_URL_ADMIN` (owner) with the local Docker values from `docker-compose.yml`. It holds no secrets; API keys stay in the git-ignored `.env.local`.

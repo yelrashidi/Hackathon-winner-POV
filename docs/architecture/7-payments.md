@@ -1,22 +1,22 @@
 # 7 — Payments
 
-**Owner:** Katie (STATUS: Youssef also listed, to confirm) · **Code as of:** `4881290`
+**Owner:** Katie (STATUS: Youssef also listed, to confirm) · **Code as of:** branch `Katie`, 2026-11-21 (payments on the database)
 
 Detail lives in two places: what each field and code means is in [`payment-data.md`](../payment-data.md), and why each rule exists is in [`payment-decisions.md`](../payment-decisions.md). What's still TEMP is in [`payment-assumptions.md`](../payment-assumptions.md).
 
 ## What it does
-It takes an **Approved** invoice, one person schedules a payment, and a *different* person with enough authority releases it to the vendor's *verified* bank account. A simulated EFT bank then settles it or fails it with a reason. Invoice events: schedule → `PaymentScheduled`, settle → `Paid`, fail or cancel → back to `Approved` (`deps.ts` `fireInvoiceEvent`, TEMP until `core/fire.ts`). A retry is always a **new attempt**, and final states never change.
+It takes an **Approved** invoice, one person schedules a payment, and a *different* person with enough authority releases it to the vendor's *verified* bank account. A simulated EFT bank then settles it or fails it with a reason. Invoice events: schedule → `PaymentScheduled`, settle → `Paid`, fail or cancel → back to `Approved` (through `core/fire.ts` `fire()`). A retry is always a **new attempt**, and final states never change.
 
 ## Contract
 - Shared schemas: `src/contracts/payment.ts`, which holds `PaymentRecord` (:187), `PaymentFlag` (:156), `ReleaseCheck` (:235), `PaymentsView` (:258) and `FAILURE_REASONS` (:83).
-- Reads: `listPayments(viewerId)` and `getPaymentDetail(viewerId, invoiceId)` (`service.ts:203`, `:222`).
-- Actions: `schedulePayment`, `releasePayment`, `cancelPayment`, `simulateSettlement`, `clearFlag`, and `requestBankChange` / `verifyBankChange` / `rejectBankChange` (`service.ts:282`–`:547`).
+- Reads: `listPayments(viewerId)` and `getPaymentDetail(viewerId, invoiceId)` (`service.ts:186`, `:206`).
+- Actions: `schedulePayment`, `releasePayment`, `cancelPayment`, `simulateSettlement`, `clearFlag`, and `requestBankChange` / `verifyBankChange` / `rejectBankChange` (`service.ts:331`–`:586`).
   - Every action returns `{ ok: true, value, warnings }` or `{ ok: false, status, reasons[] }`.
   - The actor always comes from the server session.
-- Stored: in memory (`fake-data/store.ts`, TEMP: db). Fixtures: none yet, because no later stage reads payments.
+- Stored: Postgres. `payments` holds one row per attempt (new ids continue `PAY-nnnnn`), plus `payment_flags` and `vendor_bank_accounts`; audit rows go to `audit_events` through `withAction`. All queries are in `deps.ts`. Fixtures: none yet, because no later stage reads payments.
 
 ## How it decides
-All the rules are pure functions in `rules.ts`. The service loads the facts, calls a rule, and only writes if the rule returns no reasons. Every write also writes an audit event.
+All the rules are pure functions in `rules.ts`. The service calls `authorize()`, loads the facts (`deps.ts` `loadData`), calls a rule, and only writes if the rule returns no reasons. The change, `fire()` and the audit events commit in one transaction, with the row locked. A role `authorize()` refuses still gets every reason, because the checks run read-only.
 - **Release** (`checkRelease`, `rules.ts:97`) returns *every* reason that applies, not just the first:
   - Role: Finance Manager or Controller, and active today.
   - P09 limit, read from the policy (Finance Manager up to $100k CAD).
@@ -25,8 +25,8 @@ All the rules are pure functions in `rules.ts`. The service loads the facts, cal
   - Payee and amount must match the approval `basis`.
   - FX: amount × rate must equal the stored CAD amount to ±1¢.
   - No open `block` flag; credit notes are never paid; EFT only; the vendor must be active.
-- **Schedule** (`checkSchedule`, `:246`): finance roles only. After a failure, the failure's retry rule decides whether a retry is allowed. The default pay date is the due date, moved to the Friday before if it falls on a weekend (or the next Monday if that Friday has passed), and an overdue date becomes today (`defaultPayDate`, `:416`).
-- **Bank answer** (`simulateSettlement`, `service.ts:387`) only works on a released payment. One lookup in `FAILURE_REASONS` gives each failure its retry rule and its urgency. Urgency decides how far the problem spreads:
+- **Schedule** (`checkSchedule`, `:246`): finance roles only. After a failure, the failure's retry rule decides whether a retry is allowed. The default pay date is the due date, moved to the Friday before if it falls on a weekend (or the next Monday if that Friday has passed), and an overdue date becomes today (`defaultPayDate`, `:426`). An invoice with no due date is due on its invoice date plus the supplier's payment terms, or today (`dueDateFor`, `:416`).
+- **Bank answer** (`simulateSettlement`, `service.ts:441`) only works on a released payment. One lookup in `FAILURE_REASONS` gives each failure its retry rule and its urgency. Urgency decides how far the problem spreads:
   - **Critical** holds every payment to the supplier.
   - **High** closes the bank account.
   - **Low** affects only that payment.
@@ -56,9 +56,10 @@ How each flag clears:
 - **Unknown bank outcome:** HTTP 400.
 - **Nobody signed in:** `NOT_SIGNED_IN`.
 - **Someone posting the action as the wrong role:** the same refusal the screen shows, because the check runs on the server.
+- **Two clicks at the same moment:** the second waits for the row lock and is refused, or gets 409 `CONFLICT`.
 
 ## At 100× volume
-- **The in-memory store goes first.** It is lost on restart and limited to one process. It moves to Postgres, with each action in one transaction alongside `fire()` and the audit write.
+- **Approval plans are read one invoice at a time** (`deps.ts` `getApprovalFacts`): a few queries per invoice on every page load. A batched read would replace it.
 - **`listPayments` is slow at scale.** It builds every row and runs `checkRelease` for each one. It would page through the rows and run the release check only for the rows on screen.
 - **The simulated bank answers immediately.** A real EFT rail is batch files with answers arriving later, so release would send the payment with an idempotency key and the bank's answer would come back through a webhook.
 
@@ -68,5 +69,6 @@ How each flag clears:
   - Delegation for release.
   - Partial payments.
   - Card, cheque and wire payments.
-- **Duplicates aren't caught yet.** The `getOpenInvoiceFlags` stub returns nothing, so a duplicate scheduled twice (AP-00394 / AP-00407 in the dataset) isn't blocked until duplicate flags are stored.
-- **Built on TEMP stand-ins:** `authorize()`, `fire()` and audit are stand-ins inside payments. Approvals history comes from a seed until Youssef's flow fills his store.
+- **Duplicates are caught at release** since Arpan's duplicates feature stores its flags: release refuses an open `block` flag, so the dataset's duplicate pair (AP-00394 / AP-00407) can't both be paid.
+- **Still TEMP:** the money helpers (`money.ts`), and the stored-flag reader in `deps.ts` (validation exports none).
+- **Release doesn't yet require every approval step to be approved** (open P1 in TODO): a current plan with pending or rejected steps still gives an approved basis.

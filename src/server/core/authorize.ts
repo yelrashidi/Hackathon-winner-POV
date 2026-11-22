@@ -28,7 +28,18 @@ export const ACTIONS = {
   "approval.decide": ["approver", "finance_manager", "controller_admin"],
   "payment.prepare": ["ap_clerk", "finance_manager", "controller_admin"],
   "payment.release": ["finance_manager", "controller_admin"],
+  /**
+   * Feature 9 — vendor master. Anyone in finance may stop a vendor (hold, the safe direction);
+   * only a manager lets one be paid (approve, lift a hold, verify bank details). The "two people"
+   * rules (not the onboarder, not the requester) need data, so they live in features/vendors/rules.ts.
+   */
+  "vendor.view": ["ap_clerk", "finance_manager", "controller_admin", "auditor"],
+  "vendor.onboard": ["ap_clerk", "finance_manager", "controller_admin"],
+  "vendor.approve": ["finance_manager", "controller_admin"],
+  "vendor.hold": ["ap_clerk", "finance_manager", "controller_admin"],
+  "vendor.release_hold": ["finance_manager", "controller_admin"],
   "vendor.bank_change.request": ["ap_clerk", "finance_manager", "controller_admin"],
+  /** Verify or reject a pending bank change. */
   "vendor.bank_change.verify": ["finance_manager", "controller_admin"],
   "admin.edit": ["controller_admin"],
   /**
@@ -50,6 +61,11 @@ const LABELS: Record<Action, string> = {
   "approval.decide": "approve or reject invoices",
   "payment.prepare": "schedule payments",
   "payment.release": "release payments",
+  "vendor.view": "view the vendor master",
+  "vendor.onboard": "onboard vendors",
+  "vendor.approve": "approve new vendors",
+  "vendor.hold": "put vendors on hold",
+  "vendor.release_hold": "lift a vendor hold",
   "vendor.bank_change.request": "request vendor bank changes",
   "vendor.bank_change.verify": "verify vendor bank changes",
   "admin.edit": "edit users, roles and policies",

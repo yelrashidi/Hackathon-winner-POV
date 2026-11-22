@@ -6,6 +6,7 @@ import { emit, recordDenied, withAction } from "@/server/core/audit";
 import { authorize, Forbidden } from "@/server/core/authorize";
 import { fire } from "@/server/core/fire";
 import { getDb, type Db, type Executor } from "@/server/db/client";
+import { vendorConflicts } from "@/server/features/vendors/conflicts";
 import { approvalPlans, approvalPolicies, approvalSteps, departments, invoiceFlags, invoiceLines, invoices, purchaseOrders, users, vendors } from "@/server/db/schema";
 import {
   applyDecision,
@@ -258,7 +259,8 @@ async function buildApprovalInput(tx: Executor, inv: InvoiceRow, submitterId: st
     submittedBy: submitterId && submitterId !== inv.requesterId ? submitterId : null,
     poId: inv.poId,
     poRequesterId: po?.requesterId ?? null,
-    conflicts: [],
+    // Feature 9: who maintains this vendor (onboarded it, changed its bank) may not approve it.
+    conflicts: await vendorConflicts(tx, inv.vendorId),
     currency: inv.currency!,
     totalCents: inv.totalCents!,
     fxRateToCad: Number(inv.fxRate ?? "1"), // a rate (decimal), as the approvals contract takes it

@@ -17,6 +17,7 @@ export const AUDIT_ACTIONS = [
   "invoice.created", // intake / extraction produced it
   "invoice.edited", // a human changed fields (material edits bump the version)
   "invoice.validated", // validation ran: snapshot of the reference data the verdict used
+  "invoice.duplicates_checked", // duplicates ran: what it compared against and what it raised
   "invoice.coding_suggested", // coding proposed an account + department per line (system)
   "invoice.line_coded", // a person accepted or changed a line's GL / department
   "invoice.status_changed", // fire(): every state-machine transition

@@ -6,6 +6,7 @@ import "server-only";
 import { listApprovals } from "@/server/dashboard/approvals";
 import { listChecks } from "@/server/dashboard/checks";
 import { paymentsDb } from "@/server/pipeline";
+import { openDuplicateCount } from "../payments/_lib/duplicates";
 import type { Viewer } from "@/server/session/current-user";
 import { canSee, type SectionKey } from "./nav";
 
@@ -39,6 +40,13 @@ export async function countsFor(viewer: Viewer): Promise<Counts> {
         out["to-release"] = { n: scheduled.filter((_, i) => releasers[i]!.some((p) => p.userId === user.id)).length };
         const attention = view.payments.filter((p) => p.current.status === "failed" || p.current.status === "on_hold" || p.flags.some((f) => f.clearedAt === null)).length;
         out["needs-attention"] = { n: attention, alert: attention > 0 };
+      }),
+    );
+  }
+  if (canSee(role, "duplicates")) {
+    tasks.push(
+      openDuplicateCount().then((n) => {
+        if (n) out.duplicates = { n, alert: true };
       }),
     );
   }

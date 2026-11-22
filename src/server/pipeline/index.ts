@@ -11,16 +11,14 @@
  *             decideApproval(actor, id, body)                 approve / reject a step
  *   8         features/audit                                  the auditor's view of all of it
  *
- *   7         paymentsDb.*                                    Katie's payments service, state loaded from and saved to Postgres
- *
- * Not here yet: 5 duplicates (no owner).
+ *   7         paymentsDb.*                                    Katie's payments service (on Postgres) + the Admin release rule
  */
-export { ingestInvoice, revalidateInvoice, editInvoice, IngestError, type IngestOptions, type AnalysisResult, type InvoicePatch } from "./ingest";
+export { ingestInvoice, revalidateInvoice, reanalyseWithin, editInvoice, IngestError, type IngestOptions, type AnalysisResult, type InvoicePatch } from "./ingest";
 export { codeWithin, codeInvoiceLine, acceptConfidentLines, loadCodingContext, invoiceCoding, CodingError } from "./coding";
 export { submitForApproval, decideApproval, previewApproval, releaseHold, loadApprovalContext, PostgresApprovalStore, ApprovalFlowError } from "./approvals";
 export { invoiceInputFromDb } from "./input";
 export { ingestFromIntake, readingToValidationInput, intakeInvoiceId, inboxMessageId, type IntakeOutcome, type IntakeIngestResult, type IntakeIngestOptions, type IntakeAttachmentFile } from "./intake";
-export { paymentsDb, loadPaymentsState, openPaymentFlagsByVendor } from "./payments";
+export { paymentsDb } from "./payments";
 export { enterInvoiceFields, ManualFields } from "./manual-entry";
 export { saveUploadedDocument, readDocumentFile, UPLOAD_DIR } from "./documents";
-export { listPolicies, updatePolicy, setUserAvailability, listDirectory, createVendor, setVendorStatus, AdminError, type PolicyPatch, type AvailabilityPatch, type NewVendor } from "./admin";
+export { listPolicies, updatePolicy, setUserAvailability, listDirectory, AdminError, type PolicyPatch, type AvailabilityPatch } from "./admin";

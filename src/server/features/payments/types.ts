@@ -33,12 +33,16 @@ export interface VendorRec {
   id: string;
   legalName: string;
   status: string;
+  /** Vendor master payment terms, for an invoice without a due date. */
+  paymentTermsDays?: number | null;
 }
 
 /** A6. Field names follow Andrew's BankAccountVersion; currency / requestedBy / verifiedBy are ours. */
 export type BankAccountStatus = "pending" | "verified" | "rejected" | "superseded" | "closed";
 
 export interface BankAccountVersion {
+  /** vendor_bank_accounts.id (set when loaded from the database); payments point at it. */
+  accountId?: number;
   vendorId: string;
   version: number;
   status: BankAccountStatus;
@@ -124,18 +128,20 @@ export interface AuditEvent {
   reason: string | null;
 }
 
-export interface PaymentsState {
+/** What one read or action loads from the database (deps.ts loadData), for the invoices in view. */
+export interface PaymentsData {
   users: Map<string, DirectoryUser>;
   vendors: Map<string, VendorRec>;
-  invoices: Map<string, InvoiceRec>;
+  /** Active payment_release policies. */
   policies: ApprovalPolicy[];
+  invoices: InvoiceRec[];
+  /** Every attempt of those invoices. */
+  attempts: PaymentRec[];
+  /** Every version of those suppliers' bank accounts. */
   bankAccounts: BankAccountVersion[];
-  payments: PaymentRec[];
+  /** Every payment flag on those suppliers, open and cleared. */
   flags: FlagRec[];
-  audit: AuditEvent[];
-  /** Open validation / duplicate flags per invoice (A5). Nobody produces them yet. */
+  /** Open validation / duplicate flags per invoice (A5). */
   invoiceFlags: Map<string, Flag[]>;
-  seq: number;
-  /** On the database: approvals' answer per invoice, read from Postgres (A1, A3b). Absent → the in-memory approval store. */
-  approvalFacts?: Map<string, ApprovalFacts>;
+  approvals: Map<string, ApprovalFacts | undefined>;
 }

@@ -28,8 +28,10 @@ control. A refusal is a 403 with a reason the UI shows (`You approved this invoi
 | Approve / reject a step | — | — | own dept, ≤ limit | above dept limits, flagged, new vendor | ✓ | — |
 | Prepare (schedule) payment | — | ✓ | — | ✓ | — (dashboard: the Admin does not prepare) | — |
 | Release payment | — | — | — | ≤ $100,000 CAD | only what the Finance Manager can't (> $100k, or she approved it) | — |
+| View the vendor master | — | ✓ | — | ✓ | ✓ | ✓ (read-only) |
+| Onboard a vendor, put a vendor on hold | — | ✓ | — | ✓ | ✓ | — |
 | Request vendor bank change | — | ✓ | — | ✓ | ✓ | — |
-| Verify vendor bank change / approve new vendor | — | — | — | ✓ | ✓ | — |
+| Verify vendor bank change / approve new vendor / lift a hold | — | — | — | ✓ (not their own entry) | ✓ (not their own entry) | — |
 | Edit users, roles, approval policies | — | — | — | — | ✓ | — |
 | View the audit trail | — | ✓ | ✓ | ✓ | ✓ | ✓ (past invoices only) |
 | Export the audit log | — | — | — | — | ✓ | ✓ |

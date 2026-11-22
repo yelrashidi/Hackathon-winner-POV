@@ -10,9 +10,9 @@ the top block is updated by whoever finishes a shared piece.
 
 | Owner | Features | Also owns |
 |---|---|---|
-| Arpan | 1 Intake, 2 Extraction | |
+| Arpan | 1 Intake, 2 Extraction, 5 Duplicates | |
 | Youssef | 3 Coding, 6 Approvals, dashboard (all roles) | |
-| Andrew | 4 Validation, 8 Audit + foundation (schema, `core/`, `src/server/pipeline/`) | |
+| Andrew | 4 Validation, 8 Audit + foundation (schema, `core/`, `src/server/pipeline/`), 9 Vendors (server side) | |
 | Katie | 7 Payments, payments dashboard | |
 | shared | foundation (`core/`) | schema merges: _name_ |
 
@@ -61,26 +61,29 @@ the top block is updated by whoever finishes a shared piece.
 **Next:** `validateBankForRelease` for payments.
 **Waiting on:** Katie (payments reading stored flags instead of `deps.ts`).
 
-### 5 Duplicates — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 5 Duplicates — Arpan
+**Works (uncommitted on `arpan/feature/duplicate-check`, 2026-11-21):** `src/server/features/duplicates/`: same file, same number after reformatting, number variants, same amount ≤ 7 days, already paid by employee card (merchant name → vendor), and `SPLIT_IF_NOT_DUPLICATE` beside same-number pairs. Runs in `analyse()` after validation and over history in the seed; incoming 5 flagged, history every same-number pair incl. live AP-00394/AP-00407, no monthly-fee false positives. **A person decides every one** on `/payments/duplicates` (void/close via `fire()`, or override with a note). 34 tests; `npm run duplicates:batch`.
+**Also:** `npm run demo` runs the app on embedded PGlite (no Docker); `docker compose up -d` = db + setup + app (built, not run end to end — Docker disk on full C:).
+**Next / waiting on:** void or hold after approval (state machine, TODO P0); payments reading stored block flags at release (Katie); approvals routing on `SPLIT_IF_NOT_DUPLICATE` after "not a duplicate" (Youssef).
+**Shared changes:** `contracts/audit.ts` + `invoice.duplicates_checked`; `db/client.ts` accepts `pglite:`; seed + `pipeline/ingest.ts`; validation exports (`approvalThresholdsFromPolicyRows` extracted, same behaviour); Duplicates tab in Katie's dashboard; Youssef's chaos test timeout 30 s.
 
 ### 6 Approvals — Youssef
 **Works end to end** (branch `dashboard-redesign`, on Postgres): submit from Checks with a live **route preview** (`previewApproval`, the same input builder as `submitForApproval`); **Approvals** queue = `waitingOn` per person (delegates see "on behalf of"); decision page with acknowledgements; holds go back to review with a note (`releaseHold`); the Admin edits policies (new version row, `updatePolicy`) and puts approvers on leave with a delegate (`setUserAvailability`). Routing follows `approval_policies.csv` (team decision 2026-11-21).
 **Stubbed:** `approvalAging` reminders; `reapprovalReasons` not yet called on edits.
 
 ### Dashboard (all roles) — Youssef
-**Works** (branch `dashboard-redesign`, not merged): one app for the five roles, one person each (Jordan Okafor, Dev Malhotra, Elise Tremblay, Marcus Webb, Hannah Lindqvist — `session/roster.ts`); they are the only sign-ins and the only requesters offered. Click-by-click demo: [`demo-script.md`](demo-script.md). Home / Inbox / Checks (+ upload, manual entry) / Approvals / Payments / Vendors / Audit trail / People & policies / Demo controls. Runs with **no Docker**: without `DATABASE_URL` an in-process Postgres is built from the dataset at startup (`src/server/demo/`). Doc: [`architecture/dashboard.md`](architecture/dashboard.md). 796 tests, including an end-to-end flow test (`src/server/dashboard/__tests__/flow.test.ts`).
+**Works** (branch `dashboard-redesign`, merged with main): one app for the five roles, one person each (Jordan Okafor, Dev Malhotra, Elise Tremblay, Marcus Webb, Hannah Lindqvist — `session/roster.ts`); they are the only sign-ins and the only requesters offered. Click-by-click demo, incl. a Claude-read upload: [`demo-script.md`](demo-script.md). 909 tests pass after merging main (`e4ecc52`). Home / Inbox / Checks (+ upload, manual entry) / Approvals / Payments / Vendors / Audit trail / People & policies / Demo controls. Runs with **no Docker**: without `DATABASE_URL` an in-process Postgres is built from the dataset at startup (`src/server/demo/`). Doc: [`architecture/dashboard.md`](architecture/dashboard.md); end-to-end flow test `src/server/dashboard/__tests__/flow.test.ts`.
 **Changes in other people's code — please review:**
-- **Andrew:** `core/authorize.ts` — checks open to `approver` + `finance_manager`; `audit.view` for all five roles, `audit.export` + `controller_admin` (tests updated). Contracts: `audit.ts` + `user.status_changed`, `audit-view.ts` + optional `statuses`. `pipeline/approvals.ts` refactored (shared `buildApprovalInput`), new `pipeline/{payments,manual-entry,documents,admin}.ts`.
-- **Katie:** payments now run on Postgres through `pipeline/payments.ts` (her rules untouched; `fake-data/store.ts` gained a per-request state, `deps.ts` reads approval facts from it). Payments pages sit in the shared frame; the Admin only releases what the Finance Manager can't; reset is Admin-only. Upload moved to `/checks/upload` and saves through `ingestInvoice`.
-- **Arpan:** `pipeline/intake.ts` now stores intake's verdict + reason on emails the seed already loaded.
-- `@electric-sql/pglite` moved to dependencies; `next.config.ts` lists it in `serverExternalPackages`.
-**Next:** duplicates screen when feature 5 lands; real auth; uploads to object storage.
+- **Andrew:** `core/authorize.ts` — checks open to `approver` + `finance_manager`; `audit.view` for all five roles, `audit.export` + `controller_admin`. Contracts: `audit.ts` + `user.status_changed`, `audit-view.ts` + optional `statuses`. `pipeline/approvals.ts`: shared `buildApprovalInput` (keeps `vendorConflicts`); new `pipeline/{manual-entry,documents,admin,payments}.ts`. Vendors screen calls `features/vendors`.
+- **Katie:** payments stay her Postgres service; `pipeline/payments.ts` only adds the Admin release rule. `deps.ts`: only a fully approved plan approves a payee (review finding, fixed). Payments pages sit in the shared frame; upload moved to `/checks/upload` and saves through `ingestInvoice`.
+- **Arpan:** `pipeline/intake.ts` stores intake's reason on emails the seed loaded; Duplicates is in the shared sidebar; `duplicates/__tests__/db.test.ts` now shows the refusal with the Auditor (managers may do checks).
+- `@electric-sql/pglite` is a dependency; the quick demo (`npm run dev`, no `DATABASE_URL`) runs as `ap_app` like `npm run demo`.
+**Next:** real auth; uploads to object storage; live mailbox polling from the Inbox (Gmail connector exists as a script).
 
 ### 7 Payments — Katie
-**Works (in memory, on the dataset; merged to main 2026-11-21, `b69ce5d`):** schedule / release / cancel / retry / schedule again; release rules (P09–P11, approver / scheduler / requester can't release, active staff, verified bank, pending bank change, payee + amount = approved, FX re-check, blocking flags); simulated EFT with 9 failure reasons; urgency flags; bank change + second-person verify; audit events. Dashboard `/payments` reads and acts through it; `/payments-console` = simulated bank + reset. Contract `src/contracts/payment.ts`, guide `docs/payment-data.md`, doc `docs/architecture/7-payments.md`.
-**Stubbed:** other features behind `deps.ts` (`// TEMP:`), owners in `docs/payment-assumptions.md`; data in memory. **Next:** swap adapters as teammates land; UI polish. **Waiting on:** schema, `fire()`, `authorize()`, audit (no owner); Andrew (stored flags, `validateBankForRelease`); duplicates + vendors (no owner); Youssef (approval flow filling his store).
-**Schema change:** `vendor_bank_accounts.currency` + a `closed` status.
+**Works (on the database since 2026-11-21, branch `Katie`; tested on PGlite):** schedule / release / cancel / retry / schedule again; release rules (P09–P11, approver / scheduler / requester can't release, active staff, verified bank, pending bank change, payee + amount = approved, FX re-check, blocking flags); simulated EFT with 9 failure reasons; urgency flags; bank change + second-person verify. Every action: `authorize()` first, then one transaction with `fire()` and its `withAction` audit rows. Reads approvals through `PostgresApprovalStore` and open `invoice_flags` (so Validation's "waiting on Katie" is done). Dashboard `/payments` reads and acts through it; `/payments-console` = simulated bank only (reset = `npm run db:reset`). Contract `src/contracts/payment.ts`, guide `docs/payment-data.md`, doc `docs/architecture/7-payments.md`.
+**Stubbed:** money helpers (`money.ts`, TEMP: core/money); the stored-flag reader queries `invoice_flags` directly (validation exports none); bank changes stay inside payments until vendors exists. **Next:** open P1s in TODO (completed approvals at release, pay-date parsing, bank-account currency); manual click-through. **Waiting on:** Andrew (`validateBankForRelease`, an exported stored-flag reader, `.env.example` = BUG-Katie-03); vendors (no owner).
+**Schema change:** `vendor_bank_accounts.currency` + a `closed` status (on main). **Running the dashboard now needs Postgres:** `npm run db:up`, `npm run db:reset`, `DATABASE_URL` in `.env`.
 
 ### 8 Audit + foundation — Andrew
 **Works (merged to main via PR #12; follow-ups on `andrew-audit-db`; tested on PGlite and Docker Postgres 16):**
@@ -90,15 +93,19 @@ Not started.
 - **Pipeline:** `src/server/pipeline/` runs ingest → validation + coding → review → `submitForApproval` / `decideApproval` (Postgres `ApprovalStore`), each step audited in the same transaction.
 - **Auditor dashboard services:** `listAuditInvoices`, `getInvoiceAuditDetail` (incl. control checks) and `exportAuditCsv`, auditor-only, with fixtures in `fixtures/audit/`.
 
-**Stubbed:** no `app/audit` pages yet; payments (7) not on the DB; uncertain scans make no invoice yet (Arpan's TODO).
+**Stubbed:** no `app/audit` pages yet; uncertain scans make no invoice yet (Arpan's TODO). Payments (7) is on the DB since PR #15 (Katie).
 **Next:** the auditor pages (dashboard owner); Supabase deploy.
 **Waiting on:** team decisions: Controller audit access, historical `rejected` → `Voided`, schema-merge owner (`docs/architecture/8-audit.md`).
 **Contract + core + schema change:** new `src/contracts/{actor,audit,audit-view}.ts`, `src/server/core/`, `src/server/db/`. Affects Youssef (coding and approvals on the DB through his public API) and Katie (payments tables, audit names).
 
-### 9 Vendors — _Arpan / Youssef / Andrew / Katie_
-Not started.
+### 9 Vendors — Andrew (server side)
+**Works (on `andrew-audit-db` at `114cc24`, merged with main; tested on PGlite, the embedded demo DB and Docker Postgres):** `src/server/features/vendors/` — vendor list + detail (`vendor.view`: clerk, FM, controller, auditor read-only), onboard (duplicate check, prefill from an unknown-vendor invoice), approve by a second person, hold / lift hold, bank change request → verify by a second person / reject. Each change re-checks the vendor's open invoices, so `VENDOR_*` / `BANK_*` flags follow it. `vendorConflicts` feeds approvals.
+**Stubbed:** no screens (dashboard owner: `src/contracts/vendor.ts`, `fixtures/vendors/`).
+**Next:** screens (dashboard owner). Bank changes: payments (Katie) and vendors write the same `vendor_bank_accounts` rows the same way — verified both directions on Docker; the UI may call either.
+**Contract + core change:** new `src/contracts/vendor.ts`; 5 new `vendor.*` actions in `core/authorize.ts`; approvals now receives `conflicts`. No schema change, no migration. Affects Katie (bank changes) and Youssef (conflicts reach his router).
 
 ## Watch out
 
 - Rules in `docs/rules/` do not auto-load; read the one for the files you touch.
+- No Docker? `npm run demo` (embedded Postgres in `.data/pglite`). Stop other dev servers first: one process per folder.
 - The state machine in `docs/explainers/brim-ap-diagrams.md` has open gaps (credit notes, release-time holds) — see `TODO.md` P0.

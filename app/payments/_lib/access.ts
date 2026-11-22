@@ -37,7 +37,7 @@ export function canAct(role: DashboardRole): boolean {
   return role === "clerk" || role === "finance_manager";
 }
 
-export type PageKey = "overview" | "to-schedule" | "to-release" | "needs-attention";
+export type PageKey = "overview" | "to-schedule" | "to-release" | "needs-attention" | "duplicates";
 
 export type PaymentsPage = {
   key: PageKey;
@@ -53,6 +53,8 @@ export const PAGES: PaymentsPage[] = [
   { key: "to-schedule", href: "/payments/to-schedule", label: "To schedule", roles: ["clerk"], forWhom: "AP Clerks (they prepare payments)" },
   { key: "to-release", href: "/payments/to-release", label: "To release", roles: ["finance_manager", "controller"], forWhom: "the Finance Manager (and the Admin, for what the Finance Manager can't release)" },
   { key: "needs-attention", href: "/payments/needs-attention", label: "Needs attention", roles: ["clerk", "finance_manager"], forWhom: "AP Clerks and the Finance Manager" },
+  // Feature 5 (Arpan): possible duplicates and card-paid bills; the server re-checks invoice.review / flag.override.
+  { key: "duplicates", href: "/payments/duplicates", label: "Duplicates", roles: ["clerk", "finance_manager", "controller"], forWhom: "the people who do the checks" },
 ];
 
 export function pagesFor(role: DashboardRole): PaymentsPage[] {

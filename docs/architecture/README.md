@@ -14,11 +14,12 @@ How the code works and why. One doc per feature, written by its owner from
 | [`3-coding.md`](3-coding.md) | smart coding: evidence ladder, departments, journal preview, backtest, edge cases, Q&A | Youssef |
 | [`4-validation.md`](4-validation.md) | validation: checks, flags, bad input, 100× | Andrew |
 | [`4-validation-plan.md`](4-validation-plan.md) | validation plan: design, every check, tests, open questions | Andrew |
-| `5-duplicates.md` | *to write* | |
+| [`5-duplicates.md`](5-duplicates.md) | duplicates: canonical numbers, second-copy rule, card merchant matching, human decision on the dashboard, 100× | Arpan |
 | [`6-approvals.md`](6-approvals.md) | approval routing, separation of duties, the approve/reject gate | Youssef |
 | [`6-approvals-edge-cases.md`](6-approvals-edge-cases.md) | every approvals edge case with `file:line` + test, what was left out, defaults to confirm | Youssef |
 | [`6-approvals-study-guide.md`](6-approvals-study-guide.md) | Q&A prep: every function, the logic traced on a real invoice, design reasons, likely questions | Youssef |
 | [`7-payments.md`](7-payments.md) | payments: schedule, release rules, simulated EFT, failures and urgency flags, bank change | Katie |
+| [`9-vendors.md`](9-vendors.md) | vendor master: list, onboard + second-person approval, hold, bank change request + verify, conflicts for approvals | Andrew |
 | [`8-audit.md`](8-audit.md) | audit trail + DB foundation: schema, append-only `audit_events`, `core/` (`withAction`, `fire`, `authorize`), the pipeline on Postgres (3→4→6→8), auditor dashboard services, control checks | Andrew |
 | `9-vendors.md` | *to write* (thin vendor master is on the dashboard: `dashboard.md`) | |
 | [`dashboard.md`](dashboard.md) | the app: five roles and what each sees, demo database, read/write split, payments on Postgres | Youssef |

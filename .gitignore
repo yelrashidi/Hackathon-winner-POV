@@ -50,5 +50,5 @@ __pycache__/
 .venv/
 .intake/
 
-# demo uploads (src/server/pipeline/documents.ts)
+# demo uploads (src/server/pipeline/documents.ts) and the embedded demo database (npm run demo)
 /.data/

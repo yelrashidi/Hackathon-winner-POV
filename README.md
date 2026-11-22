@@ -10,27 +10,37 @@ Accounts payable (AP) automation for the Brim hackathon. A web app that takes su
 
 ## Running locally
 
-Requires Node 22+. No Docker needed for the demo.
+Requires Node 22+. Pick one; each ends at http://localhost:3000, where you pick who you are
+(AP Clerk, Operations Manager, Finance Manager, Admin, Auditor — one person each).
+
+**Quick demo, no Docker, starts fresh every time** — with no `DATABASE_URL`, the app builds an
+in-process Postgres from the dataset on the first request (~5 s): 10 months of history plus the AP
+inbox run through intake. A restart, or **Demo controls → Reset** (Admin), starts again.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Then open http://localhost:3000 and pick who you are (AP Clerk, Operations Manager, Finance
-Manager, Admin, Auditor). With no `DATABASE_URL`, the app builds an in-process Postgres from the
-dataset on the first request (~5 s): 10 months of history plus the AP inbox run through intake.
-A restart, or **Demo controls → Reset** (Admin), starts again from the dataset.
+**Demo that keeps its data, no Docker** — an embedded Postgres (PGlite) in `.data/pglite`, created,
+migrated and seeded on the first run, reused afterwards (stop any other `npm run dev` first):
+
+```bash
+npm run demo                 # npm run demo -- --reset  starts from a fresh database
+```
+
+**Everything in Docker** — Postgres + migrations/seed + the app: `docker compose up -d`
+(rebuild after code changes: `docker compose up -d --build`). **Developing against Docker
+Postgres:** `npm run db:up`, `npm run db:reset`, set `DATABASE_URL` (see `.env.example`), then `npm run dev`.
 
 | Setting | Effect |
 | --- | --- |
-| `DATABASE_URL` | Use a real Postgres instead (`npm run db:up && npm run db:reset`, see `.env.example`) |
-| `ANTHROPIC_API_KEY` | Uploaded invoices are read by Claude; without it they open for manual entry |
-| `DEMO_SCENARIO=3` | Start with 3 clean bills already sent to approval (same as the Demo controls button) |
+| `ANTHROPIC_API_KEY` (in `.env.local`) | Uploaded invoices are read by Claude; without it they open for manual entry |
+| `DEMO_SCENARIO=3` | Quick demo starts with 3 clean bills already sent to approval |
 | `UPLOAD_DIR` | Where uploaded files are kept (default `.data/uploads`) |
 
-One-click sign-in for a demo: `/demo/as/U004?next=/checks` (demo database only). The app's
-screens and roles are described in `docs/architecture/dashboard.md`.
+One-click sign-in on the quick demo: `/demo/as/U004?next=/checks`. Screens and roles:
+`docs/architecture/dashboard.md`; a 2-minute click-by-click demo: `docs/demo-script.md`.
 
 ## Repo layout
 

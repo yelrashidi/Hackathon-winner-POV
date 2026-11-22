@@ -2,7 +2,7 @@ import path from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
-import { getDb, setDb, type Db } from "@/server/db/client";
+import { getDb, restrictToAppRole, setDb, type Db } from "@/server/db/client";
 import * as schema from "@/server/db/schema";
 import { seedDatabase } from "@/server/db/seed/seed";
 import { loadDatasetInbox } from "./load-inbox";
@@ -33,9 +33,11 @@ export function usingDemoDb(): boolean {
 
 async function buildDemoDb(client: PGlite): Promise<Db> {
   const started = Date.now();
-  const db = drizzle(client, { schema }) as unknown as Db;
-  await migrate(db as unknown as Parameters<typeof migrate>[0], { migrationsFolder: MIGRATIONS_DIR });
-  await seedDatabase(db, { validateHistory: true });
+  const owner = drizzle(client, { schema }) as unknown as Db;
+  await migrate(owner as unknown as Parameters<typeof migrate>[0], { migrationsFolder: MIGRATIONS_DIR });
+  await seedDatabase(owner, { validateHistory: true }); // as owner: it writes historical occurred_at
+  // From here on the app runs as the restricted `ap_app` role, like the real database (audit guards apply).
+  const db = drizzle(restrictToAppRole(client), { schema }) as unknown as Db;
   await loadDatasetInbox(db);
   // DEMO_SCENARIO=N: start with N clean bills already sent to approval (same as the Demo controls button).
   const scenario = Number(process.env.DEMO_SCENARIO ?? 0);

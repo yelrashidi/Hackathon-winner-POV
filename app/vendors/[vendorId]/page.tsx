@@ -65,10 +65,9 @@ export default async function VendorPage({ params }: PageProps<"/vendors/[vendor
             {canVerify && (
               <div className="mt-4 border-t border-slate-100 pt-3">
                 <ActionForm action={vendorStatusAction} label="Change status" hidden={{ vendorId: v.id }} tone="quiet">
-                  <select name="status" defaultValue={v.status === "active" ? "on_hold" : "active"} aria-label="New status" className={inputClass}>
-                    <option value="active">Approve / make active</option>
-                    <option value="on_hold">Put on hold</option>
-                    <option value="pending_review">Back to pending review</option>
+                  <select name="status" defaultValue={v.status === "on_hold" ? "release" : v.status === "pending_review" ? "approve" : "on_hold"} aria-label="New status" className={inputClass}>
+                    {v.status === "pending_review" && <option value="approve">Approve (second person)</option>}
+                    {v.status === "on_hold" ? <option value="release">Lift the hold</option> : <option value="on_hold">Put on hold</option>}
                   </select>
                   <input name="note" required placeholder="Why (required)" aria-label="Note" className={`w-56 ${inputClass}`} />
                 </ActionForm>

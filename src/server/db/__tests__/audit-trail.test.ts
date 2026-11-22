@@ -136,7 +136,10 @@ describe("new invoices flow into the database", () => {
   });
 
   it("re-validation keeps a human override and auto-resolves flags that went away", async () => {
-    const [flag] = await db.select().from(invoiceFlags).where(eq(invoiceFlags.status, "open")).limit(1);
+    // An open VALIDATION flag on a NEW invoice (the "screen 2 for a NEW invoice" test reads this override).
+    const [flag] = await rows<{ id: number; invoiceId: string }>(
+      `SELECT f.id, f.invoice_id AS "invoiceId" FROM invoice_flags f JOIN invoices i ON i.id = f.invoice_id WHERE f.status = 'open' AND f.source = 'validation' AND i.source <> 'historical' ORDER BY f.id LIMIT 1`,
+    );
     await overrideFlag(CLERK, flag!.id, "Confirmed with the vendor by phone; acceptable for this period.", { db });
     await revalidateInvoice(flag!.invoiceId, { today: TODAY, db });
     const [after] = await db.select().from(invoiceFlags).where(eq(invoiceFlags.id, flag!.id));

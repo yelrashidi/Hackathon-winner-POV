@@ -9,6 +9,7 @@ export type SectionKey =
   | "inbox"
   | "checks"
   | "upload"
+  | "duplicates"
   | "approvals"
   | "payments"
   | "to-schedule"
@@ -39,6 +40,7 @@ export const SECTIONS: Section[] = [
   { key: "inbox", href: "/inbox", label: "Inbox", group: "Work", roles: REVIEWERS, forWhom: "AP Clerks, managers, the Finance Manager and the Admin" },
   { key: "checks", href: "/checks", label: "Checks", group: "Work", roles: REVIEWERS, forWhom: "AP Clerks, managers, the Finance Manager and the Admin" },
   { key: "upload", href: "/checks/upload", label: "Upload invoices", group: "Work", roles: REVIEWERS, forWhom: "AP Clerks, managers, the Finance Manager and the Admin" },
+  { key: "duplicates", href: "/payments/duplicates", label: "Duplicates", group: "Work", roles: ["clerk", "finance", "admin"], forWhom: "AP Clerks, the Finance Manager and the Admin" },
   { key: "approvals", href: "/approvals", label: "Approvals", group: "Work", roles: ["manager", "finance", "admin"], forWhom: "managers, the Finance Manager and the Admin" },
   { key: "payments", href: "/payments", label: "Overview", group: "Payments", roles: ["clerk", "finance"], forWhom: "AP Clerks and the Finance Manager" },
   { key: "to-schedule", href: "/payments/to-schedule", label: "To schedule", group: "Payments", roles: ["clerk"], forWhom: "AP Clerks (they prepare payments)" },

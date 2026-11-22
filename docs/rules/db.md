@@ -25,3 +25,6 @@ paths:
 - **Write audit rows only through `core/audit.ts` (`withAction` / `emit`).** A plain Drizzle insert lists `id` and `occurred_at`, which the app role may not set, so it fails with "permission denied".
 - **Deployed on Supabase: use the pooled connection string** from serverless functions. The direct
   connection runs out of connections under a handful of concurrent requests. Migrations use the direct one.
+- **A test that picks "the first row" says which one**: `ORDER BY` plus a filter for what it means (e.g. `source <> 'historical'`). Heap order changes whenever the seed writes more rows (BUG-Arpan-05).
+- **An embedded PGlite folder (`DATABASE_URL=pglite:…`, `npm run demo`) has no lock**: only one process may open it; two corrupt it. `getDb()` keeps one instance per process on `globalThis`.
+- **`getDb()` may be postgres.js or embedded PGlite** (`DATABASE_URL=pglite:…`); code that closes or inspects the client must handle both (BUG-Andrew-07).
