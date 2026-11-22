@@ -26,6 +26,14 @@ export const ACTIONS = {
   "flag.resolve": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "flag.override": ["ap_clerk", "approver", "finance_manager", "controller_admin"],
   "approval.decide": ["approver", "finance_manager", "controller_admin"],
+  /**
+   * Scheduling: the AP Clerk's job (policy P09 "AP clerks prepare, they cannot release"; all 415
+   * historical payments were prepared by a clerk). The Finance Manager keeps it as a BACKUP when no
+   * clerk is available (the Controller too on the server, though the dashboard gives the Admin no
+   * scheduling page) — separation still holds, because whoever scheduled a payment
+   * can never release it (payments' SCHEDULED_IT check + the payments CHECK constraint), so a
+   * payment the FM schedules goes to the Controller to release. Decided 2026-11-21 (Andrew).
+   */
   "payment.prepare": ["ap_clerk", "finance_manager", "controller_admin"],
   "payment.release": ["finance_manager", "controller_admin"],
   /**
@@ -43,12 +51,18 @@ export const ACTIONS = {
   "vendor.bank_change.verify": ["finance_manager", "controller_admin"],
   "admin.edit": ["controller_admin"],
   /**
-   * The audit trail (past invoices + one invoice's full trail). Every dashboard role reads it (team
-   * decision 2026-11-21, dashboard redesign); the Auditor sees nothing else. Read-only for everyone.
-   * Export: the Auditor, and the Controller/Admin (roles-and-permissions.md "full audit log / export").
+   * Read-only invoice records (the invoice, its document, coding, approvals, payments and who did
+   * what), per the matrix's "View invoices" row. Every role may ask; features/invoices narrows it:
+   * an employee sees their own submissions, an approver their own department, everyone else all.
    */
-  "audit.view": ["ap_clerk", "approver", "finance_manager", "controller_admin", "auditor"],
-  "audit.export": ["auditor", "controller_admin"],
+  "invoice.view": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin", "auditor"],
+  /**
+   * The full audit log (every event with before / after, control checks) and its export: the
+   * Auditor ("read-only everything, audit export") and the Controller/Admin ("full audit log"),
+   * per product.md and the roles matrix. Nobody else reads the audit log itself.
+   */
+  "audit.view": ["controller_admin", "auditor"],
+  "audit.export": ["controller_admin", "auditor"],
 } as const satisfies Record<string, readonly ActorRole[]>;
 
 export type Action = keyof typeof ACTIONS;
@@ -69,6 +83,7 @@ const LABELS: Record<Action, string> = {
   "vendor.bank_change.request": "request vendor bank changes",
   "vendor.bank_change.verify": "verify vendor bank changes",
   "admin.edit": "edit users, roles and policies",
+  "invoice.view": "view invoices",
   "audit.view": "view the audit log",
   "audit.export": "export the audit log",
 };

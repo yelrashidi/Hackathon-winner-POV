@@ -3,7 +3,10 @@
 **Code as of:** `dashboard-redesign`. Foundation doc; `src/server/core/authorize.ts` implements it.
 
 > **Dashboard plan (2026-11-21):** access widens with seniority — managers and the Finance Manager can
-> do the clerk's checks, every dashboard role reads the audit trail (the Auditor: past invoices only).
+> do the clerk's checks. **Invoices** (read-only records with who did what) follow the "View invoices"
+> row below (`src/server/features/invoices/`). **The full audit log** (every event with before/after,
+> control checks, export) is for the Auditor ("read-only everything, audit export") and the
+> Controller/Admin ("full audit log"), per `product.md`; others see their own recent actions on the home screen.
 > Doing the checks never lets you approve your own work: the submitter is excluded from the approval.
 > The Admin's release limits are enforced in `src/server/pipeline/payments.ts` (`adminReleaseGuard`).
 > Screens per role: [`dashboard.md`](dashboard.md).
@@ -23,18 +26,23 @@ control. A refusal is a 403 with a reason the UI shows (`You approved this invoi
 | Action | Employee | AP Clerk | Approver | Finance Mgr | Controller | Auditor |
 |---|---|---|---|---|---|---|
 | Submit invoice (own dept) | ✓ | ✓ | ✓ | ✓ | ✓ | — |
-| View invoices | own submissions | all | own dept | all | all | all |
+| View invoices (`/invoices`, read-only, with who did what) | own submissions | all | own dept | all | all | all |
 | Ingest inbox, review extraction, code, resolve flags ("checks") | — | ✓ | ✓ | ✓ | ✓ | — |
 | Approve / reject a step | — | — | own dept, ≤ limit | above dept limits, flagged, new vendor | ✓ | — |
-| Prepare (schedule) payment | — | ✓ | — | ✓ | — (dashboard: the Admin does not prepare) | — |
+| Prepare (schedule) payment | — | ✓ (the normal path, P09) | — | ✓ backup¹ | — (dashboard: the Admin does not prepare) | — |
 | Release payment | — | — | — | ≤ $100,000 CAD | only what the Finance Manager can't (> $100k, or she approved it) | — |
 | View the vendor master | — | ✓ | — | ✓ | ✓ | ✓ (read-only) |
 | Onboard a vendor, put a vendor on hold | — | ✓ | — | ✓ | ✓ | — |
 | Request vendor bank change | — | ✓ | — | ✓ | ✓ | — |
 | Verify vendor bank change / approve new vendor / lift a hold | — | — | — | ✓ (not their own entry) | ✓ (not their own entry) | — |
 | Edit users, roles, approval policies | — | — | — | — | ✓ | — |
-| View the audit trail | — | ✓ | ✓ | ✓ | ✓ | ✓ (past invoices only) |
+| View the full audit log (`/audit`) | — | — | — | — | ✓ | ✓ (every invoice) |
 | Export the audit log | — | — | — | — | ✓ | ✓ |
+
+¹ **Who schedules (decided 2026-11-21):** the AP Clerk schedules and the Finance Manager releases (P09;
+every historical payment was prepared by a clerk). The Finance Manager may schedule as a backup when
+no clerk is available, but whoever schedules a payment can never release it (payments' `SCHEDULED_IT`
+check + a DB CHECK), so a payment the Finance Manager schedules is released by the Controller.
 
 ## The rules that apply to everyone — the ones judges will test
 

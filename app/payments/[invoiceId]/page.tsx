@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { getCurrentUser } from "@/server/session/current-user";
+import { InvoiceProgress } from "../../_components/InvoiceProgress";
 import { cancelAction, rejectBankAction, requestBankAction, verifyBankAction } from "../actions";
 import { ActionForm, inputClass } from "../_components/ActionForm";
 import { actionFor, PaymentAction, type ActionLabel } from "../_components/ActionsSpot";
@@ -45,10 +46,12 @@ export default async function PaymentDetailsPage({ params }: PageProps<"/payment
         <Link href={canSeePage(role, "overview") ? "/payments" : "/payments/to-release"} className="font-medium text-(--brim-link) hover:underline">
           ← {canSeePage(role, "overview") ? "All payments" : "Release queue"}
         </Link>
-        <Link href={`/audit/${invoice.invoiceId}`} className="font-medium text-(--brim-link) hover:underline">
-          Full audit trail →
+        <Link href={role === "auditor" || role === "controller" ? `/audit/${invoice.invoiceId}` : `/invoices/${invoice.invoiceId}`} className="font-medium text-(--brim-link) hover:underline">
+          {role === "auditor" || role === "controller" ? "Full audit trail →" : "Invoice record →"}
         </Link>
       </div>
+
+      {user && <InvoiceProgress actor={{ userId: user.id, role: user.role, onBehalfOf: null }} invoiceId={invoice.invoiceId} />}
 
       <section className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div>

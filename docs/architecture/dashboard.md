@@ -22,8 +22,9 @@ Controller (our Admin) releases > $100k and whatever the Finance Manager approve
 | Payments: overview, needs attention | ✓ | — | ✓ | — | — |
 | Payments: to schedule | ✓ | — | — | — | — |
 | Payments: to release | — | — | ✓ | only what the FM can't² | — |
-| Vendors (bank change: enter / verify) | enter | — | verify | verify | — |
-| Audit trail | ✓ | ✓ | ✓ | ✓ + export | past invoices only + export |
+| Vendors (bank change: enter / verify) | enter | — | verify | verify | read-only |
+| Invoices (read-only records + who did what) | all | own department | all | all | all |
+| Audit trail (full audit log) | — | — | — | ✓ + export | every invoice + export |
 | People & policies | — | — | — | ✓ | — |
 
 ¹ Approval routing still sends each department's bills to its own manager (policy file); the demo

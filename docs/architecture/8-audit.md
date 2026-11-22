@@ -80,7 +80,7 @@ pipeline test drives clean invoices to Approved, a rejection to resubmission, an
 - **5 duplicates:** nothing raises duplicate flags yet. The DB unique index stops two invoices with the same vendor and number from both being approved or paid.
 
 ## The auditor dashboard (for whoever builds `app/audit`)
-Every function checks `authorize(actor, "audit.view" | "audit.export")`, which lets the **auditor only** through. A refused
+Every function checks `authorize(actor, "audit.view" | "audit.export")`, which lets the **Auditor and the Controller/Admin** through (product.md: "full audit log"). Everyone else reads invoices through `src/server/features/invoices/` (role-scoped records + `whoDidWhat`), not the audit log. A refused
 attempt throws `Forbidden` (403 with a reason) and is itself written as `authz.denied`.
 
 | Screen | Call | Returns |

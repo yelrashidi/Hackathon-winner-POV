@@ -72,7 +72,8 @@ export default async function InboxPage({ searchParams }: PageProps<"/inbox">) {
                   {m.invoices.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {m.invoices.map((i) => (
-                        <Link key={i.invoiceId} href={["ManualEntry", "InReview", "OnHold"].includes(i.status) ? `/checks/${i.invoiceId}` : `/audit/${i.invoiceId}`} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1 text-xs hover:border-(--brim-accent)">
+                        // In review → Checks; past it → the read-only invoice record.
+                        <Link key={i.invoiceId} href={["ManualEntry", "InReview", "OnHold"].includes(i.status) ? `/checks/${i.invoiceId}` : `/invoices/${i.invoiceId}`} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1 text-xs hover:border-(--brim-accent)">
                           <span className="font-mono">{i.invoiceId}</span> <InvoiceStatus status={i.status} />
                         </Link>
                       ))}

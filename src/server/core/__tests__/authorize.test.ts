@@ -24,8 +24,9 @@ const MATRIX: Record<Action, ActorRole[]> = {
   "vendor.bank_change.request": ["ap_clerk", "finance_manager", "controller_admin"],
   "vendor.bank_change.verify": ["finance_manager", "controller_admin"],
   "admin.edit": ["controller_admin"],
-  "audit.view": ["ap_clerk", "approver", "finance_manager", "controller_admin", "auditor"],
-  "audit.export": ["auditor", "controller_admin"],
+  "invoice.view": ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin", "auditor"],
+  "audit.view": ["controller_admin", "auditor"],
+  "audit.export": ["controller_admin", "auditor"],
 };
 const ROLES: ActorRole[] = ["employee", "ap_clerk", "approver", "finance_manager", "controller_admin", "auditor", "system"];
 
@@ -43,7 +44,7 @@ describe("authorize(): the role matrix", () => {
   });
 
   it("the auditor writes nothing (rule 6)", () => {
-    const reads: Action[] = ["audit.view", "audit.export", "vendor.view"];
+    const reads: Action[] = ["audit.view", "audit.export", "vendor.view", "invoice.view"];
     const writes = (Object.keys(MATRIX) as Action[]).filter((a) => !reads.includes(a));
     for (const a of writes) expect(can({ userId: "U-a", role: "auditor" }, a)).toBe(false);
   });
