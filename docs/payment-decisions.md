@@ -1,6 +1,6 @@
 # Payments — decisions (Katie)
 
-**Last updated — payment session (branch `Katie`):** 2026-11-21 (`await connection()` on the payments pages)
+**Last updated — payment session (branch `Katie`):** 2026-11-22 (Merging main into Katie)
 **Last updated — dashboard session (branch `dashboard`):** 2026-11-21 (moved in from dashboard-todo.md by the payment session, one-time exception)
 
 What we decided for payments and the payments dashboard, and **why**, in sentences you can say
@@ -251,6 +251,15 @@ and the code follows.
 - **Tests run on the seeded in-process database (PGlite)**, with the same scenarios and the same expected results.
   The in-memory `fake-data/` folder is deleted.
 
+### Merging main's one dashboard into Katie (decided 2026-11-22)
+
+- **Main's deletions of `app/payments-console/page.tsx` and `app/payments/_components/Sidebar.tsx` are
+  accepted.** *Why:* main's one dashboard for five roles (`98e3f87`) replaced those screens. Editing files
+  main no longer has would leave dead code.
+- **`viewerId()` in `app/payments/_lib/data.ts` keeps `await connection()`, then main's `await ensureDb()`.**
+  *Why:* main's `data.ts` didn't have the request-time fix, and without it Next.js logs a prerender error on
+  every payments page.
+
 ## Dashboard decisions
 
 _(Moved here from `docs/dashboard-todo.md` on 2026-11-21, a one-time exception by the payment session.)_
@@ -339,6 +348,7 @@ _(Moved here from `docs/dashboard-todo.md` on 2026-11-21, a one-time exception b
 
 | Date | Topic | Decision | By |
 |---|---|---|---|
+| 2026-11-22 | Merging main into Katie | Accept main's deletion of `payments-console/page.tsx` and `Sidebar.tsx`; `data.ts` keeps `connection()` before `ensureDb()` | Katie |
 | 2026-11-21 | `await connection()` | Payments pages read the database at request time; no Next.js prerender errors with `npm run demo` | Katie |
 | 2026-11-21 | Payments on the database | Postgres through the shared core (`fire`, `withAction`, `authorize`); open work only; closed reason from the flag; dashboard `await`s; tests on PGlite; `fake-data/` deleted | Katie |
 | 2026-11-21 | Reset demo data | Button removed; reset with `npm run db:reset` (audit rows can't be deleted) | Katie |
