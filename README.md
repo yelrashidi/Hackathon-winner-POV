@@ -1,4 +1,4 @@
-# Brim AP — Harborline Logistics
+# Brim Hackathon challenge CodeJam 16 2026
 
 Accounts payable (AP) automation for the Brim hackathon. A supplier invoice for the fictional
 Harborline Logistics goes **inbox → read → code → check → approve → pay → audit trail**, with one
