@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { parseQueueSort, searchAndSort } from "@/server/dashboard/list-query";
 import { getCurrentUser } from "@/server/session/current-user";
+import { SortSelect } from "../../_components/SortSelect";
+import { queueSortOptions } from "../../_lib/invoice-sort";
+import { fieldClass } from "../../_lib/styles";
 import { ActionForm, inputClass } from "../_components/ActionForm";
 import { NotForYourRole } from "../_components/NotForYourRole";
 import { PageHeader } from "../_components/PageHeader";
-import { canAct, canSeePage, dashboardRole, pageByKey } from "../_lib/access";
+import { canSeePage, dashboardRole, pageByKey } from "../_lib/access";
 import { getDuplicateQueue, type DuplicateReview } from "../_lib/duplicates";
 import { formatDate, formatMoney } from "../_lib/format";
 import { confirmDuplicateAction, dismissDuplicateAction } from "./actions";
@@ -130,10 +134,22 @@ function ReviewCard({ r, act }: { r: DuplicateReview; act: boolean }) {
   );
 }
 
-export default async function DuplicatesPage() {
-  const [user, queue] = await Promise.all([getCurrentUser(), getDuplicateQueue()]);
+export default async function DuplicatesPage({ searchParams }: PageProps<"/payments/duplicates">) {
+  const [user, queue, params] = await Promise.all([getCurrentUser(), getDuplicateQueue(), searchParams]);
   const role = dashboardRole(user);
   if (!canSeePage(role, "duplicates")) return <NotForYourRole page={pageByKey("duplicates")} user={user} />;
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? (v[0] ?? "") : (v ?? ""));
+  const search = one(params.q).trim();
+  const sort = parseQueueSort(one(params.sort));
+  // Either side of the pair counts: this invoice, the earlier one, or the card charge.
+  const reviews = queue.ok
+    ? searchAndSort(queue.reviews, { search, sort }, (r) => ({
+        text: [r.invoice.vendorName, r.invoice.invoiceNumber, r.invoice.invoiceId, r.related?.vendorName, r.related?.invoiceNumber, r.related?.invoiceId, r.card?.merchantDescriptor, r.card?.id],
+        vendor: r.invoice.vendorName,
+        date: r.invoice.invoiceDate,
+        id: `${r.invoice.invoiceId}#${String(r.flagId).padStart(10, "0")}`,
+      }))
+    : [];
 
   return (
     <>
@@ -149,14 +165,43 @@ export default async function DuplicatesPage() {
           </p>
           <p className="mt-2 text-xs text-amber-700">{queue.reason}</p>
         </div>
+      ) : (
+        <form action="/payments/duplicates" role="search" className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <label className="min-w-56 flex-1 text-xs font-medium text-slate-600">
+            Search
+            <input type="search" name="q" defaultValue={search} placeholder="Vendor, invoice number, id or card merchant (either side)" className={`mt-1 ${fieldClass}`} />
+          </label>
+          <label className="text-xs font-medium text-slate-600">
+            Sort by
+            <SortSelect value={sort} options={queueSortOptions("Most recently flagged")} className={`mt-1 ${fieldClass}`} />
+          </label>
+          <button type="submit" className="rounded-lg bg-(--brim-accent) px-4 py-2 text-sm font-semibold text-(--brim-on-accent) hover:bg-(--brim-accent-hover)">
+            Search
+          </button>
+          {(search || sort !== "default") && (
+            <Link href="/payments/duplicates" className="py-2 text-sm text-slate-500 hover:underline">
+              Clear
+            </Link>
+          )}
+          <p className="w-full text-xs text-slate-500" aria-live="polite">
+            {search ? `${reviews.length} of ${queue.reviews.length} possible duplicates match “${search}”` : `${queue.reviews.length} possible duplicate${queue.reviews.length === 1 ? "" : "s"} waiting`}
+          </p>
+        </form>
+      )}
+      {!queue.ok ? null : reviews.length === 0 && search ? (
+        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
+          No possible duplicates match &ldquo;{search}&rdquo;. <Link href="/payments/duplicates" className="font-medium text-(--brim-link) underline">Clear the search</Link>
+        </div>
       ) : queue.reviews.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
           No possible duplicates waiting. <Link href="/payments" className="font-medium text-(--brim-link) underline">Back to overview</Link>
         </div>
       ) : (
         <ul className="space-y-4">
-          {queue.reviews.map((r) => (
-            <ReviewCard key={r.flagId} r={r} act={canAct(role) && role !== "finance_manager"} />
+          {reviews.map((r) => (
+            // AP Clerks and Controllers decide duplicates (docs/architecture/5-duplicates.md). Not canAct():
+            // that is false for the Controller (Admin/CFO) and hid their buttons.
+            <ReviewCard key={r.flagId} r={r} act={role === "clerk" || role === "controller"} />
           ))}
         </ul>
       )}

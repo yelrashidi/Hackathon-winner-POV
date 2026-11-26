@@ -20,6 +20,9 @@ Kept for the Q&A and so the same trap is not hit twice. If a fix taught a rule, 
 | BUG-Andrew-06 | High | Andrew | 2026-11-21 | Intake scripts never saved anything: the DB adapter existed but nothing called it |
 | BUG-Andrew-07 | Low | Andrew | 2026-11-21 | Intake scripts' shutdown crashed on the embedded demo database |
 | BUG-Andrew-08 | Medium | Andrew | 2026-11-21 | Any signed-in role could open any invoice PDF by its id |
+| BUG-Andrew-10 | Low | Andrew | 2026-11-25 | An edited policy's description still quoted the CSV's original amount |
+| BUG-Andrew-11 | Medium | Andrew | 2026-11-25 | The Admin had no Release button on a payment's own page |
+| BUG-Andrew-12 | Medium | Andrew | 2026-11-25 | The Controller could not decide duplicates, though the design says AP Clerk or Controller |
 | BUG-Arpan-01 | High | Arpan | 2026-11-21 | Any PDF in an email that said "invoice" became a draft bill |
 | BUG-Arpan-02 | High | Arpan | 2026-11-21 | Gmail advanced its cursor past messages excluded by the delivery cap |
 | BUG-Arpan-03 | High | Arpan | 2026-11-21 | Credit notes kept positive amounts when their total was missing or already negative |
@@ -235,3 +238,24 @@ Seven smaller ones fixed in the same unit are listed in [`6-approvals-edge-cases
 **Symptom.** In the Docker build, the page after "Viewing as" said you were not signed in (Safari); Gmail bills showed no PDF; uploads vanished after a rebuild; dates near midnight were a day ahead.
 **Cause.** Production-only differences that `npm run dev` never shows: (1) the sign-in cookie was `Secure` whenever `NODE_ENV=production`, but Docker serves plain http://localhost, where Safari drops Secure cookies; (2) the Gmail poller stored a `gmail:<id>/<file>` key and never kept the bytes, and the app and poller are separate containers; (3) `.data/uploads` had no volume; (4) containers run on UTC.
 **Fix.** Cookie is Secure only when the request is HTTPS (`src/server/session/actions.ts`); the poller saves attachments with `writeUploadFile` into a shared `uploads` volume (`scripts/gmail-poll.ts`, `docker-compose.yml`); `TZ=America/Toronto` in the containers; `.data` left out of the image.
+
+### BUG-Andrew-10
+**An edited policy's description still quoted the CSV's original amount** · Low · FIXED · found 2026-11-25 by Andrew
+
+**Symptom.** Raising P01 to $20,000 on People & policies left its description as "Invoice total up to $10,000 CAD"; approvals quotes that text in routing reasons (`route.ts:148`), so a $15k bill read "$15,000 CAD: Invoice total up to $10,000 CAD".
+**Cause.** The description is copied from `approval_policies.csv` at seed time; `updatePolicy` changed `conditions.cadCents` but kept the old text.
+**Fix.** `restateThreshold` (`src/server/pipeline/admin.ts`) rewrites the first dollar amount (the one the seed parsed the threshold from) to the current threshold on every save of an amount policy, so stale rows heal on the next save. Test in `flow.test.ts`.
+
+### BUG-Andrew-11
+**The Admin had no Release button on a payment's own page** · Medium · FIXED · found 2026-11-25 by Andrew
+
+**Symptom.** Signed in as Marcus (Admin), Release showed in the To release list but not on `/payments/<id>`.
+**Cause.** The page gated every action on `canAct(role)`, which is false for the Controller on purpose (the Admin does not schedule, cancel or retry); `actionFor` already gives each role only its own button.
+**Fix.** `app/payments/[invoiceId]/page.tsx` uses `actionFor(role, status)` alone; cancel and retry still check `canAct`. Rule line in `docs/rules/frontend.md`.
+
+### BUG-Andrew-12
+**The Controller could not decide duplicates** · Medium · FIXED · found 2026-11-25 by Andrew
+
+**Symptom.** On `/payments/duplicates` Marcus saw "View only: AP Clerks and Controllers decide duplicates."
+**Cause.** The same `canAct` gate as BUG-Andrew-11: `canAct(role) && role !== "finance_manager"` leaves only the clerk.
+**Fix.** `act={role === "clerk" || role === "controller"}` (`app/payments/duplicates/page.tsx`), as `docs/architecture/5-duplicates.md` says. The server is still wider than this: BUG-Andrew-13.

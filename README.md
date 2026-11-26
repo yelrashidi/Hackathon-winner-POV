@@ -82,7 +82,7 @@ npm run dev
 
 ## Demo
 
-One person per role. Only these six can sign in:
+One person per role. Only these seven can sign in:
 
 | Person | Role | In the demo |
 | --- | --- | --- |
@@ -91,6 +91,7 @@ One person per role. Only these six can sign in:
 | Dev Malhotra | Operations Manager | Approves the Operations bills policy routes to the department manager |
 | Elise Tremblay | Finance Manager | Releases payments ≤ $100k CAD; verifies bank changes |
 | Marcus Webb | Admin (Controller) | People & policies, releases what the Finance Manager can't, full audit log, **Reset demo data** |
+| Priya Raman | CFO | Approves over $250k CAD and bills escalated to her; releases payments the Controller approved (any amount) |
 | Hannah Lindqvist | Auditor | Read-only everything, audit trail + export |
 
 - **Switch person:** the **Viewing as** menu, top right (it takes you to that person's Home).

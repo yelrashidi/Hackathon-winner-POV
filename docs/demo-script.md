@@ -1,9 +1,9 @@
 # Demo script — invoice to payment in ~2 minutes
 
 Verified click by click on 2026-11-21 (headless Chrome against `npm run dev`, fresh demo database).
-One person per role, six roles: **Aiden Grant** (Employee, a dispatcher in Operations who reports to
+One person per role, seven roles: **Aiden Grant** (Employee, a dispatcher in Operations who reports to
 Dev), **Jordan Okafor** (AP Clerk), **Dev Malhotra** (Operations Manager), **Elise Tremblay**
-(Finance Manager), **Marcus Webb** (Admin), **Hannah Lindqvist** (Auditor).
+(Finance Manager), **Marcus Webb** (Admin), **Priya Raman** (CFO, added 2026-11-25), **Hannah Lindqvist** (Auditor).
 Switch person with the **Viewing as** menu, top right (it takes you to that person's Home).
 
 The bill: **Polar Freight Lines Ltd. — invoice 000963 — $2,611.59 CAD** (Operations, no flags,

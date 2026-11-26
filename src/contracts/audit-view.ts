@@ -59,6 +59,14 @@ export const AuditInvoiceRow = z.object({
 });
 export type AuditInvoiceRow = z.infer<typeof AuditInvoiceRow>;
 
+/**
+ * How a list of invoices is ordered. Newest first (by invoice date) is the default; the vendor sorts
+ * are alphabetical by the vendor's legal name (or the name on the bill when the vendor is unknown).
+ * Every sort ends on the invoice id, so paging never repeats or skips a row.
+ */
+export const InvoiceSort = z.enum(["newest", "oldest", "vendor_az", "vendor_za"]);
+export type InvoiceSort = z.infer<typeof InvoiceSort>;
+
 export const AuditInvoiceListQuery = z.object({
   /** Matches invoice id, invoice number or vendor name (case-insensitive). */
   search: z.string().trim().optional(),
@@ -73,6 +81,8 @@ export const AuditInvoiceListQuery = z.object({
   hasOverrides: z.boolean().optional(),
   /** Only invoices with an open blocking flag. */
   hasOpenBlocking: z.boolean().optional(),
+  /** Order of the rows (optional; newest first when absent). */
+  sort: InvoiceSort.optional(),
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().positive().max(200).default(50),
 });

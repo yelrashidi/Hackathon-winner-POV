@@ -1,8 +1,10 @@
 // Which payments pages each person sees, and whether they can act. It mirrors the app-wide list in
 // app/_lib/nav.ts (the sidebar), and every payments page checks it on the server. Per the brief and
 // approval_policies.csv: AP Clerks prepare (schedule) payments, the Finance Manager releases up to
-// $100,000 CAD, and the Admin (Controller) only releases what the Finance Manager can't (P10/P11).
+// $100,000 CAD, and the Admin (Controller) or the CFO release any amount, never what they approved (P10/P11).
+// The CFO holds the same data role as the Controller (controller_admin), so both are "controller" here.
 
+import { isCfo } from "@/server/session/roles";
 import type { DirectoryUser, UserRole } from "@/server/session/users";
 
 /** How the dashboard groups people, derived on the server from the employee record's role. */
@@ -33,6 +35,11 @@ export const ROLE_LABEL: Record<UserRole, string> = {
 };
 
 /** Clerks and the Finance Manager act on payments; the Admin only releases (and clears fraud holds). */
+/** The role name for one person: the CFO is told apart from the Controller (Admin) by having no manager. */
+export function roleLabelOf(user: DirectoryUser): string {
+  return isCfo(user) ? "CFO" : ROLE_LABEL[user.role];
+}
+
 export function canAct(role: DashboardRole): boolean {
   return role === "clerk" || role === "finance_manager";
 }
@@ -51,7 +58,7 @@ export type PaymentsPage = {
 export const PAGES: PaymentsPage[] = [
   { key: "overview", href: "/payments", label: "Overview", roles: ["clerk", "finance_manager"], forWhom: "AP Clerks and the Finance Manager" },
   { key: "to-schedule", href: "/payments/to-schedule", label: "To schedule", roles: ["clerk"], forWhom: "AP Clerks (they prepare payments)" },
-  { key: "to-release", href: "/payments/to-release", label: "To release", roles: ["finance_manager", "controller"], forWhom: "the Finance Manager (and the Admin, for what the Finance Manager can't release)" },
+  { key: "to-release", href: "/payments/to-release", label: "To release", roles: ["finance_manager", "controller"], forWhom: "the Finance Manager (up to $100,000 CAD), the Admin and the CFO (any amount)" },
   { key: "needs-attention", href: "/payments/needs-attention", label: "Needs attention", roles: ["clerk", "finance_manager"], forWhom: "AP Clerks and the Finance Manager" },
   // Feature 5 (Arpan): possible duplicates and card-paid bills; the server re-checks invoice.review / flag.override.
   { key: "duplicates", href: "/payments/duplicates", label: "Duplicates", roles: ["clerk", "finance_manager", "controller"], forWhom: "the people who do the checks" },
@@ -77,7 +84,7 @@ export const ROLE_ABILITIES: Record<DashboardRole, string[]> = {
     "Not ones you approved, requested or scheduled",
   ],
   controller: [
-    "Release payments of any amount (over $100,000 CAD only you can)",
+    "Release payments of any amount (over $100,000 CAD only the Controller or the CFO can)",
     "Review fraud-hold escalations",
     "Not ones you approved, requested or scheduled",
   ],

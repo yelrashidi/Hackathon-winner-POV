@@ -28,8 +28,9 @@ Controller (our Admin) releases any amount, and only they release > $100k (P09�
 | People & policies | — | — | — | — | ✓ | — |
 
 ¹ Approval routing still sends each department's bills to its own manager (policy file); the demo
-cast is **one person per role, six people** (`src/server/session/roster.ts`, picked by rule: Aiden
-Grant, Jordan Okafor, Dev Malhotra (Operations), Elise Tremblay, Marcus Webb, Hannah Lindqvist). Only
+cast is **one person per role, seven people** (`src/server/session/roster.ts`, picked by rule: Aiden
+Grant, Jordan Okafor, Dev Malhotra (Operations), Elise Tremblay, Marcus Webb, Priya Raman (CFO: the
+`controller_admin` with no manager, same screens as the Admin), Hannah Lindqvist). Only
 they can sign in. The **requester** on Checks is anyone who can order (active employees, AP clerks and
 managers of every department, grouped by department, the bill's own first —
 `dashboard/checks.ts` `reviewOptions`), because the clerk records who asked for the bill; it is

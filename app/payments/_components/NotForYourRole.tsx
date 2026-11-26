@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { DirectoryUser } from "@/server/session/users";
-import { ROLE_LABEL, type PaymentsPage } from "../_lib/access";
+import { roleLabelOf, type PaymentsPage } from "../_lib/access";
 
 /** Shown instead of a page the signed-in person's role doesn't include. Checked on the server. */
 export function NotForYourRole({ page, user }: { page: PaymentsPage; user: DirectoryUser | null }) {
@@ -18,7 +18,7 @@ export function NotForYourRole({ page, user }: { page: PaymentsPage; user: Direc
       <h1 className="mt-4 font-(family-name:--brim-font-display) text-xl font-extrabold text-(--brim-heading)">{page.label} is for {page.forWhom}</h1>
       <p className="mt-2 text-sm text-slate-500">
         {user
-          ? `You're viewing as ${user.fullName} (${ROLE_LABEL[user.role]}).`
+          ? `You're viewing as ${user.fullName} (${roleLabelOf(user)}).`
           : "You haven't picked who you are yet."}{" "}
         Switch person in the top-right, or go to your home screen.
       </p>

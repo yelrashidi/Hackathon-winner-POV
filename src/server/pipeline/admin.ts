@@ -58,6 +58,23 @@ export interface PolicyPatch {
   note: string;
 }
 
+/** "$20,000" for whole dollars, "$20,000.50" otherwise: the style the policy file writes amounts in. */
+function dollars(cents: number): string {
+  const whole = Math.floor(cents / 100).toLocaleString("en-CA");
+  return cents % 100 === 0 ? `$${whole}` : `$${whole}.${String(cents % 100).padStart(2, "0")}`;
+}
+
+/**
+ * Keep an amount policy's description saying what the rule is. The seed reads the threshold from the
+ * FIRST dollar amount of the policy's condition text (policies-from-csv.ts: "Invoice total up to $X",
+ * "Payment over $X"), and that text opens the description, so we rewrite that same first amount to
+ * the current threshold. Done on every save, so a description left stale by an older edit heals too.
+ * Text without a dollar amount is left as is.
+ */
+export function restateThreshold(description: string, cadCents: number): string {
+  return description.replace(/\$[\d,]+(?:\.\d+)?/, dollars(cadCents));
+}
+
 export async function updatePolicy(actor: Actor, policyId: string, patch: PolicyPatch, opts: { db?: Db } = {}): Promise<ApprovalPolicy> {
   const db = opts.db ?? getDb();
   const who = await admin(actor, db, "admin.edit (policy)");
@@ -86,7 +103,9 @@ export async function updatePolicy(actor: Actor, policyId: string, patch: Policy
         version: before.version + 1,
         active: patch.active ?? before.active,
         conditions,
-        description: patch.description?.trim() || before.description,
+        description:
+          patch.description?.trim() ||
+          (conditions.kind === "amount_up_to" || conditions.kind === "amount_over" ? restateThreshold(before.description, conditions.cadCents) : before.description),
       });
       if (!parsed.success) throw new AdminError(parsed.error.issues.map((i) => i.message).join(" · "), 400);
       const next = parsed.data;

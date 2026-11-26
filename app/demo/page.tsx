@@ -21,13 +21,13 @@ export default async function DemoPage() {
   const viewer = await getViewer();
   const view = await paymentsDb.list(viewer?.user.id ?? null);
   const released = view.payments.filter((r) => r.current.status === "released");
-  const finance = viewer && ["clerk", "finance", "admin"].includes(viewer.role);
+  const finance = viewer && ["clerk", "finance", "admin", "cfo"].includes(viewer.role);
 
   return (
     <>
       <PageHeader title="Demo controls" description="Not part of the product: the simulated bank and a reset, so the whole flow can be shown end to end. No real money moves." />
       <Card title={`Simulated bank · released, waiting for the bank's answer (${released.length})`} description="After a payment is released, choose what the bank answers: settled, or one of the failure reasons.">
-        {!finance && <Notice tone="info">Sign in as an AP Clerk, the Finance Manager or the Admin to answer for the bank.</Notice>}
+        {!finance && <Notice tone="info">Sign in as an AP Clerk, the Finance Manager, the Admin or the CFO to answer for the bank.</Notice>}
         {released.length === 0 ? (
           <p className="text-sm text-slate-500">Nothing released right now.</p>
         ) : (

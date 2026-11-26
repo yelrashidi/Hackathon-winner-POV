@@ -35,23 +35,25 @@ export interface Section {
   labelFor?: Partial<Record<AppRole, string>>;
 }
 
-const REVIEWERS: AppRole[] = ["clerk", "manager", "finance", "admin"];
+/** The Controller (Admin) and the CFO hold the same data role (controller_admin), so they get the same screens. */
+const CONTROLLERS: AppRole[] = ["admin", "cfo"];
+const REVIEWERS: AppRole[] = ["clerk", "manager", "finance", ...CONTROLLERS];
 
 export const SECTIONS: Section[] = [
-  { key: "home", href: "/", label: "Home", group: null, roles: ["employee", "clerk", "manager", "finance", "admin", "auditor"], forWhom: "everyone" },
-  { key: "inbox", href: "/inbox", label: "Inbox", group: "Work", roles: REVIEWERS, forWhom: "AP Clerks, managers, the Finance Manager and the Admin" },
-  { key: "checks", href: "/checks", label: "Checks", group: "Work", roles: REVIEWERS, forWhom: "AP Clerks, managers, the Finance Manager and the Admin" },
+  { key: "home", href: "/", label: "Home", group: null, roles: ["employee", "clerk", "manager", "finance", ...CONTROLLERS, "auditor"], forWhom: "everyone" },
+  { key: "inbox", href: "/inbox", label: "Inbox", group: "Work", roles: REVIEWERS, forWhom: "AP Clerks, managers, the Finance Manager, the Admin and the CFO" },
+  { key: "checks", href: "/checks", label: "Checks", group: "Work", roles: REVIEWERS, forWhom: "AP Clerks, managers, the Finance Manager, the Admin and the CFO" },
   {
     key: "upload",
     href: "/checks/upload",
     label: "Upload invoices",
     group: "Work",
     roles: ["employee", ...REVIEWERS],
-    forWhom: "employees (a bill they received), AP Clerks, managers, the Finance Manager and the Admin",
+    forWhom: "employees (a bill they received), AP Clerks, managers, the Finance Manager, the Admin and the CFO",
     labelFor: { employee: "Upload a bill" },
   },
-  { key: "duplicates", href: "/payments/duplicates", label: "Duplicates", group: "Work", roles: ["clerk", "finance", "admin"], forWhom: "AP Clerks, the Finance Manager and the Admin" },
-  { key: "approvals", href: "/approvals", label: "Approvals", group: "Work", roles: ["manager", "finance", "admin"], forWhom: "managers, the Finance Manager and the Admin" },
+  { key: "duplicates", href: "/payments/duplicates", label: "Duplicates", group: "Work", roles: ["clerk", "finance", ...CONTROLLERS], forWhom: "AP Clerks, the Finance Manager, the Admin and the CFO" },
+  { key: "approvals", href: "/approvals", label: "Approvals", group: "Work", roles: ["manager", "finance", ...CONTROLLERS], forWhom: "managers, the Finance Manager, the Admin and the CFO" },
   { key: "payments", href: "/payments", label: "Overview", group: "Payments", roles: ["clerk", "finance"], forWhom: "AP Clerks and the Finance Manager" },
   { key: "to-schedule", href: "/payments/to-schedule", label: "To schedule", group: "Payments", roles: ["clerk"], forWhom: "AP Clerks (they prepare payments)" },
   {
@@ -59,23 +61,23 @@ export const SECTIONS: Section[] = [
     href: "/payments/to-release",
     label: "To release",
     group: "Payments",
-    roles: ["finance", "admin"],
-    forWhom: "the Finance Manager (up to $100,000 CAD) and the Admin (any amount)",
+    roles: ["finance", ...CONTROLLERS],
+    forWhom: "the Finance Manager (up to $100,000 CAD), the Admin and the CFO (any amount)",
   },
   { key: "needs-attention", href: "/payments/needs-attention", label: "Needs attention", group: "Payments", roles: ["clerk", "finance"], forWhom: "AP Clerks and the Finance Manager" },
-  { key: "vendors", href: "/vendors", label: "Vendors", group: "Records", roles: ["clerk", "finance", "admin", "auditor"], forWhom: "AP Clerks, the Finance Manager, the Admin and the Auditor (read-only)" },
+  { key: "vendors", href: "/vendors", label: "Vendors", group: "Records", roles: ["clerk", "finance", ...CONTROLLERS, "auditor"], forWhom: "AP Clerks, the Finance Manager, the Admin, the CFO and the Auditor (read-only)" },
   {
     key: "invoices",
     href: "/invoices",
     label: "Invoices",
     group: "Records",
-    roles: ["employee", "clerk", "manager", "finance", "admin", "auditor"],
+    roles: ["employee", "clerk", "manager", "finance", ...CONTROLLERS, "auditor"],
     forWhom: "everyone — each person sees the invoices their role allows (managers: their department; employees: the bills they requested)",
     labelFor: { employee: "My bills" },
   },
-  { key: "audit", href: "/audit", label: "Audit trail", group: "Records", roles: ["admin", "auditor"], forWhom: "the Auditor and the Admin" },
-  { key: "journal", href: "/journal", label: "Journal export", group: "Records", roles: ["finance", "admin"], forWhom: "the Finance Manager and the Admin (they own the books)" },
-  { key: "admin", href: "/admin", label: "People & policies", group: "Admin", roles: ["admin"], forWhom: "the Admin" },
+  { key: "audit", href: "/audit", label: "Audit trail", group: "Records", roles: [...CONTROLLERS, "auditor"], forWhom: "the Auditor, the Admin and the CFO" },
+  { key: "journal", href: "/journal", label: "Journal export", group: "Records", roles: ["finance", ...CONTROLLERS], forWhom: "the Finance Manager, the Admin and the CFO (they own the books)" },
+  { key: "admin", href: "/admin", label: "People & policies", group: "Admin", roles: CONTROLLERS, forWhom: "the Admin and the CFO" },
 ];
 
 export function section(key: SectionKey): Section {

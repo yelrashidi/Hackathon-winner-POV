@@ -10,9 +10,9 @@ Total: about 10 minutes plus Q&A. Times are targets; rehearse once end to end.
 
 ---
 
-## 1. Cast — the five people who can sign in
+## 1. Cast — the people who can sign in
 
-Only these five can sign in, and they are the only requesters the forms offer
+Only these can sign in (plus Aiden Grant, the read-only Employee), and they are the only requesters the forms offer
 (`src/server/session/roster.ts:8`). Switch with the **Viewing as** menu, top right.
 
 | Person | Role | Job in the demo |
@@ -20,11 +20,13 @@ Only these five can sign in, and they are the only requesters the forms offer
 | Jordan Okafor | AP Clerk | Checks the bill, sets the requester (Jordan), schedules the payment |
 | Dev Malhotra | Operations Manager | Approves (department manager) |
 | Elise Tremblay | Finance Manager | Approves over $10k; releases up to $100k |
-| Marcus Webb | Admin (Controller) | Approves over $50k; releases only what Elise can't |
+| Marcus Webb | Admin (Controller) | Approves over $50k; releases any amount he didn't approve |
+| Priya Raman | CFO | Approves over $250k and what escalates to her (P04, P07); releases what Marcus approved |
 | Hannah Lindqvist | Auditor | Read-only, sees everything |
 
-Priya Raman (CFO) and the other employees stay in the database for routing and history but
-cannot sign in.
+The CFO joined the cast on 2026-11-25: she is the `controller_admin` with no manager
+(`src/server/session/roles.ts` `isCfo`). The other employees stay in the database for routing and
+history but cannot sign in.
 
 ## 2. Who presents what
 
@@ -127,13 +129,15 @@ P11)." Switch to **Marcus Webb** (Admin): he may release it, because Elise can't
 This is the rule judges are most likely to test. **Pick the bill and rehearse it beforehand:** a
 dataset invoice from a vendor in the master, total between $10k and $50k CAD.
 
-## 6. Who approves and releases, by amount (under $100k)
+## 6. Who approves and releases, by amount
 
 | Bill total (CAD) | Approvers, in order | Releaser | In the demo? |
 |---|---|---|---|
 | ≤ $10,000 | Dev | Elise | Yes — the main run (P01, P09) |
 | $10,000–$50,000 | Dev → Elise | Marcus | Yes — the twist (P02, P11) |
-| $50,000–$100,000 | Dev → Elise → Marcus | Priya (CFO) | **No** — Elise and Marcus both approved, and Priya can't sign in. A talking point only. |
+| $50,000–$100,000 | Dev → Elise → Marcus | Priya (CFO) | Yes — Elise and Marcus both approved (P11) |
+| $100,000–$250,000 | Dev → Elise → Marcus | Priya (CFO) | Yes — over Elise's $100k limit (P10) and Marcus approved (P11) |
+| Over $250,000 | Dev → Elise → Marcus → Priya | Nobody | **No** — every releaser approved it, and P11 has no exception. The release screen says so. A talking point. |
 
 Other rules worth knowing for questions (talking points; the people involved are not in the
 sign-in cast):
@@ -141,7 +145,13 @@ sign-in cast):
 - **New or unreviewed supplier:** Elise is added as an approver at any amount (P05), so the release moves to Marcus.
 - **Self-approval:** a manager's own request goes up to their manager (P07).
 - **Manager on leave:** Liam O'Connor (Facilities) is on leave; his approvals go to his delegate, recorded as "on behalf of" (P08).
-- **Over $100,000:** only the Admin/Controller releases (P10).
+- **Over $100,000:** only a `controller_admin` releases (P10): Marcus or Priya, whichever didn't approve it.
+- **Dev's own request:** escalates to his manager, Priya (P07); Marcus's own requests also go to Priya.
+- **Over $250,000 — "can't Marcus release it under P10?"** No. P04 *adds* the CFO after the Controller
+  (`dept_manager > finance_manager > controller_admin > cfo`), so Marcus and Priya both approve, and P11
+  bars every approver from releasing. The policy needs a releaser outside the approval chain (e.g. a
+  second CFO-level signer); we refuse with each person's reason rather than bend separation of duties.
+  Kept strict on purpose (decided 2026-11-25, Andrew).
 
 ---
 

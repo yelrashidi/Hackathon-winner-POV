@@ -1,6 +1,6 @@
 # 8 — Audit trail + database foundation
 
-**Owner:** Andrew · **Code as of:** `9ab81d4` (2026-11-22)
+**Owner:** Andrew · **Code as of:** `71926bd` (2026-11-25)
 
 ## What it does
 Every change to an invoice, flag, approval, payment or bank account writes one row to
@@ -94,7 +94,7 @@ attempt throws `Forbidden` (403 with a reason) and is itself written as `authz.d
 
 | Screen | Call | Returns |
 |---|---|---|
-| `/audit` table | `listAuditInvoices(actor, { search, status, vendorId, from, to, hasOverrides, hasOpenBlocking, page, pageSize })` | `AuditInvoiceList` |
+| `/audit` table | `listAuditInvoices(actor, { search, status, vendorId, from, to, hasOverrides, hasOpenBlocking, sort, page, pageSize })`; `sort` = `newest` (default) · `oldest` · `vendor_az` · `vendor_za`, ordered in SQL with the id as tiebreak (`orderFor`, `features/audit/list.ts`), so paging is stable. `/invoices` uses the same query | `AuditInvoiceList` |
 | `/audit/invoices/[id]` | `getInvoiceAuditDetail(actor, invoiceId)` | `AuditInvoiceDetail` |
 | from a payment | `getPaymentAuditDetail(actor, paymentId)` | `AuditInvoiceDetail` |
 | Export button | `exportAuditCsv(actor, { from, to, invoiceId })` | `{ csv, rows, fileName }` |
@@ -146,6 +146,7 @@ None: audit records every stage's flags and the decisions taken on them. Its own
 
 ## At 100× volume
 - **`audit_events` is the table that grows** (about 15 rows per invoice). It is indexed by invoice, payment, entity, actor and time, so one invoice's timeline is an index range scan. Partition by month past roughly 10M rows.
+- **Search is `ILIKE '%…%'` on vendor name and invoice number**: no b-tree index can serve a contains-search, so it scans every invoice. At 100× add a `pg_trgm` GIN index on those columns (TODO). The date sorts use `invoices_invoice_date_idx`; the vendor sorts sort the filtered rows, fine once the search narrows them.
 - **The invoice list runs about 8 correlated subqueries per row**, fine for a page of 50. At 100×, keep a summary column (flag counts, last activity) updated in the same transaction, or a materialized view.
 - **The CSV export builds the whole file as one string in each call**, so keep it scoped by date range or invoice. For a full year, page by `id` and stream the file.
 - **Seeding history writes about 2,000 events**, in chunks of 300. That's fine at 100×.

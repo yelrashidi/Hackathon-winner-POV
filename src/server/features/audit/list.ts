@@ -1,12 +1,13 @@
-import { and, desc, eq, gte, ilike, inArray, lte, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, inArray, lte, or, sql, type SQL } from "drizzle-orm";
 import type { Actor } from "@/contracts/actor";
-import { AuditInvoiceListQuery, type AuditInvoiceList, type AuditInvoiceListQuery as Query } from "@/contracts/audit-view";
+import { AuditInvoiceListQuery, type AuditInvoiceList, type AuditInvoiceListQuery as Query, type InvoiceSort } from "@/contracts/audit-view";
 import { getDb, type Db } from "@/server/db/client";
 import { invoices, vendors } from "@/server/db/schema";
 import { guard, iso, loadPeople } from "./shared";
 
 /**
- * Screen 1 of the auditor dashboard: every invoice (history and new), newest first, with what an
+ * Screen 1 of the auditor dashboard: every invoice (history and new), newest first unless the
+ * query asks for another `sort`, with what an
  * auditor scans for — flag counts, overrides, who gave the final approval, payment and releaser.
  * Each row links to getInvoiceAuditDetail(row.invoiceId). Auditor only.
  */
@@ -14,6 +15,27 @@ export async function listAuditInvoices(actor: Actor, query: Query = {}, opts: {
   const db = opts.db ?? getDb();
   await guard(actor, "audit.view", db);
   return queryInvoiceList(db, query);
+}
+
+/** The vendor name a row shows (and sorts by): the vendor master's legal name, else the name on the bill. */
+const vendorNameSql = sql<string | null>`coalesce(${vendors.legalName}, ${invoices.vendorNameRaw})`;
+
+/**
+ * ORDER BY for each sort. Vendor sorts are case-insensitive, put bills with no vendor name last, and
+ * show each vendor's newest bill first. Every order ends on the id so pages are stable.
+ */
+function orderFor(sort: InvoiceSort = "newest"): SQL[] {
+  const vendorKey = sql`lower(${vendorNameSql})`;
+  switch (sort) {
+    case "oldest":
+      return [asc(invoices.invoiceDate), asc(invoices.id)];
+    case "vendor_az":
+      return [sql`${vendorKey} ASC NULLS LAST`, desc(invoices.invoiceDate), desc(invoices.id)];
+    case "vendor_za":
+      return [sql`${vendorKey} DESC NULLS LAST`, desc(invoices.invoiceDate), desc(invoices.id)];
+    case "newest":
+      return [desc(invoices.invoiceDate), desc(invoices.id)];
+  }
 }
 
 /** Limits a list to one department's invoices, or to one person's own requests (features/invoices). */
@@ -54,7 +76,7 @@ export async function queryInvoiceList(db: Db, query: Query = {}, scope: Invoice
         invoiceId: invoices.id,
         invoiceNumber: invoices.invoiceNumber,
         vendorId: invoices.vendorId,
-        vendorName: sql<string | null>`coalesce(${vendors.legalName}, ${invoices.vendorNameRaw})`,
+        vendorName: vendorNameSql,
         invoiceDate: invoices.invoiceDate,
         receivedDate: invoices.receivedDate,
         currency: invoices.currency,
@@ -76,7 +98,7 @@ export async function queryInvoiceList(db: Db, query: Query = {}, scope: Invoice
       .from(invoices)
       .leftJoin(vendors, eq(vendors.id, invoices.vendorId))
       .where(filter)
-      .orderBy(desc(invoices.invoiceDate), desc(invoices.id))
+      .orderBy(...orderFor(q.sort))
       .limit(q.pageSize)
       .offset((q.page - 1) * q.pageSize),
     db.select({ n: sql<number>`count(*)::int`.mapWith(Number) }).from(invoices).leftJoin(vendors, eq(vendors.id, invoices.vendorId)).where(filter),

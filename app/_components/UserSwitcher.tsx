@@ -8,7 +8,7 @@ export async function UserSwitcher() {
   const groups: SwitcherGroup[] = APP_ROLES.map((r) => ({
     label: r.label,
     people: people
-      .filter((u) => appRoleOf(u.role) === r.key)
+      .filter((u) => appRoleOf(u) === r.key)
       .map((u) => ({ id: u.id, fullName: u.fullName, detail: u.status === "on_leave" ? `${u.title} · on leave` : u.title })),
   }));
   return (

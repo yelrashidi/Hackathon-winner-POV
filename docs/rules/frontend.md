@@ -25,3 +25,4 @@ paths:
 - **Every section has its own `loading.tsx`**: on a client navigation only what is below the shared layout re-renders, so the root one does not cover a switch between sections (Cache Components "instant navigation").
 - **Database reads in a page or layout go after `await connection()`** (or after a cookie read is awaited). With `cacheComponents`, a read that starts during prerender fails on anything time-based, e.g. the embedded demo DB (BUG-Arpan-06).
 - **A cookie read alone is not enough:** `new Date()` after `await cookies()` was still refused while prerendering (payments, 2026-11-21). Put `await connection()` before the reads.
+- **A role check that hides some actions must not hide all of them.** `canAct()` is false for the Admin (no schedule / cancel / retry) yet the Admin releases and decides duplicates: gate each button on its own rule (`actionFor`), not on `canAct` (BUG-Andrew-11, BUG-Andrew-12).
