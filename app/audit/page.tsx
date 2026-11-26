@@ -7,6 +7,8 @@ import { fieldClass } from "../_lib/styles";
 import { NotForYourRole } from "../_components/NotForYourRole";
 import { Day, EmptyState, InvoiceStatus, invoiceStatusLabel, Money, PageHeader, Pill, Table, td } from "../_components/ui";
 import { first, formatDay } from "../_lib/format";
+import { DEFAULT_SORT, parseSort, SORT_OPTIONS } from "../_lib/invoice-sort";
+import { SortSelect } from "../_components/SortSelect";
 import { canSee } from "../_lib/nav";
 
 export const metadata: Metadata = { title: "Audit trail" };
@@ -28,6 +30,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/audit">) {
     to: isDay(first(params.to)) ? first(params.to) : undefined,
     hasOverrides: first(params.overrides) === "1" || undefined,
     hasOpenBlocking: first(params.blocking) === "1" || undefined,
+    sort: parseSort(first(params.sort)),
     page: Math.max(1, Number(first(params.page)) || 1),
     pageSize: PAGE_SIZE,
   };
@@ -36,7 +39,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/audit">) {
   const canExport = can(viewer!.actor, "audit.export");
   const link = (patch: Record<string, string | undefined>) => {
     const next = new URLSearchParams();
-    const merged = { q: q.search, status: q.status, from: q.from, to: q.to, overrides: q.hasOverrides ? "1" : undefined, blocking: q.hasOpenBlocking ? "1" : undefined, page: String(q.page), ...patch };
+    const merged = { q: q.search, status: q.status, from: q.from, to: q.to, overrides: q.hasOverrides ? "1" : undefined, blocking: q.hasOpenBlocking ? "1" : undefined, sort: q.sort !== DEFAULT_SORT ? q.sort : undefined, page: String(q.page), ...patch };
     for (const [k, v] of Object.entries(merged)) if (v && !(k === "page" && v === "1")) next.set(k, v);
     const s = next.toString();
     return s ? `/audit?${s}` : "/audit";
@@ -56,10 +59,14 @@ export default async function AuditPage({ searchParams }: PageProps<"/audit">) {
         )}
       </PageHeader>
 
-      <form className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-6" action="/audit">
+      <form className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-7" action="/audit" role="search">
         <label className="text-xs font-medium text-slate-600 lg:col-span-2">
           Search
-          <input name="q" defaultValue={q.search ?? ""} placeholder="Invoice id, number or vendor" className={`mt-1 ${fieldClass}`} />
+          <input type="search" name="q" defaultValue={q.search ?? ""} placeholder="Vendor name, invoice number or id" className={`mt-1 ${fieldClass}`} />
+        </label>
+        <label className="text-xs font-medium text-slate-600">
+          Sort by
+          <SortSelect value={q.sort} options={SORT_OPTIONS} className={`mt-1 ${fieldClass}`} />
         </label>
         <label className="text-xs font-medium text-slate-600">
           Status
@@ -88,7 +95,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/audit">) {
             <input type="checkbox" name="blocking" value="1" defaultChecked={q.hasOpenBlocking} className="accent-(--brim-link)" /> Open blocking flag
           </label>
         </div>
-        <div className="flex items-center gap-3 sm:col-span-2 lg:col-span-6">
+        <div className="flex items-center gap-3 sm:col-span-2 lg:col-span-7">
           <button type="submit" className="rounded-lg bg-(--brim-accent) px-4 py-1.5 text-sm font-semibold text-(--brim-on-accent) hover:bg-(--brim-accent-hover)">
             Filter
           </button>
@@ -149,11 +156,11 @@ export default async function AuditPage({ searchParams }: PageProps<"/audit">) {
       )}
       {pages > 1 && (
         <nav className="flex items-center justify-between text-sm" aria-label="Pages">
-          {q.page > 1 ? <Link href={link({ page: String(q.page - 1) })} className="font-medium text-(--brim-link) hover:underline">← Newer</Link> : <span />}
+          {q.page > 1 ? <Link href={link({ page: String(q.page - 1) })} className="font-medium text-(--brim-link) hover:underline">← Previous</Link> : <span />}
           <span className="text-slate-500">
             Page {q.page} of {pages}
           </span>
-          {q.page < pages ? <Link href={link({ page: String(q.page + 1) })} className="font-medium text-(--brim-link) hover:underline">Older →</Link> : <span />}
+          {q.page < pages ? <Link href={link({ page: String(q.page + 1) })} className="font-medium text-(--brim-link) hover:underline">Next →</Link> : <span />}
         </nav>
       )}
     </>

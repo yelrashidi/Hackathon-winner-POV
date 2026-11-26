@@ -86,3 +86,64 @@ describe("the invoice record", () => {
     expect(await getInvoiceRecord(as("U004", "ap_clerk"), "NOPE-1", { db })).toBeNull();
   });
 });
+
+describe("search and sort (large lists: done in the database, across every page)", () => {
+  const clerk = as("U004", "ap_clerk");
+  const name = (r: { vendorName: string | null }) => (r.vendorName ?? "").toLowerCase();
+
+  it("newest first is the default, and oldest first is its reverse by invoice date", async () => {
+    const byDefault = await listInvoiceRecords(clerk, { pageSize: 200 }, { db });
+    const newest = await listInvoiceRecords(clerk, { sort: "newest", pageSize: 200 }, { db });
+    expect(byDefault.rows.map((r) => r.invoiceId)).toEqual(newest.rows.map((r) => r.invoiceId));
+    for (let i = 1; i < newest.rows.length; i++) expect((newest.rows[i - 1]!.invoiceDate ?? "") >= (newest.rows[i]!.invoiceDate ?? "")).toBe(true);
+    const oldest = await listInvoiceRecords(clerk, { sort: "oldest", pageSize: 200 }, { db });
+    for (let i = 1; i < oldest.rows.length; i++) expect((oldest.rows[i - 1]!.invoiceDate ?? "") <= (oldest.rows[i]!.invoiceDate ?? "")).toBe(true);
+    const [earliest] = await q<{ d: string }>("SELECT min(invoice_date)::text d FROM invoices");
+    expect(oldest.rows[0]!.invoiceDate).toBe(earliest!.d);
+  });
+
+  it("vendor A to Z and Z to A are alphabetical (case-insensitive); bills with no vendor name come last", async () => {
+    const az = await listInvoiceRecords(clerk, { sort: "vendor_az", pageSize: 200 }, { db });
+    const named = az.rows.filter((r) => r.vendorName);
+    for (let i = 1; i < named.length; i++) expect(name(named[i - 1]!) <= name(named[i]!)).toBe(true);
+    const za = await listInvoiceRecords(clerk, { sort: "vendor_za", pageSize: 200 }, { db });
+    const namedZa = za.rows.filter((r) => r.vendorName);
+    for (let i = 1; i < namedZa.length; i++) expect(name(namedZa[i - 1]!) >= name(namedZa[i]!)).toBe(true);
+    const firstUnnamed = az.rows.findIndex((r) => !r.vendorName);
+    if (firstUnnamed >= 0) expect(az.rows.slice(firstUnnamed).every((r) => !r.vendorName)).toBe(true);
+  });
+
+  it("paging a sorted list never repeats or skips an invoice", async () => {
+    for (const sort of ["newest", "oldest", "vendor_az", "vendor_za"] as const) {
+      const seen: string[] = [];
+      for (let page = 1; ; page++) {
+        const list = await listInvoiceRecords(clerk, { sort, page, pageSize: 50 }, { db });
+        seen.push(...list.rows.map((r) => r.invoiceId));
+        if (page * 50 >= list.total) break;
+      }
+      expect(new Set(seen).size, sort).toBe(total);
+      expect(seen.length, sort).toBe(total);
+    }
+  });
+
+  it("search narrows by vendor name, invoice number or id, and still sorts", async () => {
+    const [v] = await q<{ name: string }>("SELECT v.legal_name name FROM invoices i JOIN vendors v ON v.id = i.vendor_id GROUP BY v.legal_name HAVING count(*) > 2 ORDER BY v.legal_name LIMIT 1");
+    const word = v!.name.split(" ")[0]!.toUpperCase(); // case-insensitive, part of the name
+    const hits = await listInvoiceRecords(clerk, { search: word, sort: "oldest", pageSize: 200 }, { db });
+    expect(hits.total).toBeGreaterThan(2);
+    expect(hits.rows.every((r) => `${r.vendorName} ${r.invoiceNumber} ${r.invoiceId}`.toLowerCase().includes(word.toLowerCase()))).toBe(true);
+    for (let i = 1; i < hits.rows.length; i++) expect((hits.rows[i - 1]!.invoiceDate ?? "") <= (hits.rows[i]!.invoiceDate ?? "")).toBe(true);
+    const [one] = await q<{ id: string }>("SELECT id FROM invoices ORDER BY id LIMIT 1");
+    expect((await listInvoiceRecords(clerk, { search: one!.id }, { db })).rows.map((r) => r.invoiceId)).toContain(one!.id);
+  });
+
+  it("sorting never widens what a person may see: a manager's sorted list is still only their department", async () => {
+    const list = await listInvoiceRecords(manager, { sort: "vendor_az", pageSize: 200 }, { db });
+    const deptCount = (await q<{ n: number }>(`SELECT count(*)::int n FROM invoices WHERE department_id = '${managerDept}'`))[0]!.n;
+    expect(list.total).toBe(deptCount);
+  });
+
+  it("an unknown sort is refused by the contract, not silently ignored", async () => {
+    await expect(listInvoiceRecords(clerk, { sort: "amount" as never }, { db })).rejects.toThrow();
+  });
+});

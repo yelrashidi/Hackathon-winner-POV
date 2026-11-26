@@ -11,6 +11,12 @@ import { canSeePage, dashboardRole, pageByKey } from "./_lib/access";
 import { getPayments } from "./_lib/data";
 import { todayIso } from "./_lib/format";
 import type { PaymentStatus } from "@/contracts/payment";
+import { parseQueueSort, searchAndSort } from "@/server/dashboard/list-query";
+import { SORT_OPTIONS } from "../_lib/invoice-sort";
+
+// The overview already lists payments by pay date, earliest first: that is its default sort.
+const DEFAULT_SORT = "oldest";
+const PAY_DATE_SORTS = SORT_OPTIONS.map((o) => (o.value === "newest" || o.value === "oldest" ? { ...o, label: `${o.label} (pay date)` } : o));
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -31,8 +37,13 @@ export default async function OverviewPage({ searchParams }: PageProps<"/payment
   // Ignore unknown filter values instead of showing an empty table.
   const status = STATUSES.find((s) => s === first(params.status)) ?? "";
   const vendor = vendors.find((v) => v.value === first(params.vendor))?.value ?? "";
-  const rows = view.payments.filter(
-    (p) => (!status || p.current.status === status) && (!vendor || p.invoice.vendorId === vendor),
+  const search = first(params.q).trim();
+  const picked = parseQueueSort(first(params.sort));
+  const sort = picked === "default" ? DEFAULT_SORT : picked;
+  const rows = searchAndSort(
+    view.payments.filter((p) => (!status || p.current.status === status) && (!vendor || p.invoice.vendorId === vendor)),
+    { search, sort },
+    (p) => ({ text: [p.invoice.vendorName, p.invoice.vendorInvoiceNumber, p.invoice.invoiceId], vendor: p.invoice.vendorName, date: p.current.scheduledDate, id: p.invoice.invoiceId }),
   );
 
   return (
@@ -52,13 +63,17 @@ export default async function OverviewPage({ searchParams }: PageProps<"/payment
       />
       <FilterBar
         // Remount when the URL's filters change so the selects show them (e.g. after "Clear filters").
-        key={`${status}|${vendor}`}
+        key={`${status}|${vendor}|${search}|${sort}`}
         statuses={STATUSES.map((s) => ({ value: s, label: statusLabel(s) }))}
         vendors={vendors}
         status={status}
         vendor={vendor}
+        search={search}
+        sort={sort}
+        sortOptions={PAY_DATE_SORTS}
+        defaultSort={DEFAULT_SORT}
       />
-      <PaymentsTable rows={rows} role={role} filtered={Boolean(status || vendor)} />
+      <PaymentsTable rows={rows} role={role} filtered={Boolean(status || vendor || search)} />
     </>
   );
 }
