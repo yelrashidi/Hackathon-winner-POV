@@ -63,7 +63,7 @@ describe("the employee role", () => {
   it("is the sixth role: six people in the cast, the employee picked by rule (reports to the cast's manager)", async () => {
     const cast = await demoRoster(db);
     expect(cast.map((c) => c.role)).toEqual(APP_ROLES.map((r) => r.key));
-    expect(cast).toHaveLength(6);
+    expect(cast).toHaveLength(7);
     const emp = cast.find((c) => c.role === "employee")!.user;
     const mgr = cast.find((c) => c.role === "manager")!.user;
     expect(emp.role).toBe("employee");
@@ -72,7 +72,22 @@ describe("the employee role", () => {
     // The FIRST such employee (by id).
     const [first] = await q<{ id: string }>(`SELECT id FROM users WHERE role = 'employee' AND status = 'active' AND manager_id = '${mgr.id}' ORDER BY id LIMIT 1`);
     expect(emp.id).toBe(first!.id);
-    expect(appRoleOf("employee")).toBe("employee");
+    expect(appRoleOf(emp)).toBe("employee");
+  });
+
+  it("the CFO is the controller_admin with no manager, and never the same person as the Admin (Controller)", async () => {
+    const cast = await demoRoster(db);
+    const admin = cast.find((c) => c.role === "admin")!.user;
+    const cfo = cast.find((c) => c.role === "cfo")!.user;
+    expect(cfo.role).toBe("controller_admin");
+    expect(cfo.managerId).toBeNull();
+    expect(admin.role).toBe("controller_admin");
+    expect(admin.managerId).not.toBeNull();
+    expect(admin.id).not.toBe(cfo.id);
+    expect(appRoleOf(cfo)).toBe("cfo");
+    expect(appRoleOf(admin)).toBe("admin");
+    // Same screens as the Admin: both hold controller_admin, so the server allows them the same actions.
+    expect(sectionsFor("cfo").map((s) => s.key)).toEqual(sectionsFor("admin").map((s) => s.key));
   });
 
   it("sees only Home, Upload a bill and Invoices (labelled My bills); every other screen is not for their role", () => {

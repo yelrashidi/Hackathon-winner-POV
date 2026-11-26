@@ -49,7 +49,7 @@ export interface Viewer {
 /** The signed-in person as the services want them: the actor passed to authorize(), fire() and audit. */
 export const getViewer = cache(async (): Promise<Viewer | null> => {
   const user = await getCurrentUser();
-  const role = appRoleOf(user?.role);
+  const role = appRoleOf(user);
   if (!user || !role) return null;
   return { user, role, actor: { userId: user.id, role: user.role, onBehalfOf: null } };
 });

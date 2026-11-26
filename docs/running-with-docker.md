@@ -47,6 +47,7 @@ On http://localhost:3000, pick who you are. One person per role:
 | Dev Malhotra | Operations Manager |
 | Elise Tremblay | Finance Manager |
 | Marcus Webb | Admin (Controller) |
+| Priya Raman | CFO (releases what the Controller approved; approves over $250k) |
 | Hannah Lindqvist | Auditor |
 
 Switch person at any time with **Viewing as** (top right). The click-by-click walkthrough is

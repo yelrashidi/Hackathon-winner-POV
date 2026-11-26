@@ -1,11 +1,12 @@
 import { asc, eq } from "drizzle-orm";
 import { departments, users } from "@/server/db/schema";
 import type { Executor } from "@/server/db/client";
-import type { AppRole } from "./roles";
+import { isCfo, type AppRole } from "./roles";
 import type { DirectoryUser, UserRole } from "./users";
 
 /**
- * The demo cast: ONE person per role, six roles (team plan, 2026-11-21 — a 2–3 minute demo).
+ * The demo cast: ONE person per role, seven roles (team plan, 2026-11-21 — a 2–3 minute demo; the
+ * CFO added 2026-11-25 so a bill the Controller approved can still be released, P10/P11).
  * They are the only people who can sign in. Everyone else stays in the database (history, the
  * requesters the Checks screen offers, approval routing, the audit trail).
  *
@@ -15,6 +16,8 @@ import type { DirectoryUser, UserRole } from "./users";
  *   Operations Manager  the manager of the Operations department (falls back to the first approver)
  *   Finance Manager     first active finance_manager
  *   Admin               the Controller: the controller_admin who reports to someone (not the CFO)
+ *   CFO                 the controller_admin with no manager (the top of the org chart, as approvals'
+ *                       candidatesFor("cfo") picks); never the same person as the Admin
  *   Auditor             first active auditor
  */
 
@@ -43,7 +46,8 @@ export async function demoRoster(db: Executor): Promise<{ role: AppRole; user: D
     ["clerk", firstOf("ap_clerk")],
     ["manager", manager],
     ["finance", firstOf("finance_manager")],
-    ["admin", firstOf("controller_admin", (u) => u.managerId !== null) ?? firstOf("controller_admin")],
+    ["admin", firstOf("controller_admin", (u) => !isCfo(u))],
+    ["cfo", firstOf("controller_admin", (u) => isCfo(u))],
     ["auditor", firstOf("auditor")],
   ];
   return picks.filter((p): p is [AppRole, Row] => p[1] !== undefined).map(([role, u]) => ({ role, user: toUser(u) }));

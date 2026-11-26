@@ -73,8 +73,8 @@ export async function rejectBankAction(_: FormState, form: FormData): Promise<Fo
 export async function sendToApprovalDemo(): Promise<FormState> {
   await ensureDb();
   const viewer = await getViewer();
-  if (!usingDemoDb() || !viewer || !["clerk", "finance", "admin"].includes(viewer.role)) {
-    return { ok: false, messages: ["Demo controls are for the demo database, signed in as an AP Clerk, the Finance Manager or the Admin."] };
+  if (!usingDemoDb() || !viewer || !["clerk", "finance", "admin", "cfo"].includes(viewer.role)) {
+    return { ok: false, messages: ["Demo controls are for the demo database, signed in as an AP Clerk, the Finance Manager, the Admin or the CFO."] };
   }
   const { sendCleanBillsToApproval } = await import("@/server/demo/scenario");
   const sent = await sendCleanBillsToApproval(3);

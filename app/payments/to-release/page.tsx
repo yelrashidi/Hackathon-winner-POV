@@ -4,7 +4,7 @@ import { NeedsAttention } from "../_components/NeedsAttention";
 import { NotForYourRole } from "../_components/NotForYourRole";
 import { PageHeader } from "../_components/PageHeader";
 import { ReleaseQueueTable, type ReleaseItem } from "../_components/ReleaseQueueTable";
-import { canSeePage, dashboardRole, pageByKey } from "../_lib/access";
+import { canSeePage, dashboardRole, pageByKey, roleLabelOf } from "../_lib/access";
 import { getPayments } from "../_lib/data";
 import { paymentsDb } from "@/server/pipeline";
 
@@ -14,7 +14,7 @@ const DESCRIPTION = {
   finance_manager:
     "Scheduled payments waiting for the final OK. You can release up to $100,000 CAD, never a payment you approved, requested or scheduled.",
   controller:
-    "Only the payments the Finance Manager can't release: over $100,000 CAD (P10), or ones the Finance Manager approved, scheduled or requested (P11). You never release one you approved yourself.",
+    "Every scheduled payment. Over $100,000 CAD (P10), or ones the Finance Manager approved, scheduled or requested (P11), only the Controller or the CFO can release, and never one they approved themselves.",
   other: "Scheduled payments and who is allowed to release each one. View only.",
 };
 
@@ -48,7 +48,7 @@ export default async function ToReleasePage() {
   return (
     <>
       <PageHeader
-        title={role === "controller" ? "Releases for the Admin" : "Release queue"}
+        title={role === "controller" && user ? `Releases for the ${roleLabelOf(user)}` : "Release queue"}
         description={role === "finance_manager" || role === "controller" ? DESCRIPTION[role] : DESCRIPTION.other}
       >
         {isReleaser && (

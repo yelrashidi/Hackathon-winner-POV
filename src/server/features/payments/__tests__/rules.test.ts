@@ -76,6 +76,19 @@ describe("release rules", () => {
     expect(checkRelease(base({ payment: atLimit, approval: { ...approval, basis: { ...approval.basis, totalCents: 10_000_000 } } })).allowed).toBe(true);
   });
 
+  it("over $100k that the Controller approved (P03 adds them over $50k): the CFO releases, the Controller and FM can't (P10/P11)", () => {
+    const CFO = user("CFO", "controller_admin", { managerId: null });
+    const CONTROLLER = user("CTRL", "controller_admin", { managerId: "CFO" });
+    const big = { ...payment, amountCents: 11_300_000, amountCadCents: 11_300_000 };
+    const approval = { approverIds: ["DEPT", "FM", "CTRL"], basis: { vendorId: "V1", currency: "CAD" as const, totalCents: 11_300_000 } };
+    expect(checkRelease(base({ actor: CFO, payment: big, approval }))).toEqual({ allowed: true, reasons: [] });
+    expect(codes({ actor: CONTROLLER, payment: big, approval })).toEqual(["APPROVED_IT"]);
+    expect(codes({ actor: FM, payment: big, approval })).toEqual(["OVER_RELEASE_LIMIT", "APPROVED_IT"]);
+    // Over $250k the CFO signs too (P04), and then nobody may release it: P11 has no exception.
+    const chain = { ...approval, approverIds: [...approval.approverIds, "CFO"] };
+    expect(codes({ actor: CFO, payment: big, approval: chain })).toEqual(["APPROVED_IT"]);
+  });
+
   it("USD is limited on its CAD amount at the invoice-date rate, and a CAD amount that doesn't match total × rate is refused", () => {
     const usd = { ...payment, currency: "USD" as const, amountCents: 7_300_000, amountCadCents: 10_001_000, fxRateToCad: "1.37" };
     const approval = { approverIds: [], basis: { vendorId: "V1", currency: "USD" as const, totalCents: 7_300_000 } };

@@ -39,7 +39,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   // The demo cast only (one person per role); the rest of the company stays in the database.
   const people = directory.filter((u) => cast.some((c) => c.id === u.id));
   const tab = first(params.tab) === "people" ? "people" : "policies";
-  const approvers = people.filter((u) => appRoleOf(u.role) && u.role !== "auditor" && u.role !== "ap_clerk");
+  const approvers = people.filter((u) => appRoleOf(u) && u.role !== "auditor" && u.role !== "ap_clerk");
   const active = people.filter((u) => u.status === "active");
 
   return (
@@ -99,7 +99,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
       ) : (
         <Table head={["Person", "Role", "Approval limit", "Status", "Delegate", "Change"]}>
           {people.map((u) => {
-            const role = appRoleOf(u.role);
+            const role = appRoleOf(u);
             return (
               <tr key={u.id} className="hover:bg-slate-50/70">
                 <td className={td}>

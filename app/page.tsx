@@ -36,7 +36,7 @@ async function ChooseWhoYouAre() {
       />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {APP_ROLES.map((r) => {
-          const members = people.filter((u) => appRoleOf(u.role) === r.key);
+          const members = people.filter((u) => appRoleOf(u) === r.key);
           return (
             <section key={r.key} className="flex flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
               <h2 className="font-(family-name:--brim-font-display) text-lg font-extrabold text-(--brim-heading)">{r.label}</h2>
@@ -155,7 +155,7 @@ async function RoleHome({ viewer }: { viewer: Viewer }) {
         {canSee(role, "checks") && <StatCard label="Checks to do" value={checks.length} hint={`${byKind("unreadable")} to type in · ${byKind("blocking")} blocked · ${byKind("ready") + byKind("confirm")} nearly ready`} href="/checks" />}
         {canSee(role, "to-schedule") && <StatCard label="Approved, to schedule" value={counts["to-schedule"]?.n ?? 0} href="/payments/to-schedule" />}
         {canSee(role, "to-release") && (
-          <StatCard label={role === "admin" ? "Releases only you can do" : "Payments you can release"} value={counts["to-release"]?.n ?? 0} href="/payments/to-release" />
+          <StatCard label={role === "admin" || role === "cfo" ? "Releases waiting on you" : "Payments you can release"} value={counts["to-release"]?.n ?? 0} href="/payments/to-release" />
         )}
         {canSee(role, "needs-attention") && <StatCard label="Payments needing attention" value={counts["needs-attention"]?.n ?? 0} href="/payments/needs-attention" tone={counts["needs-attention"]?.n ? "alert" : "default"} />}
         {role === "auditor" && <StatCard label="Invoices on record" value={past?.total ?? 0} hint="Every one opens to its full audit trail" href="/audit" />}

@@ -8,6 +8,10 @@
 > control checks, export) is for the Auditor ("read-only everything, audit export") and the
 > Controller/Admin ("full audit log"), per `product.md`; others see their own recent actions on the home screen.
 > Doing the checks never lets you approve your own work: the submitter is excluded from the approval.
+> **CFO in the demo cast (2026-11-25, Andrew):** Priya Raman signs in as **CFO**, the `controller_admin`
+> with no manager (`src/server/session/roles.ts` `isCfo`, the same rule as approvals' `candidatesFor("cfo")`).
+> Same data role, so the same server permissions and screens as the Controller. She closes the gap P11 left:
+> a bill over $50k that the Controller approved is released by the CFO. Over $250k she approves too (P04), so nobody may release it.
 > **The Controller (Admin) releases payments of any amount (2026-11-22, decided by Andrew)**; the Finance Manager up to $100,000 CAD. Nobody releases what they approved (P11, `features/payments/rules.ts` `checkRelease`).
 > **Employee (2026-11-22): read-only.** Their screens are Home and **My bills** (`/invoices`, scoped to
 > the bills they requested, each with where it is in plain words). Bills reach AP from suppliers and the

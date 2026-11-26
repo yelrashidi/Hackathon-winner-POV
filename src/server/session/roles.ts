@@ -10,13 +10,18 @@ import type { UserRole } from "./users";
  *   manager   Operations Mgr.   + approves their department's bills (dataset policy: up to $10,000 CAD;
  *                               every department manager is in this group, Dev Malhotra runs Operations)
  *   finance   Finance Manager   + approves above $10,000 and flagged / new-vendor bills, releases payments ≤ $100,000
- *   admin     Admin             everything except payments: checks, approvals, vendors, users and policies;
- *                               releases only what the brief gives the Controller (P10/P11)
+ *   admin     Admin             the Controller: everything except preparing payments: checks, approvals over
+ *                               $50,000, vendors, users and policies; releases any amount (P10), never what they approved (P11)
+ *   cfo       CFO               the Chief Financial Officer: the same data role as the Controller (controller_admin),
+ *                               at the top of the org chart (no manager). Signs the last step over $250,000 (P04), is the
+ *                               manager a self-approval escalates to (P07), releases what the Controller approved (P10/P11)
  *   auditor   Auditor           every invoice and its audit trail, read-only, plus the export
  *
  * The role always comes from the employee record on the server; this file only names and groups it.
+ * The CFO is told apart from the Controller the way approvals does it (features/approvals/resolve.ts,
+ * `candidatesFor("cfo")`): the controller_admin with no manager. No names or ids from the dataset.
  */
-export type AppRole = "employee" | "clerk" | "manager" | "finance" | "admin" | "auditor";
+export type AppRole = "employee" | "clerk" | "manager" | "finance" | "admin" | "cfo" | "auditor";
 
 export const APP_ROLE: Partial<Record<UserRole, AppRole>> = {
   employee: "employee",
@@ -27,7 +32,15 @@ export const APP_ROLE: Partial<Record<UserRole, AppRole>> = {
   auditor: "auditor",
 };
 
-export const appRoleOf = (role: string | null | undefined): AppRole | null => (role ? (APP_ROLE[role as UserRole] ?? null) : null);
+/** The CFO: a controller_admin at the top of the org chart (nobody above them). */
+export const isCfo = (user: { role: string; managerId: string | null }): boolean => user.role === "controller_admin" && user.managerId === null;
+
+/** The screens a person gets, from their employee record (role + manager). */
+export const appRoleOf = (user: { role: string; managerId: string | null } | null | undefined): AppRole | null => {
+  if (!user) return null;
+  if (isCfo(user)) return "cfo";
+  return APP_ROLE[user.role as UserRole] ?? null;
+};
 
 export const APP_ROLES: { key: AppRole; label: string; summary: string; can: string[] }[] = [
   {
@@ -57,8 +70,18 @@ export const APP_ROLES: { key: AppRole; label: string; summary: string; can: str
   {
     key: "admin",
     label: "Admin",
-    summary: "Runs everything except payments: approvals over $50,000, vendors, people and policies.",
-    can: ["Checks, approvals, vendors", "Edit approval policies, put people on leave", "Releases payments of any amount"],
+    summary: "The Controller. Runs everything except preparing payments: approvals over $50,000, vendors, people and policies.",
+    can: ["Checks, approvals over $50,000 CAD, vendors", "Edit approval policies, put people on leave", "Release payments of any amount, never one you approved"],
+  },
+  {
+    key: "cfo",
+    label: "CFO",
+    summary: "The Chief Financial Officer. Signs the biggest bills and releases the payments the Controller approved.",
+    can: [
+      "The last approval over $250,000 CAD, and bills escalated to you as the top manager",
+      "Release payments of any amount the Controller approved",
+      "Never a bill you requested or approved; does not prepare payments",
+    ],
   },
   {
     key: "auditor",
