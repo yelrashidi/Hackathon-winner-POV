@@ -38,7 +38,9 @@ export default async function PaymentDetailsPage({ params }: PageProps<"/payment
   const role = dashboardRole(user);
   const current = row?.current ?? null;
   const status = current?.status ?? "awaiting";
-  const action = canAct(role) ? actionFor(role, status) : null;
+  // actionFor already gives each role only its own button (the Admin/CFO: Release, nothing else).
+  // Don't gate it on canAct: that is false for the Admin and hid their Release button here.
+  const action = actionFor(role, status);
   const [releasers, bank, audit] = await Promise.all([
     row ? paymentsDb.eligibleReleasers([id]).then(([people]) => (people ?? []).map((p) => p.name)) : Promise.resolve([] as string[]),
     paymentsDb.supplierBank(user?.id ?? null, invoice.vendorId),
