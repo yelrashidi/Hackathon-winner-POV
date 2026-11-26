@@ -73,6 +73,8 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P1 Payments: call `checkDuplicatesAndPersist(invoiceId)` at release and block on open `duplicates` block flags once `getOpenInvoiceFlags` reads stored flags (AP-00407 is scheduled with an open DUPLICATE_INVOICE). [Katie, Arpan]
 - [ ] P2 Approvals: after "not a duplicate", route on `SPLIT_IF_NOT_DUPLICATE.evidence.combinedCadCents` like `SPLIT_INVOICE_SUSPECTED` (today only a visible warning). [Youssef]
 - [ ] P2 Store `card_transactions.vendor_id` once at import (merchant match), add an index on `(amount_cad_cents, posted_date)`. [Arpan]
+- [ ] P1 A `duplicate.decide` permission (AP Clerk + Controller, per `5-duplicates.md`) for `confirmDuplicate` / `dismissDuplicate`; today they check the wider `invoice.review` / `flag.override`, so a Finance Manager or manager can void one by calling the action (BUG-Andrew-13). Touches `core/authorize.ts`: team call first. [Arpan, Andrew]
+- [ ] P1 Gmail poller: skip a message Gmail answers 404 for (deleted after it arrived) instead of crashing before the cursor is saved (BUG-Andrew-14). [Arpan]
 
 ## 6 Approvals — owner: Youssef
 - [ ] P1 On invoice edit call `reapprovalReasons`; non-empty → bump `invoices.version`. [Youssef]
@@ -87,6 +89,8 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P2 Deploy the DB on Supabase: `db:migrate` + `db:seed` with the direct URL, `ALTER ROLE ap_app LOGIN PASSWORD …`, app uses the pooled URL. [Andrew]
 - [ ] P2 Apply the `data-model.md` column additions listed in `8-audit.md` ("To apply at merge"). [Andrew]
 - [ ] P3 Hash-chain `audit_events` (tamper evidence on top of the trigger + grants). [Andrew]
+- [ ] P2 Search at 100×: `pg_trgm` GIN index on vendor legal name / raw name and invoice number, so `ILIKE '%…%'` in `features/audit/list.ts` stops scanning every invoice (schema migration). [Andrew]
+- [ ] P3 Role cards on the sign-in page (`src/server/session/roles.ts`) state fixed amounts ($10,000, $100,000); read them from the live policies so an edited P01 / P09 shows. [Andrew]
 
 ## Dashboard — owner: Youssef
 - [ ] P2 Real sign-in instead of the demo cookie (server session stays the only source of the actor). [Youssef]

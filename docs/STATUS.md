@@ -100,9 +100,15 @@ the top block is updated by whoever finishes a shared piece.
 
 - **Demo + Docker (2026-11-22, PR to main from `andrew-audit-db`):** sixth role Employee (read-only, `invoice.submit` refused in `core/authorize.ts`); Admin **Reset demo data** (`src/server/demo/reset.ts`), the same baseline `docker compose up` builds on an empty database; BUG-Andrew-09 (Docker sign-in, Gmail PDFs, uploads volume, TZ). A fresh clone with no `.env.local` runs the full demo from `docker compose up -d`: [`running-with-docker.md`](running-with-docker.md).
 
+- **2026-11-25 (`andrew-audit-db`):**
+  - **CFO joins the demo cast:** Priya Raman signs in as **CFO**, the `controller_admin` with no manager (`isCfo`, `src/server/session/roles.ts`; picked in `roster.ts`). Same screens and server rights as the Admin; she releases what the Controller approved, so bills from $50k to $250k can now be paid. Over $250k nobody may release (P04 + P11): a talking point, kept strict.
+  - **Search + Sort by** on Invoices and Audit trail (in the database, `orderFor` in `src/server/features/audit/list.ts`) and on Checks, Duplicates and Payments overview (in memory over the open queue, `src/server/dashboard/list-query.ts`). **Contract:** optional `sort` (`InvoiceSort`) on `AuditInvoiceListQuery`, additive.
+  - **Fixes:** policy descriptions now restate the edited threshold (BUG-Andrew-10); the Admin/CFO get the Release button on a payment's page (BUG-Andrew-11) and the duplicate decisions (BUG-Andrew-12).
+  - **Shared UI touched:** `app/_lib/nav.ts`, `app/payments/{page,to-release/page,[invoiceId]/page,duplicates/page}.tsx`, `app/payments/_lib/access.ts`, `FilterBar.tsx` (Katie, Arpan: please skim).
+
 **Stubbed:** uncertain scans make no invoice yet (Arpan's TODO); the demo DB has history only, so live chains show once invoices go through Checks.
 **Next:** Supabase deploy.
-**Waiting on:** team decisions: historical `rejected` → `Voided`, schema-merge owner (`docs/architecture/8-audit.md`).
+**Waiting on:** team decisions: historical `rejected` → `Voided`, schema-merge owner (`docs/architecture/8-audit.md`); whether duplicate decisions get their own `duplicate.decide` permission (BUG-Andrew-13); a `pg_trgm` index for search at 100× (schema).
 **Contract + core + schema change:** new `src/contracts/{actor,audit,audit-view}.ts`, `src/server/core/`, `src/server/db/`. Affects Youssef (coding and approvals on the DB through his public API) and Katie (payments tables, audit names).
 
 ### 9 Vendors — Andrew (server side)
