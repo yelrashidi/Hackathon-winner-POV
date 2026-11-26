@@ -93,6 +93,7 @@ Design: `docs/architecture/1-intake.md` + `2-extraction.md`. Today `classifyEmai
 - [ ] P3 Role cards on the sign-in page (`src/server/session/roles.ts`) state fixed amounts ($10,000, $100,000); read them from the live policies so an edited P01 / P09 shows. [Andrew]
 
 ## Dashboard — owner: Youssef
+- [ ] P1 **Team call:** with every department manager signed in (2026-11-25), Inbox / Checks / Upload still show managers every department's bills (team plan 2026-11-21), so Sales can check Facilities bills. The brief gives approvers only their own department and the checks to the AP Clerk: scope managers' checks to their department, or drop them from checks. `src/server/dashboard/checks.ts` `listChecks`. [Youssef, Andrew]
 - [ ] P2 Real sign-in instead of the demo cookie (server session stays the only source of the actor). [Youssef]
 - [ ] P2 Uploaded files to object storage (Supabase Storage) instead of `UPLOAD_DIR`; only `pipeline/documents.ts` changes. [Youssef]
 - [ ] P2 Needs-attention renders one payments state load per flag list; compute who can clear flags once per page. [Youssef]
