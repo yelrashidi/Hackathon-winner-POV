@@ -4,10 +4,11 @@ import { listInvoiceRecords } from "@/server/features/invoices";
 import { listApprovals } from "@/server/dashboard/approvals";
 import { listChecks } from "@/server/dashboard/checks";
 import { recentActivity } from "@/server/dashboard/records";
+import { listDirectory } from "@/server/pipeline";
 import { signInAs } from "@/server/session/actions";
 import { getViewer, listSwitchableUsers, type Viewer } from "@/server/session/current-user";
 import { APP_ROLES, appRoleOf, roleInfo } from "@/server/session/roles";
-import { Card, Day, EmptyState, InvoiceStatus, Money, PageHeader, Pill, StatCard, TextLink } from "./_components/ui";
+import { Card, Day, EmptyState, InvoiceStatus, Money, Notice, PageHeader, Pill, StatCard, TextLink } from "./_components/ui";
 import { WhereItIs } from "./_components/WhereItIs";
 import { countsFor } from "./_lib/counts";
 import { ago, initials } from "./_lib/format";
@@ -150,6 +151,8 @@ async function RoleHome({ viewer }: { viewer: Viewer }) {
     <>
       <PageHeader eyebrow={info.label} title={`Hello, ${user.fullName.split(" ")[0]}`} description={info.summary} />
 
+      {user.status === "on_leave" && <OnLeaveNotice since={user.statusSince} delegateId={user.delegateId} />}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {canSee(role, "approvals") && <StatCard label="Approvals waiting on you" value={mine.length} hint={`${approvals.length} in approval overall`} href="/approvals" tone={mine.length ? "alert" : "default"} />}
         {canSee(role, "checks") && <StatCard label="Checks to do" value={checks.length} hint={`${byKind("unreadable")} to type in · ${byKind("blocking")} blocked · ${byKind("ready") + byKind("confirm")} nearly ready`} href="/checks" />}
@@ -254,5 +257,16 @@ async function RoleHome({ viewer }: { viewer: Viewer }) {
         </Card>
       </div>
     </>
+  );
+}
+
+/** A person on leave (P08) can sign in and look, but their approvals go to the delegate the Admin named. */
+async function OnLeaveNotice({ since, delegateId }: { since: string | null; delegateId: string | null }) {
+  const delegate = delegateId ? (await listDirectory()).find((u) => u.id === delegateId) : undefined;
+  return (
+    <Notice tone="warn" title={`You are on leave${since ? ` since ${since}` : ""}`}>
+      {delegate ? `${delegate.fullName} (${delegate.title ?? "delegate"}) approves your department's bills for you, recorded as "on behalf of" you (policy P08).` : "Your approvals go to your delegate (policy P08)."}{" "}
+      You can look around, but you can&apos;t approve until the Admin marks you back as active on People &amp; policies.
+    </Notice>
   );
 }

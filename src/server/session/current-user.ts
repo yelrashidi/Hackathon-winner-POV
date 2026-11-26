@@ -22,7 +22,7 @@ export async function selectableUser(userId: string): Promise<DirectoryUser | nu
   return (await demoRoster(db)).find((r) => r.user.id === userId)?.user ?? null;
 }
 
-/** The demo cast, in role order: Employee, AP Clerk, Operations Manager, Finance Manager, Admin, Auditor. */
+/** The demo cast, in role order: Employee, AP Clerk, the department managers, Finance Manager, Admin, CFO, Auditor. */
 export async function listSwitchableUsers(): Promise<DirectoryUser[]> {
   await connection();
   const db = await ensureDb();

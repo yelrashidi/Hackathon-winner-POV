@@ -82,13 +82,14 @@ npm run dev
 
 ## Demo
 
-One person per role. Only these seven can sign in:
+One person per role, plus every department manager. Only these can sign in:
 
 | Person | Role | In the demo |
 | --- | --- | --- |
 | Aiden Grant | Employee | Read-only: Home + **My bills** (the bills they requested) |
 | Jordan Okafor | AP Clerk | Inbox, Checks, upload, coding, submit; schedules payments |
-| Dev Malhotra | Operations Manager | Approves the Operations bills policy routes to the department manager |
+| Dev Malhotra | Department Manager (Operations) | Approves the Operations bills policy routes to the department manager |
+| Chloe Bergeron (Sales) · Tomas Alvarez (Marketing) · Wen Zhao (IT) · Grace Mbeki (People & Culture) · Liam O'Connor (Facilities, on leave: Elise approves for him) | Department Managers | Each approves their own department's bills (≤ $10k, P01); Liam is on leave, so his approvals go to Elise "on behalf of" him (P08) |
 | Elise Tremblay | Finance Manager | Releases payments ≤ $100k CAD; verifies bank changes |
 | Marcus Webb | Admin (Controller) | People & policies, releases what the Finance Manager can't, full audit log, **Reset demo data** |
 | Priya Raman | CFO | Approves over $250k CAD and bills escalated to her; releases payments the Controller approved (any amount) |

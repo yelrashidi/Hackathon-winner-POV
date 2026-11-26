@@ -60,10 +60,12 @@ beforeAll(async () => {
 }, 180_000);
 
 describe("the employee role", () => {
-  it("is the sixth role: six people in the cast, the employee picked by rule (reports to the cast's manager)", async () => {
+  it("is picked by rule (reports to the Operations manager); every role is in the cast, in role order", async () => {
     const cast = await demoRoster(db);
-    expect(cast.map((c) => c.role)).toEqual(APP_ROLES.map((r) => r.key));
-    expect(cast).toHaveLength(7);
+    expect([...new Set(cast.map((c) => c.role))]).toEqual(APP_ROLES.map((r) => r.key));
+    // One person per role, except managers: one per department run by an approver.
+    const deptManagers = (await q<{ n: number }>("SELECT count(DISTINCT u.id)::int n FROM departments d JOIN users u ON u.id = d.manager_id WHERE u.role = 'approver' AND u.status <> 'terminated'"))[0]!.n;
+    expect(cast).toHaveLength(APP_ROLES.length - 1 + deptManagers);
     const emp = cast.find((c) => c.role === "employee")!.user;
     const mgr = cast.find((c) => c.role === "manager")!.user;
     expect(emp.role).toBe("employee");
@@ -73,6 +75,36 @@ describe("the employee role", () => {
     const [first] = await q<{ id: string }>(`SELECT id FROM users WHERE role = 'employee' AND status = 'active' AND manager_id = '${mgr.id}' ORDER BY id LIMIT 1`);
     expect(emp.id).toBe(first!.id);
     expect(appRoleOf(emp)).toBe("employee");
+  });
+
+  it("every department manager signs in as a manager (on leave included, terminated never); the Controller and CFO keep their own roles", async () => {
+    const cast = await demoRoster(db);
+    const managers = cast.filter((c) => c.role === "manager").map((c) => c.user);
+    const expected = await q<{ id: string; status: string }>(
+      "SELECT DISTINCT u.id, u.status FROM departments d JOIN users u ON u.id = d.manager_id WHERE u.role = 'approver' AND u.status <> 'terminated'",
+    );
+    expect(managers.map((m) => m.id).sort()).toEqual(expected.map((e) => e.id).sort());
+    expect(new Set(managers.map((m) => m.id)).size).toBe(managers.length);
+    expect(managers.every((m) => m.role === "approver" && appRoleOf(m) === "manager")).toBe(true);
+    // Operations first (its employee is the cast's employee).
+    const [ops] = await q<{ manager_id: string }>("SELECT manager_id FROM departments WHERE lower(name) = 'operations'");
+    expect(managers[0]!.id).toBe(ops!.manager_id);
+    if (expected.some((e) => e.status === "on_leave")) expect(managers.some((m) => m.status === "on_leave")).toBe(true);
+    // A department run by a controller_admin does not turn them into a manager.
+    const ids = new Set(managers.map((m) => m.id));
+    for (const c of cast.filter((x) => x.role === "admin" || x.role === "cfo")) expect(ids.has(c.user.id)).toBe(false);
+    // Nobody appears twice.
+    expect(new Set(cast.map((c) => c.user.id)).size).toBe(cast.length);
+  });
+
+  it("each signed-in manager sees only their own department's invoices", async () => {
+    const managers = (await demoRoster(db)).filter((c) => c.role === "manager").map((c) => c.user);
+    for (const m of managers) {
+      const list = await listInvoiceRecords(as(m.id, "approver"), { pageSize: 1 }, { db });
+      expect(list.scope, m.id).toEqual({ kind: "department", departmentId: m.departmentId });
+      const n = (await q<{ n: number }>(`SELECT count(*)::int n FROM invoices WHERE department_id = '${m.departmentId}'`))[0]!.n;
+      expect(list.total, m.id).toBe(n);
+    }
   });
 
   it("the CFO is the controller_admin with no manager, and never the same person as the Admin (Controller)", async () => {

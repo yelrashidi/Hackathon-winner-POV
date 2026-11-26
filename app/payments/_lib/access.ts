@@ -30,7 +30,7 @@ export const ROLE_LABEL: Record<UserRole, string> = {
   finance_manager: "Finance Manager",
   controller_admin: "Admin",
   auditor: "Auditor",
-  approver: "Operations Manager",
+  approver: "Department Manager",
   employee: "Employee",
 };
 

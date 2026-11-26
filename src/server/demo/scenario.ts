@@ -12,7 +12,7 @@ import { demoRoster } from "@/server/session/roster";
  * department, as the clerk would — the clerk records who ordered it, and is rarely that person
  * themselves; the clerk only if that department has no employee), confirm every coding suggestion, submit. Only bills that are clean (no open validation
  * flags), not a second copy of an invoice already on file, and whose department manager is in the
- * cast are picked — so the demo's Operations Manager has them to approve.
+ * cast are picked — so a signed-in department manager has them to approve.
  */
 export async function sendCleanBillsToApproval(count = 3, opts: { db?: Db } = {}): Promise<string[]> {
   const db = opts.db ?? getDb();

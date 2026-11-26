@@ -44,7 +44,8 @@ On http://localhost:3000, pick who you are. One person per role:
 | --- | --- |
 | Aiden Grant | Employee (read-only: Home + My bills) |
 | Jordan Okafor | AP Clerk |
-| Dev Malhotra | Operations Manager |
+| Dev Malhotra | Department Manager (Operations) |
+| Chloe Bergeron, Tomas Alvarez, Wen Zhao, Grace Mbeki, Liam O'Connor | Department Managers (Sales, Marketing, IT, People & Culture, Facilities; Liam is on leave) |
 | Elise Tremblay | Finance Manager |
 | Marcus Webb | Admin (Controller) |
 | Priya Raman | CFO (releases what the Controller approved; approves over $250k) |
