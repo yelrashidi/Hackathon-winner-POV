@@ -8,6 +8,9 @@
 > control checks, export) is for the Auditor ("read-only everything, audit export") and the
 > Controller/Admin ("full audit log"), per `product.md`; others see their own recent actions on the home screen.
 > Doing the checks never lets you approve your own work: the submitter is excluded from the approval.
+> **Every department manager signs in (2026-11-25, Andrew):** the Approver column now covers six people, one per
+> department run by an approver (`src/server/session/roster.ts`); each sees their own department only. A manager on
+> leave can sign in but cannot approve: their steps go to the delegate (P08). Managers' checks are still every department's (TODO).
 > **CFO in the demo cast (2026-11-25, Andrew):** Priya Raman signs in as **CFO**, the `controller_admin`
 > with no manager (`src/server/session/roles.ts` `isCfo`, the same rule as approvals' `candidatesFor("cfo")`).
 > Same data role, so the same server permissions and screens as the Controller. She closes the gap P11 left:

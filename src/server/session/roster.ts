@@ -1,19 +1,25 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, ne } from "drizzle-orm";
 import { departments, users } from "@/server/db/schema";
 import type { Executor } from "@/server/db/client";
 import { isCfo, type AppRole } from "./roles";
 import type { DirectoryUser, UserRole } from "./users";
 
 /**
- * The demo cast: ONE person per role, seven roles (team plan, 2026-11-21 — a 2–3 minute demo; the
- * CFO added 2026-11-25 so a bill the Controller approved can still be released, P10/P11).
+ * The demo cast: one person per role, seven roles (team plan, 2026-11-21 — a 2–3 minute demo; the
+ * CFO added 2026-11-25 so a bill the Controller approved can still be released, P10/P11), except
+ * managers: EVERY department manager signs in (2026-11-25), so each department's bills have their
+ * own approver to show.
  * They are the only people who can sign in. Everyone else stays in the database (history, the
  * requesters the Checks screen offers, approval routing, the audit trail).
  *
- *   Employee            the first active employee who reports to the cast's Operations Manager
+ *   Employee            the first active employee who reports to the Operations manager
  *                       (so the bills the clerk records them on route to that manager)
  *   AP Clerk            first active ap_clerk
- *   Operations Manager  the manager of the Operations department (falls back to the first approver)
+ *   Managers            every department's manager (departments.manager_user_id) who holds the
+ *                       approver role, Operations first, then by department id. A manager on leave
+ *                       is included (P08): they can sign in and see their work, but the server lets
+ *                       only their delegate approve. Terminated people never sign in. A department
+ *                       run by the Controller or the CFO keeps them in their own role.
  *   Finance Manager     first active finance_manager
  *   Admin               the Controller: the controller_admin who reports to someone (not the CFO)
  *   CFO                 the controller_admin with no manager (the top of the org chart, as approvals'
@@ -37,14 +43,24 @@ const toUser = (u: Row): DirectoryUser => ({
 });
 
 export async function demoRoster(db: Executor): Promise<{ role: AppRole; user: DirectoryUser }[]> {
-  const [all, depts] = await Promise.all([db.select().from(users).where(eq(users.status, "active")).orderBy(asc(users.id)), db.select().from(departments)]);
+  const [people, depts] = await Promise.all([
+    db.select().from(users).where(ne(users.status, "terminated")).orderBy(asc(users.id)),
+    db.select().from(departments).orderBy(asc(departments.id)),
+  ]);
+  const all = people.filter((u) => u.status === "active");
   const firstOf = (role: string, pred: (u: Row) => boolean = () => true) => all.find((u) => u.role === role && pred(u));
-  const opsManagerId = depts.find((d) => d.name.toLowerCase() === "operations")?.managerId;
-  const manager = firstOf("approver", (u) => u.id === opsManagerId) ?? firstOf("approver");
+  const isOps = (d: { name: string }) => d.name.toLowerCase() === "operations";
+  // Every department manager who is an approver (active or on leave), Operations first, once each.
+  const managers: Row[] = [];
+  for (const d of [...depts.filter(isOps), ...depts.filter((d) => !isOps(d))]) {
+    const m = people.find((u) => u.id === d.managerId && u.role === "approver");
+    if (m && !managers.includes(m)) managers.push(m);
+  }
+  const opsManager = managers.find((m) => m.id === depts.find(isOps)?.managerId) ?? managers[0];
   const picks: [AppRole, Row | undefined][] = [
-    ["employee", manager ? firstOf("employee", (u) => u.managerId === manager.id) : undefined],
+    ["employee", opsManager ? firstOf("employee", (u) => u.managerId === opsManager.id) : undefined],
     ["clerk", firstOf("ap_clerk")],
-    ["manager", manager],
+    ...managers.map((m): [AppRole, Row] => ["manager", m]),
     ["finance", firstOf("finance_manager")],
     ["admin", firstOf("controller_admin", (u) => !isCfo(u))],
     ["cfo", firstOf("controller_admin", (u) => isCfo(u))],

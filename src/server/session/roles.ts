@@ -7,7 +7,7 @@ import type { UserRole } from "./users";
  *                               Bills reach AP from suppliers, so there is no "submit" screen; the AP
  *                               Clerk records the employee as the requester during the checks
  *   clerk     AP Clerk          the checks (what extraction or coding could not settle), uploads, schedules payments
- *   manager   Operations Mgr.   + approves their department's bills (dataset policy: up to $10,000 CAD;
+ *   manager   Department Mgr.   + approves their department's bills (dataset policy: up to $10,000 CAD;
  *                               every department manager is in this group, Dev Malhotra runs Operations)
  *   finance   Finance Manager   + approves above $10,000 and flagged / new-vendor bills, releases payments ≤ $100,000
  *   admin     Admin             the Controller: everything except preparing payments: checks, approvals over
@@ -57,8 +57,8 @@ export const APP_ROLES: { key: AppRole; label: string; summary: string; can: str
   },
   {
     key: "manager",
-    label: "Operations Manager",
-    summary: "Approves their department's bills, and can do the clerk's checks.",
+    label: "Department Manager",
+    summary: "Approves their own department's bills, and can do the clerk's checks.",
     can: ["Everything the AP Clerk checks", "Approve your department's bills up to $10,000 CAD", "Never a bill you requested or submitted"],
   },
   {

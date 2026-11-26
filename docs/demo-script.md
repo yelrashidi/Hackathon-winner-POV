@@ -1,8 +1,8 @@
 # Demo script — invoice to payment in ~2 minutes
 
 Verified click by click on 2026-11-21 (headless Chrome against `npm run dev`, fresh demo database).
-One person per role, seven roles: **Aiden Grant** (Employee, a dispatcher in Operations who reports to
-Dev), **Jordan Okafor** (AP Clerk), **Dev Malhotra** (Operations Manager), **Elise Tremblay**
+One person per role (and every department manager), seven roles: **Aiden Grant** (Employee, a dispatcher in Operations who reports to
+Dev), **Jordan Okafor** (AP Clerk), **Dev Malhotra** (Department Manager, Operations; the other department managers sign in too), **Elise Tremblay**
 (Finance Manager), **Marcus Webb** (Admin), **Priya Raman** (CFO, added 2026-11-25), **Hannah Lindqvist** (Auditor).
 Switch person with the **Viewing as** menu, top right (it takes you to that person's Home).
 

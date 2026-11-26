@@ -18,7 +18,8 @@ Only these can sign in (plus Aiden Grant, the read-only Employee), and they are 
 | Person | Role | Job in the demo |
 |---|---|---|
 | Jordan Okafor | AP Clerk | Checks the bill, sets the requester (Jordan), schedules the payment |
-| Dev Malhotra | Operations Manager | Approves (department manager) |
+| Dev Malhotra | Department Manager (Operations) | Approves (department manager) |
+| Chloe, Tomas, Wen, Grace, Liam | Department Managers | Their own departments' bills; Liam is on leave (P08: Elise signs for him). Sign in as Liam to show the on-leave notice. |
 | Elise Tremblay | Finance Manager | Approves over $10k; releases up to $100k |
 | Marcus Webb | Admin (Controller) | Approves over $50k; releases any amount he didn't approve |
 | Priya Raman | CFO | Approves over $250k and what escalates to her (P04, P07); releases what Marcus approved |
