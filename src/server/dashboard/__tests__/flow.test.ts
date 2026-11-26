@@ -180,6 +180,13 @@ describe("the dashboard, role by role", () => {
     await expect(updatePolicy(FM, "P01", { active: false, note: "x" }, { db })).rejects.toBeInstanceOf(Forbidden);
     const [ev] = await q<{ reason: string }>("SELECT reason FROM audit_events WHERE action = 'policy.edited' ORDER BY id DESC LIMIT 1");
     expect(ev!.reason).toMatch(/12,000/);
+    // The description says the new threshold, not the one the policy file started with; the notes stay.
+    expect(p.description).toMatch(/^Invoice total up to \$12,000 CAD/);
+    expect(p.description).not.toMatch(/10,000/);
+    // A non-amount change keeps the (now correct) amount; P09's release threshold is restated the same way.
+    expect((await updatePolicy(ADMIN, "P01", { active: false, note: "Pause it" }, { db })).description).toMatch(/\$12,000/);
+    await updatePolicy(ADMIN, "P01", { active: true, note: "Back on" }, { db });
+    expect((await updatePolicy(ADMIN, "P09", { amountCadCents: 15_000_050, note: "Raise the release limit" }, { db })).description).toMatch(/^Payment up to \$150,000\.50 CAD/);
   });
 
   it("vendors: the vendor master lists bank status; the Admin and finance staff see it, managers don't", async () => {
